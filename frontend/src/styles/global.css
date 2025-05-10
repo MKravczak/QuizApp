@@ -1,0 +1,423 @@
+:root {
+  --primary-purple: #5d3a8f;
+  --light-purple: #8863bb;
+  --blue: #3870d0;
+  --light-blue: #6183e4;
+  --red: #d52a3b;
+  --green: #28a745;
+  --orange: #fd7e14;
+  --yellow-orange: #e49032;
+  --light-yellow: #f8d775;
+  --light-gray: #f5f5f5;
+  --medium-gray: #dddddd;
+  --dark-gray: #333333;
+  --white: #ffffff;
+  --shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  --border-radius: 8px;
+  --card-border-radius: 10px;
+}
+
+body {
+  background-color: #f8f9fa;
+  color: var(--dark-gray);
+  font-family: 'Roboto', 'Segoe UI', sans-serif;
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 1200px;
+  padding: 15px;
+}
+
+/* Navbar styles */
+.app-navbar {
+  background-color: var(--white);
+  box-shadow: var(--shadow);
+  padding: 15px 0;
+  margin-bottom: 20px;
+}
+
+/* Card styles */
+.card {
+  border: none;
+  border-radius: var(--card-border-radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  height: 100%;
+  margin-bottom: 20px;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.card-header {
+  border-bottom: none;
+  background-color: var(--white);
+  padding: 15px;
+}
+
+.card-body {
+  padding: 15px;
+}
+
+.card-footer {
+  background-color: var(--white);
+  border-top: 1px solid var(--medium-gray);
+  padding: 15px;
+}
+
+/* Subject cards */
+.subject-card {
+  color: var(--white);
+  padding: 25px;
+  border-radius: var(--card-border-radius);
+  position: relative;
+  overflow: hidden;
+  min-height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.subject-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.subject-card h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  z-index: 1;
+}
+
+.subject-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%);
+  z-index: 0;
+}
+
+.subject-card.math {
+  background: linear-gradient(45deg, var(--primary-purple), var(--light-purple));
+}
+
+.subject-card.physics {
+  background: linear-gradient(45deg, var(--blue), var(--light-blue));
+}
+
+.subject-card.chemistry {
+  background: linear-gradient(45deg, var(--red), var(--orange));
+}
+
+.subject-card.reasoning {
+  background: linear-gradient(45deg, var(--yellow-orange), var(--light-yellow));
+}
+
+/* Button styles */
+.btn {
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-weight: 500;
+  transition: all 0.2s;
+  margin-right: 5px;
+  margin-bottom: 5px;
+}
+
+.btn-primary {
+  background-color: var(--primary-purple);
+  border-color: var(--primary-purple);
+  color: var(--white);
+}
+
+.btn-primary:hover, .btn-primary:focus {
+  background-color: var(--light-purple);
+  border-color: var(--light-purple);
+}
+
+.btn-secondary {
+  background-color: var(--blue);
+  border-color: var(--blue);
+  color: var(--white);
+}
+
+.btn-secondary:hover, .btn-secondary:focus {
+  background-color: var(--light-blue);
+  border-color: var(--light-blue);
+}
+
+.btn-danger {
+  background-color: var(--red);
+  border-color: var(--red);
+  color: var(--white);
+}
+
+.btn-success {
+  background-color: var(--green);
+  border-color: var(--green);
+  color: var(--white);
+}
+
+.btn-outline-primary {
+  color: var(--primary-purple);
+  border-color: var(--primary-purple);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--primary-purple);
+  color: var(--white);
+}
+
+.btn-outline-secondary {
+  color: var(--blue);
+  border-color: var(--blue);
+}
+
+.btn-outline-secondary:hover {
+  background-color: var(--blue);
+  color: var(--white);
+}
+
+/* Flashcard styles */
+.flashcard {
+  position: relative;
+  perspective: 1000px;
+  height: 300px;
+  margin-bottom: 30px;
+  cursor: pointer;
+  width: 100%;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.flashcard-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  transition: transform 0.8s;
+  transform-style: preserve-3d;
+}
+
+.flashcard.flipped .flashcard-inner {
+  transform: rotateY(180deg);
+}
+
+.flashcard-front, .flashcard-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  border-radius: var(--card-border-radius);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  box-shadow: var(--shadow);
+  overflow: auto;
+}
+
+.flashcard-front {
+  background-color: var(--primary-purple);
+  color: white;
+}
+
+.flashcard-back {
+  background-color: var(--white);
+  color: var(--dark-gray);
+  transform: rotateY(180deg);
+}
+
+/* Study mode */
+.study-mode {
+  padding: 20px;
+  background-color: var(--light-gray);
+  border-radius: var(--card-border-radius);
+}
+
+.study-card {
+  min-height: 300px;
+  background-color: var(--white);
+  border-radius: var(--card-border-radius);
+  box-shadow: var(--shadow);
+  transition: transform 0.3s ease;
+  margin-bottom: 20px;
+}
+
+.study-card:hover {
+  transform: translateY(-3px);
+}
+
+/* Form controls */
+.form-control, .form-select {
+  border-radius: 6px;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  margin-bottom: 10px;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--primary-purple);
+  box-shadow: 0 0 0 0.2rem rgba(93, 58, 143, 0.25);
+}
+
+textarea.form-control {
+  min-height: 120px;
+}
+
+.nav-tabs {
+  border-bottom: 1px solid var(--medium-gray);
+  margin-bottom: 20px;
+}
+
+.nav-tabs .nav-link {
+  color: var(--dark-gray);
+  border: none;
+  padding: 10px 20px;
+  font-weight: 500;
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+}
+
+.nav-tabs .nav-link.active {
+  color: var(--primary-purple);
+  background-color: transparent;
+  border-bottom: 3px solid var(--primary-purple);
+}
+
+.deck-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.deck-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.progress {
+  height: 10px;
+  border-radius: 5px;
+  background-color: var(--medium-gray);
+  margin-bottom: 20px;
+}
+
+.progress-bar {
+  background-color: var(--primary-purple);
+  border-radius: 5px;
+}
+
+.badge {
+  font-weight: 500;
+  padding: 6px 10px;
+  border-radius: 4px;
+  margin-right: 5px;
+}
+
+.badge-primary {
+  background-color: var(--primary-purple);
+  color: white;
+}
+
+.badge-secondary {
+  background-color: var(--blue);
+  color: white;
+}
+
+.badge-success {
+  background-color: var(--green);
+  color: white;
+}
+
+.badge-danger {
+  background-color: var(--red);
+  color: white;
+}
+
+.section-title {
+  margin-bottom: 20px;
+  font-weight: 600;
+  color: var(--dark-gray);
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+/* Action buttons for flashcards list */
+.action-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.action-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.action-button.edit {
+  color: var(--blue);
+}
+
+.action-button.delete {
+  color: var(--red);
+}
+
+.action-button:hover {
+  background-color: var(--light-gray);
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .card {
+    margin-bottom: 15px;
+  }
+
+  .subject-card {
+    min-height: 120px;
+    padding: 15px;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .page-header .btn-group {
+    margin-top: 10px;
+    width: 100%;
+  }
+  
+  .btn {
+    width: 100%;
+    margin-bottom: 5px;
+  }
+  
+  .flashcard {
+    height: 250px;
+  }
+} 

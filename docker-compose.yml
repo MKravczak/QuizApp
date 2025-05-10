@@ -23,11 +23,11 @@ services:
       timeout: 5s
       retries: 5
 
-  quizapp:
+  user-service:
     build: 
-      context: .
+      context: ./user-service
       dockerfile: Dockerfile
-    container_name: quizapp-backend
+    container_name: quizapp-user-service
     ports:
       - "8080:8080"
     environment:
@@ -41,15 +41,44 @@ services:
     networks:
       - quizapp-network
 
+  flashcard-service:
+    build: 
+      context: ./flashcard-service
+      dockerfile: Dockerfile
+    container_name: quizapp-flashcard-service
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/quizapp
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    volumes:
+      - flashcard-uploads:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - quizapp-network
+
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     container_name: quizapp-frontend
     ports:
-      - "80:80"
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - REACT_APP_USER_SERVICE_URL=http://user-service:8080
+      - REACT_APP_FLASHCARD_SERVICE_URL=http://flashcard-service:8081
+      - HOST=0.0.0.0
     depends_on:
-      - quizapp
+      - user-service
+      - flashcard-service
     networks:
       - quizapp-network
 
@@ -59,3 +88,4 @@ networks:
 
 volumes:
   postgres-data: 
+  flashcard-uploads: 

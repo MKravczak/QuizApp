@@ -1,0 +1,17 @@
+com\example\flashcardservice\config\SecurityConfig.class
+com\example\flashcardservice\model\FlashcardDeck.class
+com\example\flashcardservice\exception\ResourceNotFoundException.class
+com\example\flashcardservice\dto\FlashcardDTO$FlashcardDTOBuilder.class
+com\example\flashcardservice\service\FlashcardService.class
+com\example\flashcardservice\controller\FlashcardController.class
+com\example\flashcardservice\dto\FlashcardDeckDTO$FlashcardDeckDTOBuilder.class
+com\example\flashcardservice\FlashcardServiceApplication.class
+com\example\flashcardservice\model\Flashcard.class
+com\example\flashcardservice\service\FlashcardDeckService.class
+com\example\flashcardservice\dto\FlashcardDTO.class
+com\example\flashcardservice\dto\FlashcardDeckDTO.class
+com\example\flashcardservice\repository\FlashcardRepository.class
+com\example\flashcardservice\model\FlashcardDeck$FlashcardDeckBuilder.class
+com\example\flashcardservice\controller\FlashcardDeckController.class
+com\example\flashcardservice\repository\FlashcardDeckRepository.class
+com\example\flashcardservice\model\Flashcard$FlashcardBuilder.class

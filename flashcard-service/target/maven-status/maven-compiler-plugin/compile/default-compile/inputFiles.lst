@@ -1,0 +1,13 @@
+D:\STUDIA\6 SEMESTR\JAVA\QuizApp\QuizApp\flashcard-service\src\main\java\com\example\flashcardservice\service\FlashcardService.java
+D:\STUDIA\6 SEMESTR\JAVA\QuizApp\QuizApp\flashcard-service\src\main\java\com\example\flashcardservice\repository\FlashcardDeckRepository.java
+D:\STUDIA\6 SEMESTR\JAVA\QuizApp\QuizApp\flashcard-service\src\main\java\com\example\flashcardservice\dto\FlashcardDTO.java
+D:\STUDIA\6 SEMESTR\JAVA\QuizApp\QuizApp\flashcard-service\src\main\java\com\example\flashcardservice\model\FlashcardDeck.java
+D:\STUDIA\6 SEMESTR\JAVA\QuizApp\QuizApp\flashcard-service\src\main\java\com\example\flashcardservice\controller\FlashcardDeckController.java
+D:\STUDIA\6 SEMESTR\JAVA\QuizApp\QuizApp\flashcard-service\src\main\java\com\example\flashcardservice\repository\FlashcardRepository.java
+D:\STUDIA\6 SEMESTR\JAVA\QuizApp\QuizApp\flashcard-service\src\main\java\com\example\flashcardservice\config\SecurityConfig.java
+D:\STUDIA\6 SEMESTR\JAVA\QuizApp\QuizApp\flashcard-service\src\main\java\com\example\flashcardservice\FlashcardServiceApplication.java
+D:\STUDIA\6 SEMESTR\JAVA\QuizApp\QuizApp\flashcard-service\src\main\java\com\example\flashcardservice\service\FlashcardDeckService.java
+D:\STUDIA\6 SEMESTR\JAVA\QuizApp\QuizApp\flashcard-service\src\main\java\com\example\flashcardservice\dto\FlashcardDeckDTO.java
+D:\STUDIA\6 SEMESTR\JAVA\QuizApp\QuizApp\flashcard-service\src\main\java\com\example\flashcardservice\exception\ResourceNotFoundException.java
+D:\STUDIA\6 SEMESTR\JAVA\QuizApp\QuizApp\flashcard-service\src\main\java\com\example\flashcardservice\model\Flashcard.java
+D:\STUDIA\6 SEMESTR\JAVA\QuizApp\QuizApp\flashcard-service\src\main\java\com\example\flashcardservice\controller\FlashcardController.java

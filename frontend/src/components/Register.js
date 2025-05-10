@@ -36,71 +36,95 @@ function Register() {
   };
 
   return (
-    <div className="auth-container">
-      <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Rejestracja</h2>
-
-      {!successful && (
-        <form onSubmit={handleRegister}>
-          <div className="form-group">
-            <label htmlFor="username">Nazwa użytkownika</label>
-            <input
-              type="text"
-              id="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
+    <div className="row justify-content-center mt-5">
+      <div className="col-md-6 col-lg-5">
+        <div className="card">
+          <div className="card-header text-center" style={{ backgroundColor: 'var(--light-purple)', color: 'white' }}>
+            <h2 className="mb-0">Rejestracja</h2>
           </div>
+          <div className="card-body p-4">
+            {message && (
+              <div 
+                className={`alert ${successful ? 'alert-success' : 'alert-danger'}`} 
+                role="alert"
+              >
+                {message}
+              </div>
+            )}
 
-          <div className="form-group">
-            <label htmlFor="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+            {!successful ? (
+              <form onSubmit={handleRegister}>
+                <div className="mb-3">
+                  <label htmlFor="username" className="form-label">Nazwa użytkownika</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="mb-3">
+                  <label htmlFor="email" className="form-label">Email</label>
+                  <input
+                    type="email"
+                    className="form-control"
+                    id="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="mb-3">
+                  <label htmlFor="password" className="form-label">Hasło</label>
+                  <input
+                    type="password"
+                    className="form-control"
+                    id="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="d-grid gap-2">
+                  <button 
+                    type="submit" 
+                    className="btn btn-primary btn-lg" 
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <>
+                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        Rejestracja...
+                      </>
+                    ) : 'Zarejestruj się'}
+                  </button>
+                </div>
+
+                <div className="text-center mt-4">
+                  <p className="mb-0">
+                    Masz już konto? <Link to="/login" className="text-decoration-none" style={{ color: 'var(--primary-purple)' }}>Zaloguj się</Link>
+                  </p>
+                </div>
+              </form>
+            ) : (
+              <div className="text-center">
+                <div className="mb-4">
+                  <i className="bi bi-check-circle-fill text-success" style={{ fontSize: '4rem' }}></i>
+                  <p className="mt-3 fs-5">Rejestracja zakończona pomyślnie!</p>
+                </div>
+                <Link to="/login" className="btn btn-primary">
+                  Przejdź do logowania
+                </Link>
+              </div>
+            )}
           </div>
-
-          <div className="form-group">
-            <label htmlFor="password">Hasło</label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <button type="submit" disabled={loading}>
-              {loading ? 'Rejestracja...' : 'Zarejestruj się'}
-            </button>
-          </div>
-        </form>
-      )}
-
-      {message && (
-        <div className={successful ? 'success-message' : 'error-message'}>
-          {message}
         </div>
-      )}
-
-      {successful && (
-        <div style={{ textAlign: 'center', marginTop: '20px' }}>
-          <Link to="/login">
-            <button>Przejdź do logowania</button>
-          </Link>
-        </div>
-      )}
-
-      {!successful && (
-        <div style={{ marginTop: '20px', textAlign: 'center' }}>
-          Masz już konto? <Link to="/login">Zaloguj się</Link>
-        </div>
-      )}
+      </div>
     </div>
   );
 }
