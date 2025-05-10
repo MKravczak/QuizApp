@@ -1,0 +1,6 @@
+package com.example.userservice.model;
+
+public enum ERole {
+    ROLE_USER,
+    ROLE_ADMIN
+} 
