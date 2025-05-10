@@ -1,5 +1,6 @@
 package com.example.flashcardservice.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,6 +23,7 @@ public class FlashcardDeckDTO {
     
     private String description;
     
+    @JsonProperty("isPublic")
     private boolean isPublic;
     
     @Builder.Default

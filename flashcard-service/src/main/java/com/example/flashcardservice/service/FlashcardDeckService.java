@@ -61,6 +61,8 @@ public class FlashcardDeckService {
 
     @Transactional
     public FlashcardDeckDTO updateDeck(Long id, FlashcardDeckDTO deckDTO, Long userId) {
+        System.out.println("Aktualizacja zestawu ID=" + id + ", isPublic=" + deckDTO.isPublic());
+        
         FlashcardDeck deck = deckRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Zestaw o id " + id + " nie został znaleziony"));
 
@@ -69,11 +71,17 @@ public class FlashcardDeckService {
             throw new IllegalStateException("Nie masz uprawnień do edycji tego zestawu");
         }
 
+        System.out.println("Przed aktualizacją, isPublic=" + deck.isPublic());
+        
         deck.setName(deckDTO.getName());
         deck.setDescription(deckDTO.getDescription());
         deck.setPublic(deckDTO.isPublic());
+        
+        System.out.println("Po aktualizacji, przed zapisem, isPublic=" + deck.isPublic());
 
         FlashcardDeck updatedDeck = deckRepository.save(deck);
+        System.out.println("Po zapisie, isPublic=" + updatedDeck.isPublic());
+        
         return mapToDTO(updatedDeck);
     }
 
@@ -101,23 +109,40 @@ public class FlashcardDeckService {
             throw new IllegalStateException("Nie masz uprawnień do modyfikacji tego zestawu");
         }
 
+        int successCount = 0;
+        int recordCount = 0;
+        
         try (BufferedReader fileReader = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8));
              CSVParser csvParser = new CSVParser(fileReader, CSVFormat.DEFAULT.withFirstRecordAsHeader())) {
 
             for (CSVRecord csvRecord : csvParser) {
-                String term = csvRecord.get("term");
-                String definition = csvRecord.get("definition");
-                
-                if (term != null && !term.isEmpty() && definition != null && !definition.isEmpty()) {
-                    FlashcardDTO flashcardDTO = FlashcardDTO.builder()
-                            .term(term)
-                            .definition(definition)
-                            .deckId(deckId)
-                            .build();
+                recordCount++;
+                try {
+                    String term = csvRecord.get("term");
+                    String definition = csvRecord.get("definition");
                     
-                    flashcardService.createFlashcard(flashcardDTO);
+                    if (term != null && !term.isEmpty() && definition != null && !definition.isEmpty()) {
+                        FlashcardDTO flashcardDTO = FlashcardDTO.builder()
+                                .term(term)
+                                .definition(definition)
+                                .deckId(deckId)
+                                .build();
+                        
+                        flashcardService.createFlashcard(flashcardDTO);
+                        successCount++;
+                    } else {
+                        System.out.println("Ostrzeżenie: Rekord " + recordCount + " zawiera pusty termin lub definicję i został pominięty");
+                    }
+                } catch (Exception e) {
+                    System.out.println("Błąd podczas przetwarzania rekordu " + recordCount + ": " + e.getMessage());
                 }
             }
+        }
+        
+        System.out.println("Import zakończony: Przetworzono " + recordCount + " rekordów, zaimportowano " + successCount + " fiszek");
+        
+        if (successCount == 0) {
+            throw new IllegalArgumentException("Nie udało się zaimportować żadnej fiszki. Sprawdź format pliku CSV (nagłówki: term,definition).");
         }
 
         return getDeckById(deckId);
@@ -133,25 +158,48 @@ public class FlashcardDeckService {
             throw new IllegalStateException("Nie masz uprawnień do modyfikacji tego zestawu");
         }
 
+        int successCount = 0;
+        int lineCount = 0;
+        
         try (BufferedReader fileReader = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
             String line;
             while ((line = fileReader.readLine()) != null) {
-                String[] parts = line.split("-", 2);
-                if (parts.length == 2) {
-                    String term = parts[0].trim();
-                    String definition = parts[1].trim();
-                    
-                    if (!term.isEmpty() && !definition.isEmpty()) {
-                        FlashcardDTO flashcardDTO = FlashcardDTO.builder()
-                                .term(term)
-                                .definition(definition)
-                                .deckId(deckId)
-                                .build();
+                lineCount++;
+                if (line.trim().isEmpty()) {
+                    continue; // Pomijamy puste linie
+                }
+                
+                try {
+                    String[] parts = line.split("::", 2);
+                    if (parts.length == 2) {
+                        String term = parts[0].trim();
+                        String definition = parts[1].trim();
                         
-                        flashcardService.createFlashcard(flashcardDTO);
+                        if (!term.isEmpty() && !definition.isEmpty()) {
+                            FlashcardDTO flashcardDTO = FlashcardDTO.builder()
+                                    .term(term)
+                                    .definition(definition)
+                                    .deckId(deckId)
+                                    .build();
+                            
+                            flashcardService.createFlashcard(flashcardDTO);
+                            successCount++;
+                        } else {
+                            System.out.println("Ostrzeżenie: Linia " + lineCount + " zawiera pusty termin lub definicję i została pominięta");
+                        }
+                    } else {
+                        System.out.println("Ostrzeżenie: Linia " + lineCount + " nie zawiera poprawnego separatora '::' i została pominięta");
                     }
+                } catch (Exception e) {
+                    System.out.println("Błąd podczas przetwarzania linii " + lineCount + ": " + e.getMessage());
                 }
             }
+        }
+        
+        System.out.println("Import zakończony: Przetworzono " + lineCount + " linii, zaimportowano " + successCount + " fiszek");
+        
+        if (successCount == 0) {
+            throw new IllegalArgumentException("Nie udało się zaimportować żadnej fiszki. Sprawdź format pliku (term::definition).");
         }
 
         return getDeckById(deckId);

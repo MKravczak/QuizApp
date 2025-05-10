@@ -67,6 +67,9 @@ public class FlashcardDeckController {
         try {
             FlashcardDeckDTO updatedDeck = deckService.importFlashcardsFromCSV(id, file, userId);
             return ResponseEntity.ok(updatedDeck);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Nie udało się przetworzyć pliku CSV: " + e.getMessage());
@@ -81,6 +84,9 @@ public class FlashcardDeckController {
         try {
             FlashcardDeckDTO updatedDeck = deckService.importFlashcardsFromTxt(id, file, userId);
             return ResponseEntity.ok(updatedDeck);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Nie udało się przetworzyć pliku TXT: " + e.getMessage());

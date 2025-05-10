@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import FlashcardService from '../services/FlashcardService';
+import '../styles/FlashcardDeckEdit.css';
 
 const FlashcardDeckEdit = () => {
   const { id } = useParams();
@@ -12,6 +13,8 @@ const FlashcardDeckEdit = () => {
   const [flashcards, setFlashcards] = useState([]);
   const [importType, setImportType] = useState('');
   const [importFile, setImportFile] = useState(null);
+  const [importSuccess, setImportSuccess] = useState(false);
+  const [importError, setImportError] = useState(null);
 
   useEffect(() => {
     loadDeckData();
@@ -20,10 +23,14 @@ const FlashcardDeckEdit = () => {
   const loadDeckData = async () => {
     setLoading(true);
     setError(null);
+    setImportError(null);
     
     try {
       const deckData = await FlashcardService.getDeckById(id);
-      setDeck(deckData);
+      setDeck({
+        ...deckData,
+        isPublic: !!deckData.isPublic
+      });
       
       const flashcardsData = await FlashcardService.getFlashcardsByDeckId(id);
       setFlashcards(flashcardsData);
@@ -37,18 +44,26 @@ const FlashcardDeckEdit = () => {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
+    const newValue = type === 'checkbox' ? checked : value;
+    
     setDeck({
       ...deck,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: newValue
     });
+    
+    if (name === 'isPublic') {
+      console.log('isPublic zmienione na:', newValue);
+    }
   };
 
   const handleFileChange = (e) => {
     setImportFile(e.target.files[0]);
+    setImportError(null);
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmitDeckInfo = async (e) => {
     e.preventDefault();
+    setError(null);
     
     if (!deck.name.trim()) {
       setError('Nazwa talii jest wymagana');
@@ -56,46 +71,54 @@ const FlashcardDeckEdit = () => {
     }
     
     try {
-      await FlashcardService.updateDeck(id, deck);
-      setError(null);
-      alert('Talia została zaktualizowana.');
+      const updatedDeckData = {
+        name: deck.name,
+        description: deck.description,
+        isPublic: Boolean(deck.isPublic)
+      };
+      
+      console.log('Wysyłane dane talii:', JSON.stringify(updatedDeckData));
+      
+      await FlashcardService.updateDeck(id, updatedDeckData);
+      alert('Informacje o talii zostały zaktualizowane.');
+      await loadDeckData();
     } catch (err) {
-      console.error('Błąd podczas aktualizacji talii:', err);
-      setError('Nie udało się zaktualizować talii. Spróbuj ponownie później.');
+      console.error('Błąd podczas aktualizacji informacji o talii:', err);
+      setError('Nie udało się zaktualizować informacji o talii. Spróbuj ponownie później.');
     }
   };
 
   const handleImport = async (e) => {
     e.preventDefault();
+    setImportSuccess(false);
+    setImportError(null);
     
     if (!importFile) {
-      setError('Wybierz plik do importu.');
+      setImportError('Wybierz plik do importu.');
       return;
     }
     
     try {
-      let updatedDeck;
-      
+      let importedData;
       if (importType === 'csv') {
-        updatedDeck = await FlashcardService.importFlashcardsFromCSV(id, importFile);
+        importedData = await FlashcardService.importFlashcardsFromCSV(id, importFile);
       } else if (importType === 'txt') {
-        updatedDeck = await FlashcardService.importFlashcardsFromTxt(id, importFile);
+        importedData = await FlashcardService.importFlashcardsFromTxt(id, importFile);
       }
       
-      if (updatedDeck) {
-        setDeck(updatedDeck);
-        await loadDeckData();
+      if (importedData) {
+        setImportSuccess(true);
         setImportFile(null);
-        setImportType('');
-        alert('Fiszki zostały zaimportowane.');
+        await loadDeckData();
+        setTimeout(() => setImportSuccess(false), 5000);
       }
     } catch (err) {
       console.error('Błąd podczas importu fiszek:', err);
-      setError('Nie udało się zaimportować fiszek. Sprawdź format pliku i spróbuj ponownie.');
+      setImportError(err.message || 'Nie udało się zaimportować fiszek. Sprawdź format pliku i spróbuj ponownie.');
     }
   };
 
-  const handleAddFlashcard = async () => {
+  const handleAddFlashcard = () => {
     navigate(`/decks/${id}/flashcards/new`);
   };
 
@@ -120,15 +143,15 @@ const FlashcardDeckEdit = () => {
   }
 
   return (
-    <div className="mt-4">
+    <div className="mt-4 flashcard-deck-edit-container">
       <div className="page-header">
         <h1 className="section-title">Edycja talii: {deck.name}</h1>
         <div>
-          <Link to="/decks" className="btn btn-outline-secondary me-2">
-            Wróć do listy
+          <Link to={`/decks/${id}`} className="btn btn-outline-secondary me-2">
+            <i className="bi bi-eye-fill me-1"></i> Przeglądaj talię
           </Link>
-          <Link to={`/decks/${id}`} className="btn btn-primary">
-            Przeglądaj talię
+          <Link to="/decks" className="btn btn-outline-secondary">
+            <i className="bi bi-list-ul me-1"></i> Wszystkie talie
           </Link>
         </div>
       </div>
@@ -144,13 +167,15 @@ const FlashcardDeckEdit = () => {
           ></button>
         </div>
       )}
-      
-      <div className="row">
-        <div className="col-md-5">
-          <div className="card mb-4" style={{ backgroundColor: deck.isPublic ? 'var(--light-blue)' : 'var(--light-purple)', color: 'white' }}>
+
+      <div className="row gy-4">
+        <div className="col-lg-4 col-md-6">
+          <div className="card h-100">
+            <div className="card-header section-header">
+              <h4 className="card-title mb-0"><i className="bi bi-info-circle-fill me-2"></i>Informacje o talii</h4>
+            </div>
             <div className="card-body">
-              <h4 className="card-title">Informacje o talii</h4>
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={handleSubmitDeckInfo}>
                 <div className="mb-3">
                   <label htmlFor="name" className="form-label">Nazwa*</label>
                   <input
@@ -171,28 +196,46 @@ const FlashcardDeckEdit = () => {
                     name="description"
                     value={deck.description || ''}
                     onChange={handleInputChange}
-                    rows="3"
+                    rows="4"
                   ></textarea>
                 </div>
-                <div className="mb-3 form-check">
+                <div className="mb-3 form-check form-switch fs-5">
                   <input
                     type="checkbox"
                     className="form-check-input"
                     id="isPublic"
                     name="isPublic"
-                    checked={deck.isPublic}
+                    checked={deck.isPublic === true}
                     onChange={handleInputChange}
                   />
-                  <label className="form-check-label" htmlFor="isPublic">Publiczna</label>
+                  <label className="form-check-label" htmlFor="isPublic">
+                    Publiczna ({deck.isPublic ? 'Tak' : 'Nie'})
+                  </label>
                 </div>
-                <button type="submit" className="btn btn-light">Zapisz zmiany</button>
+                <button type="submit" className="btn btn-primary w-100">Zapisz informacje o talii</button>
               </form>
             </div>
           </div>
-          
-          <div className="card">
+        </div>
+
+        <div className="col-lg-4 col-md-6">
+          <div className="card h-100">
+            <div className="card-header section-header">
+              <h4 className="card-title mb-0"><i className="bi bi-upload me-2"></i>Import fiszek</h4>
+            </div>
             <div className="card-body">
-              <h4 className="card-title">Import fiszek</h4>
+              {importSuccess && (
+                <div className="alert alert-success">
+                  Fiszki zostały pomyślnie zaimportowane!
+                  <button type="button" className="btn-close float-end" onClick={() => setImportSuccess(false)} aria-label="Close"></button>
+                </div>
+              )}
+              {importError && (
+                <div className="alert alert-danger">
+                  {importError}
+                  <button type="button" className="btn-close float-end" onClick={() => setImportError(null)} aria-label="Close"></button>
+                </div>
+              )}
               <form onSubmit={handleImport}>
                 <div className="mb-3">
                   <label htmlFor="importType" className="form-label">Format pliku</label>
@@ -200,17 +243,13 @@ const FlashcardDeckEdit = () => {
                     className="form-select"
                     id="importType"
                     value={importType}
-                    onChange={(e) => setImportType(e.target.value)}
+                    onChange={(e) => { setImportType(e.target.value); setImportError(null); }}
                     required
                   >
                     <option value="">Wybierz format...</option>
-                    <option value="csv">CSV</option>
-                    <option value="txt">TXT</option>
+                    <option value="csv">CSV (term,definition)</option>
+                    <option value="txt">TXT (term::definition)</option>
                   </select>
-                  <div className="form-text">
-                    Format CSV: term,definition<br />
-                    Format TXT: term::definition (każda fiszka w osobnej linii)
-                  </div>
                 </div>
                 <div className="mb-3">
                   <label htmlFor="importFile" className="form-label">Plik</label>
@@ -226,63 +265,55 @@ const FlashcardDeckEdit = () => {
                 </div>
                 <button 
                   type="submit" 
-                  className="btn btn-primary"
+                  className="btn btn-primary w-100"
                   disabled={!importType || !importFile}
                 >
-                  Importuj
+                  <i className="bi bi-file-earmark-arrow-up-fill me-1"></i> Importuj wybrane fiszki
                 </button>
               </form>
             </div>
           </div>
         </div>
         
-        <div className="col-md-7">
-          <div className="card">
-            <div className="card-header d-flex justify-content-between align-items-center" style={{ backgroundColor: 'var(--primary-purple)', color: 'white' }}>
-              <h4 className="card-title mb-0">Fiszki</h4>
-              <button className="btn btn-light" onClick={handleAddFlashcard}>
+        <div className="col-lg-4 col-md-12">
+          <div className="card h-100">
+            <div className="card-header section-header d-flex justify-content-between align-items-center">
+              <h4 className="card-title mb-0"><i className="bi bi-list-task me-2"></i>Fiszki w talii ({flashcards.length})</h4>
+              <button className="btn btn-sm btn-success" onClick={handleAddFlashcard} title="Dodaj nową fiszkę">
                 <i className="bi bi-plus-lg me-1"></i> Dodaj fiszkę
               </button>
             </div>
-            <div className="card-body">
-              <div className="d-flex justify-content-between align-items-center mb-3">
-                <p className="mb-0">Łączna liczba fiszek: <span className="badge bg-primary">{flashcards.length}</span></p>
-              </div>
-              
+            <div className="card-body flashcard-list-edit custom-scrollbar">
               {flashcards.length === 0 ? (
-                <div className="alert alert-info">
-                  Ta talia nie zawiera jeszcze żadnych fiszek. Dodaj pierwszą fiszkę lub zaimportuj fiszki z pliku.
+                <div className="alert alert-secondary text-center mt-3">
+                  Brak fiszek w tej talii.
                 </div>
               ) : (
-                <div className="list-group">
-                  {flashcards.map(flashcard => (
-                    <div key={flashcard.id} className="list-group-item list-group-item-action">
-                      <div className="d-flex w-100 justify-content-between mb-2">
-                        <h5 className="mb-1" style={{ color: 'var(--primary-purple)' }}>{flashcard.term}</h5>
-                        <div>
-                          <button 
-                            className="btn btn-sm btn-outline-secondary me-1"
-                            onClick={() => handleEditFlashcard(flashcard.id)}
-                          >
-                            Edytuj
-                          </button>
-                          <button 
-                            className="btn btn-sm btn-outline-danger"
-                            onClick={() => handleDeleteFlashcard(flashcard.id)}
-                          >
-                            Usuń
-                          </button>
-                        </div>
+                <ul className="list-group list-group-flush">
+                  {flashcards.map((flashcard) => (
+                    <li key={flashcard.id} className="list-group-item d-flex justify-content-between align-items-center">
+                      <div className="flashcard-text-truncate">
+                        <strong title={flashcard.term}>{flashcard.term}</strong>: <span title={flashcard.definition}>{flashcard.definition}</span>
                       </div>
-                      <p className="mb-1">{flashcard.definition}</p>
-                      {flashcard.imagePath && (
-                        <div className="mt-2">
-                          <small className="text-primary">Posiada obraz</small>
-                        </div>
-                      )}
-                    </div>
+                      <div className="action-buttons ms-2">
+                        <button
+                          className="action-button edit"
+                          onClick={() => handleEditFlashcard(flashcard.id)}
+                          title="Edytuj fiszkę"
+                        >
+                          <i className="bi bi-pencil-fill"></i>
+                        </button>
+                        <button
+                          className="action-button delete"
+                          onClick={() => handleDeleteFlashcard(flashcard.id)}
+                          title="Usuń fiszkę"
+                        >
+                          <i className="bi bi-trash-fill"></i>
+                        </button>
+                      </div>
+                    </li>
                   ))}
-                </div>
+                </ul>
               )}
             </div>
           </div>

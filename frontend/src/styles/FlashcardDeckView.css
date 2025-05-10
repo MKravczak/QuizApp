@@ -1,0 +1,52 @@
+.deck-description-card {
+  background-color: #f8f9fa;
+  border-left: 5px solid var(--primary-purple, #6a0dad);
+}
+
+.deck-description-card .card-title {
+  color: var(--primary-purple, #6a0dad);
+  font-weight: 600;
+}
+
+.flashcard-preview-card {
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  display: flex; /* Aby stopka była na dole, jeśli ją dodamy */
+  flex-direction: column; /* Aby stopka była na dole */
+}
+
+.flashcard-preview-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+}
+
+.flashcard-preview-card .card-body {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1; /* Pozwala body karty rosnąć */
+}
+
+.flashcard-term {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--primary-purple, #6a0dad);
+  margin-bottom: 0.75rem;
+}
+
+.flashcard-definition {
+  font-size: 1rem;
+  color: #333;
+  flex-grow: 1; /* Definicja wypełnia dostępną przestrzeń */
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+.flashcard-preview-image {
+  max-height: 150px;
+  max-width: 100%;
+  object-fit: contain;
+  margin-top: auto; /* Wypycha obrazek na dół, jeśli jest mało tekstu */
+} 

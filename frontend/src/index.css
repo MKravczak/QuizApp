@@ -5,7 +5,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f5f5f5;
+  background-color: #f8f9fa;
 }
 
 code {
@@ -14,9 +14,9 @@ code {
 }
 
 .container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
+  max-width: 95% !important;
+  padding-left: 15px !important;
+  padding-right: 15px !important;
 }
 
 .auth-container {
@@ -64,4 +64,130 @@ button:hover {
 .success-message {
   color: #388e3c;
   margin-top: 10px;
+}
+
+.section-title {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #343a40;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--primary-purple, #6a0dad);
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.subject-card {
+  padding: 20px;
+  text-align: center;
+  border-radius: 10px 10px 0 0;
+  color: white;
+  margin-bottom: 0;
+}
+
+.subject-card h3 {
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+.math { background-color: var(--primary-purple, #6a0dad); }
+.physics { background-color: var(--primary-blue, #007bff); }
+.chemistry { background-color: var(--primary-orange, #fd7e14); }
+.reasoning { background-color: var(--primary-yellow, #ffc107); }
+
+.card {
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+.card .card-body p.card-text {
+  font-size: 0.95rem;
+  color: #555;
+  flex-grow: 1;
+  margin-bottom: 1rem;
+}
+
+:root {
+  --primary-purple: #6a0dad;
+  --primary-blue: #007bff;
+  --primary-orange: #fd7e14;
+  --primary-yellow: #ffc107;
+  --light-blue: #58a6ff;
+  --light-purple: #a46de5;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.action-button {
+  background: none;
+  border: none;
+  color: #6c757d;
+  cursor: pointer;
+  padding: 0.3rem;
+  font-size: 1.2rem;
+  transition: color 0.2s ease-in-out;
+}
+
+.action-button.edit:hover {
+  color: var(--primary-blue, #007bff);
+}
+
+.action-button.delete:hover {
+  color: var(--primary-orange, #fd7e14);
+}
+
+.btn-primary {
+  background-color: var(--primary-purple, #6a0dad);
+  border-color: var(--primary-purple, #6a0dad);
+}
+
+.btn-primary:hover {
+  background-color: #540a86;
+  border-color: #540a86;
+}
+
+.btn-outline-primary {
+  color: var(--primary-purple, #6a0dad);
+  border-color: var(--primary-purple, #6a0dad);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--primary-purple, #6a0dad);
+  color: white;
+}
+
+.btn-success {
+  background-color: var(--primary-yellow, #ffc107);
+  border-color: var(--primary-yellow, #ffc107);
+  color: #212529;
+}
+
+.btn-success:hover {
+  background-color: #e0a800;
+  border-color: #e0a800;
+  color: #212529;
+}
+
+.form-check-input:checked {
+  background-color: var(--primary-purple, #6a0dad);
+  border-color: var(--primary-purple, #6a0dad);
+}
+
+.form-control:focus {
+  border-color: var(--primary-purple, #6a0dad);
+  box-shadow: 0 0 0 0.25rem rgba(106, 13, 173, 0.25);
 } 

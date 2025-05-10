@@ -73,6 +73,9 @@ class FlashcardService {
 
   async updateDeck(deckId, deckData) {
     const userId = AuthService.getCurrentUser().id;
+    console.log('Aktualizuję talię ID:', deckId);
+    console.log('Dane do wysłania:', JSON.stringify(deckData));
+    
     const response = await fetch(`${API_BASE_URL.decks}/${deckId}`, {
       method: 'PUT',
       headers: {
@@ -84,10 +87,14 @@ class FlashcardService {
     });
     
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Błąd odpowiedzi:', errorText);
       throw new Error('Nie udało się zaktualizować talii fiszek');
     }
     
-    return response.json();
+    const data = await response.json();
+    console.log('Otrzymana odpowiedź:', JSON.stringify(data));
+    return data;
   }
 
   async deleteDeck(deckId) {
@@ -190,6 +197,35 @@ class FlashcardService {
     return true;
   }
 
+  async uploadImage(flashcardId, formData) {
+    const response = await fetch(`${API_BASE_URL.flashcards}/upload-image`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${AuthService.getToken()}`
+      },
+      body: formData
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Błąd uploadImage:', errorText);
+      throw new Error('Nie udało się przesłać obrazu: ' + errorText);
+    }
+    
+    // Serwer zwraca ścieżkę do zapisanego obrazu
+    const imagePath = await response.text();
+    console.log('Otrzymana ścieżka obrazu:', imagePath);
+    
+    // Aktualizuj fiszkę z ścieżką do obrazu
+    const flashcardData = {
+      imagePath: imagePath
+    };
+    
+    await this.updateFlashcard(flashcardId, flashcardData);
+    
+    return imagePath;
+  }
+
   async importFlashcardsFromCSV(deckId, file) {
     const userId = AuthService.getCurrentUser().id;
     const formData = new FormData();
@@ -205,7 +241,8 @@ class FlashcardService {
     });
     
     if (!response.ok) {
-      throw new Error('Nie udało się zaimportować fiszek z pliku CSV');
+      const errorText = await response.text();
+      throw new Error(errorText || 'Nie udało się zaimportować fiszek z pliku CSV');
     }
     
     return response.json();
@@ -226,7 +263,8 @@ class FlashcardService {
     });
     
     if (!response.ok) {
-      throw new Error('Nie udało się zaimportować fiszek z pliku TXT');
+      const errorText = await response.text();
+      throw new Error(errorText || 'Nie udało się zaimportować fiszek z pliku TXT');
     }
     
     return response.json();

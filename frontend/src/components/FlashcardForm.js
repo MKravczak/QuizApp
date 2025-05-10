@@ -15,7 +15,9 @@ const FlashcardForm = () => {
   const [loading, setLoading] = useState(isEditMode);
   const [error, setError] = useState(null);
   const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
   const [deck, setDeck] = useState(null);
+  const [removeImage, setRemoveImage] = useState(false);
 
   useEffect(() => {
     // Pobierz informacje o talii
@@ -34,6 +36,12 @@ const FlashcardForm = () => {
       try {
         const flashcardData = await FlashcardService.getFlashcardById(flashcardId);
         setFlashcard(flashcardData);
+        
+        // Jeśli fiszka ma obrazek, ustaw podgląd
+        if (flashcardData.imagePath) {
+          setImagePreview(flashcardData.imagePath);
+        }
+        
         setLoading(false);
       } catch (err) {
         console.error('Błąd podczas pobierania danych fiszki:', err);
@@ -57,7 +65,31 @@ const FlashcardForm = () => {
   };
 
   const handleFileChange = (e) => {
-    setImageFile(e.target.files[0]);
+    const file = e.target.files[0];
+    setImageFile(file);
+    setRemoveImage(false);
+    
+    // Tworzenie podglądu obrazka
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setImagePreview(null);
+    }
+  };
+
+  const handleRemoveImage = (e) => {
+    const { checked } = e.target;
+    setRemoveImage(checked);
+    if (checked) {
+      setImageFile(null);
+      setImagePreview(null);
+    } else if (flashcard.imagePath) {
+      setImagePreview(flashcard.imagePath);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -75,6 +107,11 @@ const FlashcardForm = () => {
         deckId: parseInt(deckId)
       };
       
+      // Jeśli użytkownik zaznaczył usunięcie obrazka
+      if (removeImage) {
+        flashcardData.imagePath = null;
+      }
+      
       let savedFlashcard;
       
       if (isEditMode) {
@@ -85,8 +122,17 @@ const FlashcardForm = () => {
         savedFlashcard = await FlashcardService.createFlashcard(flashcardData);
       }
       
-      // Obsługa przesyłania obrazka (to wymagałoby dodatkowego endpointu na backendzie)
-      // Tutaj będzie uproszczona wersja bez obsługi obrazów
+      // Obsługa przesyłania obrazka, jeśli został wybrany
+      if (imageFile && savedFlashcard && savedFlashcard.id) {
+        const formData = new FormData();
+        formData.append('file', imageFile);
+        try {
+          await FlashcardService.uploadImage(savedFlashcard.id, formData);
+        } catch (imgError) {
+          console.error('Błąd podczas przesyłania obrazu:', imgError);
+          // Kontynuuj mimo błędu z obrazem
+        }
+      }
       
       // Przekieruj do widoku edycji talii
       navigate(`/decks/${deckId}/edit`);
@@ -154,7 +200,7 @@ const FlashcardForm = () => {
                     className="form-control"
                     id="term"
                     name="term"
-                    value={flashcard.term}
+                    value={flashcard.term || ''}
                     onChange={handleInputChange}
                     required
                   />
@@ -167,7 +213,7 @@ const FlashcardForm = () => {
                     className="form-control"
                     id="definition"
                     name="definition"
-                    value={flashcard.definition}
+                    value={flashcard.definition || ''}
                     onChange={handleInputChange}
                     rows="5"
                     required
@@ -188,26 +234,29 @@ const FlashcardForm = () => {
                     Maksymalny rozmiar pliku: 2MB. Obsługiwane formaty: JPG, PNG, GIF.
                   </div>
                   
-                  {flashcard.imagePath && (
+                  {(imagePreview || flashcard.imagePath) && !removeImage && (
                     <div className="mt-3 p-3 bg-light rounded">
-                      <p className="mb-2">Aktualny obraz: <span className="text-primary">{flashcard.imagePath}</span></p>
-                      <div className="form-check">
+                      <p className="mb-2">Podgląd obrazu:</p>
+                      <div className="text-center">
+                        <img 
+                          src={imagePreview || flashcard.imagePath}
+                          alt="Podgląd" 
+                          className="img-fluid img-thumbnail" 
+                          style={{ maxHeight: '200px' }}
+                        />
+                      </div>
+                      
+                      <div className="form-check mt-2">
                         <input
                           className="form-check-input"
                           type="checkbox"
                           id="removeImage"
                           name="removeImage"
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setFlashcard({
-                                ...flashcard,
-                                imagePath: null
-                              });
-                            }
-                          }}
+                          checked={removeImage}
+                          onChange={handleRemoveImage}
                         />
                         <label className="form-check-label" htmlFor="removeImage">
-                          Usuń obecny obraz
+                          Usuń obraz
                         </label>
                       </div>
                     </div>

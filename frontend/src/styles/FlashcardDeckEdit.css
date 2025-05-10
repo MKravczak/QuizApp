@@ -1,0 +1,57 @@
+.flashcard-deck-edit-container .card-header.section-header {
+  background-color: var(--primary-purple, #6a0dad);
+  color: white;
+  border-bottom: 1px solid rgba(0,0,0,0.125);
+}
+
+.flashcard-deck-edit-container .card-header.section-header .card-title {
+  font-size: 1.25rem;
+}
+
+.flashcard-deck-edit-container .form-switch.fs-5 .form-check-input {
+  height: 1.5rem;
+  width: calc(1.5rem + 0.75rem + 2px) ; /* Dostosowanie szerokości dla większego przełącznika */
+  margin-top: 0.3rem;
+}
+
+.flashcard-deck-edit-container .form-switch.fs-5 .form-check-label {
+  padding-left: 0.8rem; 
+  line-height: 1.8rem; /* Lepsze wyrównanie z większym przełącznikiem */
+}
+
+.flashcard-list-edit {
+  max-height: 400px; /* Możesz dostosować tę wysokość */
+  overflow-y: auto;
+}
+
+/* Custom scrollbar dla listy fiszek */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #aaa;
+}
+
+.flashcard-text-truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px; /* Dostosuj w razie potrzeby */
+}
+
+/* Style dla ikon w przyciskach */
+.btn .bi {
+  vertical-align: middle; /* Lepsze wyrównanie ikon z tekstem */
+  margin-right: 0.3rem;
+} 

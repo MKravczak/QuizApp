@@ -7,6 +7,7 @@ import FlashcardDecks from './components/FlashcardDecks';
 import FlashcardDeckView from './components/FlashcardDeckView';
 import FlashcardDeckEdit from './components/FlashcardDeckEdit';
 import FlashcardForm from './components/FlashcardForm';
+import FlashcardAnkiMode from './components/FlashcardAnkiMode';
 import NavBar from './components/NavBar';
 import AuthService from './services/AuthService';
 
@@ -44,6 +45,14 @@ function App() {
             element={
               <PrivateRoute>
                 <FlashcardDeckView />
+              </PrivateRoute>
+            } 
+          />
+          <Route 
+            path="/decks/:id/anki" 
+            element={
+              <PrivateRoute>
+                <FlashcardAnkiMode />
               </PrivateRoute>
             } 
           />

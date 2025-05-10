@@ -54,6 +54,14 @@ public class FlashcardDeck {
         flashcard.setDeck(null);
     }
     
+    public boolean isPublic() {
+        return this.isPublic;
+    }
+    
+    public void setPublic(boolean isPublic) {
+        this.isPublic = isPublic;
+    }
+    
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();

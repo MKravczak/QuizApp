@@ -35,9 +35,11 @@ const FlashcardDecks = () => {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
+    const newValue = type === 'checkbox' ? checked : value;
+    
     setNewDeck({
       ...newDeck,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: newValue
     });
   };
 
@@ -50,7 +52,12 @@ const FlashcardDecks = () => {
     }
     
     try {
-      await FlashcardService.createDeck(newDeck);
+      const deckToCreate = {
+        ...newDeck,
+        isPublic: Boolean(newDeck.isPublic)
+      };
+      
+      await FlashcardService.createDeck(deckToCreate);
       setNewDeck({ name: '', description: '', isPublic: false });
       setShowAddForm(false);
       await loadDecks();
@@ -123,8 +130,10 @@ const FlashcardDecks = () => {
       
       {showAddForm && activeTab === 'my' && (
         <div className="card mb-4">
+          <div className="card-header" style={{ backgroundColor: 'var(--primary-purple)', color: 'white' }}>
+            <h4 className="card-title mb-0">Nowa talia</h4>
+          </div>
           <div className="card-body">
-            <h4 className="card-title">Nowa talia</h4>
             <form onSubmit={handleCreateDeck}>
               <div className="mb-3">
                 <label htmlFor="name" className="form-label">Nazwa*</label>
@@ -146,7 +155,7 @@ const FlashcardDecks = () => {
                   name="description"
                   value={newDeck.description}
                   onChange={handleInputChange}
-                  rows="3"
+                  rows="4"
                 ></textarea>
               </div>
               <div className="mb-3 form-check">
@@ -155,12 +164,25 @@ const FlashcardDecks = () => {
                   className="form-check-input"
                   id="isPublic"
                   name="isPublic"
-                  checked={newDeck.isPublic}
+                  checked={newDeck.isPublic === true}
                   onChange={handleInputChange}
                 />
-                <label className="form-check-label" htmlFor="isPublic">Publiczna</label>
+                <label className="form-check-label" htmlFor="isPublic">
+                  Publiczna ({newDeck.isPublic ? 'Tak' : 'Nie'})
+                </label>
               </div>
-              <button type="submit" className="btn btn-success">Utwórz talię</button>
+              <div className="d-flex justify-content-end">
+                <button 
+                  type="button" 
+                  className="btn btn-outline-secondary me-2"
+                  onClick={() => setShowAddForm(false)}
+                >
+                  Anuluj
+                </button>
+                <button type="submit" className="btn btn-success">
+                  Utwórz talię
+                </button>
+              </div>
             </form>
           </div>
         </div>
@@ -169,41 +191,49 @@ const FlashcardDecks = () => {
       {activeTab === 'my' && (
         <>
           {myDecks.length === 0 ? (
-            <div className="alert alert-info">Nie masz jeszcze żadnych talii fiszek. Utwórz swoją pierwszą talię!</div>
+            <div className="alert alert-info">
+              Nie masz jeszcze żadnych talii fiszek. Utwórz swoją pierwszą talię!
+            </div>
           ) : (
             <div className="row">
               {myDecks.map(deck => (
-                <div className="col-md-4 mb-4" key={deck.id}>
-                  <div className="card deck-card">
+                <div className="col-lg-4 col-md-6 mb-4 d-flex align-items-stretch" key={deck.id}>
+                  <div className="card deck-card h-100 w-100">
                     <div className="card-header" 
                          style={{ backgroundColor: deck.isPublic ? 'var(--light-blue)' : 'var(--light-purple)', 
                                   color: 'white' }}>
                       <h5 className="card-title mb-0">{deck.name}</h5>
                     </div>
-                    <div className="card-body">
-                      <p className="card-text">{deck.description || 'Brak opisu'}</p>
-                      <div className="d-flex justify-content-between align-items-center">
-                        <span className={`badge ${deck.isPublic ? 'bg-info' : 'bg-secondary'}`}>
+                    <div className="card-body d-flex flex-column">
+                      <p className="card-text" style={{ flexGrow: 1 }}>{deck.description || 'Brak opisu'}</p>
+                      <div className="d-flex justify-content-between align-items-center mt-3 mb-3">
+                        <span className={`badge fs-6 ${deck.isPublic ? 'bg-info' : 'bg-secondary'}`}>
                           {deck.isPublic ? 'Publiczna' : 'Prywatna'}
                         </span>
-                        <span className="badge bg-primary">
+                        <span className="badge bg-primary fs-6">
                           {deck.flashcards?.length || 0} fiszek
                         </span>
                       </div>
                     </div>
-                    <div className="card-footer">
-                      <div className="d-flex justify-content-between">
-                        <Link to={`/decks/${deck.id}`} className="btn btn-primary btn-sm">
-                          Przeglądaj
-                        </Link>
-                        <Link to={`/decks/${deck.id}/edit`} className="btn btn-secondary btn-sm">
-                          Edytuj
+                    <div className="card-footer d-flex justify-content-around align-items-center">
+                      <Link to={`/decks/${deck.id}`} className="btn btn-primary btn-sm">
+                        <i className="bi bi-eye-fill me-1"></i>
+                        Przeglądaj
+                      </Link>
+                      <Link to={`/decks/${deck.id}/anki`} className="btn btn-success btn-sm">
+                        <i className="bi bi-layers-half me-1"></i>
+                        Tryb Anki
+                      </Link>
+                      <div className="action-buttons">
+                        <Link to={`/decks/${deck.id}/edit`} className="action-button edit fs-5" title="Edytuj">
+                          <i className="bi bi-pencil"></i>
                         </Link>
                         <button 
-                          className="btn btn-danger btn-sm"
+                          className="action-button delete fs-5"
                           onClick={() => handleDeleteDeck(deck.id)}
+                          title="Usuń"
                         >
-                          Usuń
+                          <i className="bi bi-trash"></i>
                         </button>
                       </div>
                     </div>
@@ -222,22 +252,27 @@ const FlashcardDecks = () => {
           ) : (
             <div className="row">
               {publicDecks.map(deck => (
-                <div className="col-md-4 mb-4" key={deck.id}>
-                  <div className="card deck-card">
+                <div className="col-lg-4 col-md-6 mb-4 d-flex align-items-stretch" key={deck.id}>
+                  <div className="card deck-card h-100 w-100">
                     <div className="card-header" style={{ backgroundColor: 'var(--light-blue)', color: 'white' }}>
                       <h5 className="card-title mb-0">{deck.name}</h5>
                     </div>
-                    <div className="card-body">
-                      <p className="card-text">{deck.description || 'Brak opisu'}</p>
-                      <div className="text-end">
-                        <span className="badge bg-primary">
+                    <div className="card-body d-flex flex-column">
+                      <p className="card-text" style={{ flexGrow: 1 }}>{deck.description || 'Brak opisu'}</p>
+                      <div className="d-flex justify-content-end align-items-center mt-3 mb-3">
+                        <span className="badge bg-primary fs-6">
                           {deck.flashcards?.length || 0} fiszek
                         </span>
                       </div>
                     </div>
-                    <div className="card-footer">
-                      <Link to={`/decks/${deck.id}`} className="btn btn-primary w-100">
+                    <div className="card-footer d-flex justify-content-between align-items-center">
+                      <Link to={`/decks/${deck.id}`} className="btn btn-primary w-100 btn-sm">
+                        <i className="bi bi-eye-fill me-1"></i>
                         Przeglądaj
+                      </Link>
+                      <Link to={`/decks/${deck.id}/anki`} className="btn btn-success btn-sm ms-2">
+                        <i className="bi bi-layers-half me-1"></i>
+                        Tryb Anki
                       </Link>
                     </div>
                   </div>
