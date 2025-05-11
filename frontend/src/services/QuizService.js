@@ -26,8 +26,8 @@ class QuizService {
         return axios.post(API_URL, quizData, { headers: authHeader() });
     }
 
-    // Generowanie pytań do quizu
-    generateQuizQuestions(quizId) {
+    // Pobieranie pytań do quizu
+    getQuizQuestions(quizId) {
         return axios.get(`${API_URL}/${quizId}/questions`, { headers: authHeader() });
     }
 

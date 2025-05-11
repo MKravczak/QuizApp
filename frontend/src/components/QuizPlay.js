@@ -46,7 +46,7 @@ const QuizPlay = () => {
             setQuiz(quizResponse.data);
             
             // Pobierz pytania do quizu
-            const questionsResponse = await QuizService.generateQuizQuestions(quizId);
+            const questionsResponse = await QuizService.getQuizQuestions(quizId);
             setQuestions(questionsResponse.data);
             
             setLoading(false);

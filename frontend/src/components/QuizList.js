@@ -88,7 +88,7 @@ const QuizList = () => {
                     <thead>
                         <tr>
                             <th>Nazwa</th>
-                            <th>Zestaw fiszek</th>
+                            <th>Opis</th>
                             <th>Liczba pytań</th>
                             <th>Status</th>
                             <th>Akcje</th>
@@ -98,7 +98,7 @@ const QuizList = () => {
                         {quizzes.map(quiz => (
                             <tr key={quiz.id}>
                                 <td>{quiz.name}</td>
-                                <td>{quiz.flashcardDeckName}</td>
+                                <td>{quiz.description ? quiz.description.substring(0, 50) + (quiz.description.length > 50 ? '...' : '') : '-'}</td>
                                 <td>{quiz.questionCount}</td>
                                 <td>{quiz.public ? 'Publiczny' : 'Prywatny'}</td>
                                 <td>

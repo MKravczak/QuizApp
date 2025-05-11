@@ -3,6 +3,7 @@
 // a nie nazw usług wewnątrz Docker
 const USER_SERVICE_URL = 'http://localhost:8080';
 const FLASHCARD_SERVICE_URL = 'http://localhost:8081';
+const QUIZ_SERVICE_URL = 'http://localhost:8083';
 
 // Domyślny adres bazowy dla mikroserwisów
 const API_BASE_URL = {
@@ -10,7 +11,7 @@ const API_BASE_URL = {
   users: `${USER_SERVICE_URL}/api/users`,
   flashcards: `${FLASHCARD_SERVICE_URL}/api/flashcards`,
   decks: `${FLASHCARD_SERVICE_URL}/api/decks`,
-  quizzes: `${FLASHCARD_SERVICE_URL}/api/quizzes`
+  quizzes: `${QUIZ_SERVICE_URL}/api/quizzes`
 };
 
 export default API_BASE_URL; 

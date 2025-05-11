@@ -16,6 +16,7 @@ const QuizCreate = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [selectedDeckInfo, setSelectedDeckInfo] = useState(null);
+    const [selectedFlashcards, setSelectedFlashcards] = useState([]);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -50,13 +51,15 @@ const QuizCreate = () => {
             const deckId = parseInt(val);
             FlashcardService.getDeck(deckId)
                 .then(response => {
+                    const flashcards = response.data.flashcards;
                     setSelectedDeckInfo({
-                        flashcardCount: response.data.flashcards.length,
+                        flashcardCount: flashcards.length,
                         name: response.data.name
                     });
+                    setSelectedFlashcards(flashcards);
                     
                     // Ustaw domyślną liczbę pytań na liczbę fiszek w zestawie (max 10)
-                    const defaultQuestionCount = Math.min(response.data.flashcards.length, 10);
+                    const defaultQuestionCount = Math.min(flashcards.length, 10);
                     setFormData(prev => ({
                         ...prev,
                         questionCount: defaultQuestionCount
@@ -65,8 +68,44 @@ const QuizCreate = () => {
                 .catch(err => {
                     console.error('Błąd podczas pobierania informacji o zestawie:', err);
                     setSelectedDeckInfo(null);
+                    setSelectedFlashcards([]);
                 });
         }
+    };
+
+    const generateQuestionsFromFlashcards = (flashcards, count) => {
+        // Losowo wybieramy fiszki
+        const shuffledFlashcards = [...flashcards].sort(() => 0.5 - Math.random());
+        const selectedFlashcards = shuffledFlashcards.slice(0, count);
+        
+        // Generujemy pytania
+        const questions = selectedFlashcards.map(flashcard => {
+            const correctAnswer = flashcard.definition;
+            
+            // Wybieramy błędne odpowiedzi z innych fiszek
+            const otherDefinitions = flashcards
+                .filter(f => f.id !== flashcard.id)
+                .map(f => f.definition);
+            
+            // Losowo wybieramy 3 (lub mniej, jeśli nie ma wystarczająco) błędne odpowiedzi
+            const wrongAnswers = otherDefinitions
+                .sort(() => 0.5 - Math.random())
+                .slice(0, Math.min(3, otherDefinitions.length));
+            
+            // Łączymy wszystkie odpowiedzi i mieszamy
+            const allAnswers = [...wrongAnswers, correctAnswer].sort(() => 0.5 - Math.random());
+            
+            // Znajdź indeks poprawnej odpowiedzi
+            const correctAnswerIndex = allAnswers.indexOf(correctAnswer);
+            
+            return {
+                question: flashcard.term,
+                answers: allAnswers,
+                correctAnswerIndex: correctAnswerIndex
+            };
+        });
+        
+        return questions;
     };
 
     const handleSubmit = (e) => {
@@ -76,18 +115,25 @@ const QuizCreate = () => {
             setError('Wybierz zestaw fiszek.');
             return;
         }
+        
+        if (selectedFlashcards.length < formData.questionCount) {
+            setError('Zbyt mała liczba fiszek w zestawie dla wybranej liczby pytań.');
+            return;
+        }
 
-        // Przygotuj dane do wysłania - przekonwertuj ID i questionCount na liczby
+        // Generujemy pytania na podstawie fiszek
+        const questions = generateQuestionsFromFlashcards(selectedFlashcards, parseInt(formData.questionCount, 10));
+
+        // Przygotuj dane do wysłania zgodnie z nowym API
         const quizToCreate = {
             name: formData.name.trim(),
             description: formData.description.trim(),
-            flashcardDeckId: parseInt(formData.flashcardDeckId, 10),
             questionCount: parseInt(formData.questionCount, 10),
-            isPublic: formData.isPublic
+            isPublic: formData.isPublic,
+            questions: questions
         };
         
         console.log('Dane quizu do utworzenia:', quizToCreate);
-        console.log('Auth header:', localStorage.getItem('user'));
 
         setLoading(true);
         QuizService.createQuiz(quizToCreate)
@@ -155,7 +201,7 @@ const QuizCreate = () => {
                 </Form.Group>
 
                 <Form.Group className="mb-3">
-                    <Form.Label>Wybierz zestaw fiszek</Form.Label>
+                    <Form.Label>Wybierz zestaw fiszek dla pytań</Form.Label>
                     <Form.Select
                         name="flashcardDeckId"
                         value={formData.flashcardDeckId}
@@ -169,6 +215,9 @@ const QuizCreate = () => {
                             </option>
                         ))}
                     </Form.Select>
+                    <Form.Text className="text-muted">
+                        Pytania zostaną wygenerowane na podstawie wybranego zestawu fiszek.
+                    </Form.Text>
                 </Form.Group>
 
                 {selectedDeckInfo && (

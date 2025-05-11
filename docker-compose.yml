@@ -61,6 +61,24 @@ services:
     networks:
       - quizapp-network
 
+  quiz-service:
+    build: 
+      context: ./quiz-service
+      dockerfile: Dockerfile
+    container_name: quizapp-quiz-service
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/quizapp
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - quizapp-network
+
   frontend:
     build:
       context: ./frontend
@@ -75,10 +93,12 @@ services:
       - CHOKIDAR_USEPOLLING=true
       - REACT_APP_USER_SERVICE_URL=http://user-service:8080
       - REACT_APP_FLASHCARD_SERVICE_URL=http://flashcard-service:8081
+      - REACT_APP_QUIZ_SERVICE_URL=http://quiz-service:8083
       - HOST=0.0.0.0
     depends_on:
       - user-service
       - flashcard-service
+      - quiz-service
     networks:
       - quizapp-network
 
