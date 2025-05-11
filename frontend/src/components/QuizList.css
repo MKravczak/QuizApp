@@ -1,0 +1,82 @@
+/* Style przycisków akcji */
+.action-button {
+    width: 44px !important;
+    height: 44px !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin-right: 8px !important;
+    transition: all 0.3s ease !important;
+    position: relative !important;
+}
+
+.action-button i {
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    line-height: 1 !important;
+    font-size: 1.5rem !important;
+}
+
+/* Style dla przycisku startu */
+.play-button {
+    background-color: #f8f9fa !important;
+    border-color: #28a745 !important;
+}
+
+.play-button i {
+    color: #28a745 !important;
+}
+
+.play-button:hover {
+    background-color: #e8f4ea !important;
+}
+
+/* Style dla przycisku statystyk */
+.stats-button {
+    background-color: #f8f9fa !important;
+    border-color: #ffc107 !important;
+}
+
+.stats-button i {
+    color: #ffc107 !important;
+}
+
+.stats-button:hover {
+    background-color: #fff8e1 !important;
+}
+
+/* Style dla przycisku kłódki */
+.lock-button {
+    background-color: #f8f9fa !important;
+    border-color: #0d6efd !important;
+}
+
+.lock-button i {
+    color: #0d6efd !important;
+}
+
+.lock-button:hover {
+    background-color: #e6f2ff !important;
+}
+
+/* Style dla przycisku usuwania */
+.delete-button {
+    background-color: #f8f9fa !important;
+    border-color: #dc3545 !important;
+}
+
+.delete-button i {
+    color: #dc3545 !important;
+}
+
+.delete-button:hover {
+    background-color: #ffebee !important;
+}
+
+.delete-button:hover i {
+    transform: translate(-50%, -50%) scale(1.1) !important;
+} 

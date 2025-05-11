@@ -1,0 +1,2 @@
+-- Początkowy schemat bazy danych
+-- Pusta migracja, ponieważ schemat już istnieje (utworzony przez Hibernate) 

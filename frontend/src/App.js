@@ -8,6 +8,10 @@ import FlashcardDeckView from './components/FlashcardDeckView';
 import FlashcardDeckEdit from './components/FlashcardDeckEdit';
 import FlashcardForm from './components/FlashcardForm';
 import FlashcardAnkiMode from './components/FlashcardAnkiMode';
+import QuizList from './components/QuizList';
+import QuizCreate from './components/QuizCreate';
+import QuizPlay from './components/QuizPlay';
+import QuizResults from './components/QuizResults';
 import NavBar from './components/NavBar';
 import AuthService from './services/AuthService';
 
@@ -77,6 +81,38 @@ function App() {
             element={
               <PrivateRoute>
                 <FlashcardForm />
+              </PrivateRoute>
+            } 
+          />
+          <Route 
+            path="/quizzes" 
+            element={
+              <PrivateRoute>
+                <QuizList />
+              </PrivateRoute>
+            } 
+          />
+          <Route 
+            path="/quizzes/create" 
+            element={
+              <PrivateRoute>
+                <QuizCreate />
+              </PrivateRoute>
+            } 
+          />
+          <Route 
+            path="/quizzes/:quizId/play" 
+            element={
+              <PrivateRoute>
+                <QuizPlay />
+              </PrivateRoute>
+            } 
+          />
+          <Route 
+            path="/quizzes/:quizId/results" 
+            element={
+              <PrivateRoute>
+                <QuizResults />
               </PrivateRoute>
             } 
           />

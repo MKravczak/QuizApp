@@ -9,7 +9,8 @@ const API_BASE_URL = {
   auth: `${USER_SERVICE_URL}/api/auth`,
   users: `${USER_SERVICE_URL}/api/users`,
   flashcards: `${FLASHCARD_SERVICE_URL}/api/flashcards`,
-  decks: `${FLASHCARD_SERVICE_URL}/api/decks`
+  decks: `${FLASHCARD_SERVICE_URL}/api/decks`,
+  quizzes: `${FLASHCARD_SERVICE_URL}/api/quizzes`
 };
 
 export default API_BASE_URL; 

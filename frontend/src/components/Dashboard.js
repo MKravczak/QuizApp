@@ -48,8 +48,8 @@ function Dashboard() {
               <h3>Quizy</h3>
             </div>
             <div className="card-body d-flex flex-column">
-              <p className="card-text">Twórz i rozwiązuj quizy. Ta funkcjonalność będzie dostępna wkrótce.</p>
-              <button className="btn btn-secondary w-100 mt-auto" disabled>Przejdź do quizów</button>
+              <p className="card-text">Twórz i rozwiązuj quizy oparte na twoich zestawach fiszek. Sprawdź swoją wiedzę w formie testu.</p>
+              <Link to="/quizzes" className="btn btn-primary w-100 mt-auto">Przejdź do quizów</Link>
             </div>
           </div>
         </div>

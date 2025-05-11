@@ -2,6 +2,35 @@ import AuthService from './AuthService';
 import API_BASE_URL from './api-config';
 
 class FlashcardService {
+  async getDecks() {
+    try {
+      // Pobierz prywatne talie użytkownika
+      const myDecksPromise = this.getMyDecks();
+      
+      // Pobierz publiczne talie
+      const publicDecksPromise = this.getPublicDecks();
+      
+      // Zaczekaj na oba żądania
+      const [myDecks, publicDecks] = await Promise.all([myDecksPromise, publicDecksPromise]);
+      
+      // Znajdź publiczne talie, które nie należą do użytkownika
+      const otherPublicDecks = publicDecks.filter(publicDeck => 
+        !myDecks.some(myDeck => myDeck.id === publicDeck.id)
+      );
+      
+      // Połącz listy talii
+      const allDecks = [...myDecks, ...otherPublicDecks];
+      
+      // Zwróć w formacie zgodnym z axios
+      return {
+        data: allDecks
+      };
+    } catch (error) {
+      console.error('Błąd podczas pobierania zestawów fiszek:', error);
+      throw error;
+    }
+  }
+
   async getMyDecks() {
     const userId = AuthService.getCurrentUser().id;
     const response = await fetch(`${API_BASE_URL.decks}/my`, {
@@ -37,19 +66,29 @@ class FlashcardService {
   }
 
   async getDeckById(deckId) {
-    const response = await fetch(`${API_BASE_URL.decks}/${deckId}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${AuthService.getToken()}`
+    const userId = AuthService.getCurrentUser().id;
+    const token = AuthService.getToken();
+    
+    try {
+      const response = await fetch(`${API_BASE_URL.decks}/${deckId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          'X-User-ID': userId
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Nie udało się pobrać talii fiszek');
       }
-    });
-    
-    if (!response.ok) {
-      throw new Error('Nie udało się pobrać talii fiszek');
+      
+      const data = await response.json();
+      return { data: data }; // Zwracamy w formacie zgodnym z axios
+    } catch (error) {
+      console.error('Błąd podczas pobierania zestawu fiszek:', error);
+      throw error;
     }
-    
-    return response.json();
   }
 
   async createDeck(deckData) {
@@ -269,6 +308,20 @@ class FlashcardService {
     
     return response.json();
   }
+
+  // Dodaję alias funkcji getDeck, aby była zgodna z wywołaniem w QuizCreate.js
+  async getDeck(deckId) {
+    try {
+      // Pobierz talię za pomocą fetch
+      const deck = await this.getDeckById(deckId);
+      return deck;
+    } catch (error) {
+      console.error('Błąd podczas pobierania talii fiszek:', error);
+      throw error;
+    }
+  }
 }
 
-export default new FlashcardService(); 
+// Tworzymy instancję i eksportujemy ją zgodnie z rekomendacjami ESLint
+const flashcardService = new FlashcardService();
+export default flashcardService; 

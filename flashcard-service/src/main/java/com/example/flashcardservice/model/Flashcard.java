@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 
@@ -31,6 +32,7 @@ public class Flashcard {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "deck_id", nullable = false)
+    @ToString.Exclude
     private FlashcardDeck deck;
     
     @Column(name = "created_at")

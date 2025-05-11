@@ -24,8 +24,11 @@ const NavBar = () => {
                 <Link to="/dashboard" className="btn btn-sm me-2" style={{ color: 'var(--dark-gray)' }}>
                   Dashboard
                 </Link>
-                <Link to="/decks" className="btn btn-sm" style={{ color: 'var(--dark-gray)' }}>
+                <Link to="/decks" className="btn btn-sm me-2" style={{ color: 'var(--dark-gray)' }}>
                   Fiszki
+                </Link>
+                <Link to="/quizzes" className="btn btn-sm" style={{ color: 'var(--dark-gray)' }}>
+                  Quizy
                 </Link>
               </div>
             )}
