@@ -56,12 +56,12 @@ function Dashboard() {
       
         <div className="col-lg-6 mb-4 d-flex align-items-stretch">
           <div className="card w-100">
-            <div className="subject-card chemistry" onClick={() => navigate('/statistics')}>
+            <div className="subject-card chemistry" onClick={() => navigate('/quizzes/statistics')}>
               <h3>Statystyki</h3>
             </div>
             <div className="card-body d-flex flex-column">
-              <p className="card-text">Zobacz swoje postępy w nauce. Ta funkcjonalność będzie dostępna wkrótce.</p>
-              <button className="btn btn-danger w-100 mt-auto" disabled>Zobacz statystyki</button>
+              <p className="card-text">Zobacz statystyki swoich quizów i postępy w nauce.</p>
+              <Link to="/quizzes/statistics" className="btn btn-primary w-100 mt-auto">Zobacz statystyki</Link>
             </div>
           </div>
         </div>

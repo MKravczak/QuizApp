@@ -10,6 +10,11 @@ class QuizService {
         return axios.get(API_URL, { headers: authHeader() });
     }
 
+    // Pobieranie quizów utworzonych przez użytkownika
+    getMyQuizzes() {
+        return axios.get(`${API_URL}/my`, { headers: authHeader() });
+    }
+
     // Pobieranie quizów dla konkretnego zestawu fiszek
     getQuizzesForDeck(deckId) {
         return axios.get(`${API_URL}/deck/${deckId}`, { headers: authHeader() });
@@ -36,9 +41,14 @@ class QuizService {
         return axios.post(`${API_URL}/results`, resultData, { headers: authHeader() });
     }
 
-    // Pobieranie wyników dla konkretnego quizu
+    // Pobieranie wyników dla konkretnego quizu (tylko własne wyniki użytkownika)
     getQuizResults(quizId) {
         return axios.get(`${API_URL}/${quizId}/results`, { headers: authHeader() });
+    }
+    
+    // Pobieranie wszystkich wyników dla konkretnego quizu (dla właściciela quizu)
+    getAllQuizResults(quizId) {
+        return axios.get(`${API_URL}/${quizId}/all-results`, { headers: authHeader() });
     }
 
     // Usuwanie quizu

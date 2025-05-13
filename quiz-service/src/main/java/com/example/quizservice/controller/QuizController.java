@@ -42,6 +42,13 @@ public class QuizController {
         return ResponseEntity.ok(quizzes);
     }
 
+    @GetMapping("/my")
+    public ResponseEntity<List<QuizDto>> getMyQuizzes(
+            @RequestHeader("X-User-ID") Long userId) {
+        List<QuizDto> quizzes = quizService.getQuizzesCreatedByUser(userId);
+        return ResponseEntity.ok(quizzes);
+    }
+
     @GetMapping("/{quizId}")
     public ResponseEntity<QuizDto> getQuizById(
             @PathVariable Long quizId,
@@ -73,6 +80,14 @@ public class QuizController {
         List<QuizResultDto> results = quizService.getQuizResults(quizId, userId);
         return ResponseEntity.ok(results);
     }
+    
+    @GetMapping("/{quizId}/all-results")
+    public ResponseEntity<List<QuizResultDto>> getAllQuizResults(
+            @PathVariable Long quizId,
+            @RequestHeader("X-User-ID") Long userId) {
+        List<QuizResultDto> results = quizService.getAllQuizResults(quizId, userId);
+        return ResponseEntity.ok(results);
+    }
 
     @DeleteMapping("/{quizId}")
     public ResponseEntity<Void> deleteQuiz(
@@ -99,6 +114,7 @@ public class QuizController {
             this.message = message;
         }
         
+        @SuppressWarnings("unused") // Used by Jackson for JSON serialization
         public String getMessage() {
             return message;
         }

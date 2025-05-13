@@ -117,9 +117,19 @@ const QuizList = () => {
                                         className="me-2 action-button stats-button"
                                         as={Link}
                                         to={`/quizzes/${quiz.id}/results`}
-                                        title="Wyniki"
+                                        title="Moje wyniki"
                                     >
                                         <i className="bi bi-bar-chart-fill"></i>
+                                    </Button>
+                                    <Button 
+                                        variant="primary" 
+                                        size="sm" 
+                                        className="me-2 action-button all-stats-button"
+                                        as={Link}
+                                        to={`/quizzes/${quiz.id}/statistics`}
+                                        title="Statystyki wszystkich użytkowników"
+                                    >
+                                        <i className="bi bi-graph-up"></i>
                                     </Button>
                                     <Button 
                                         variant={quiz.public ? "secondary" : "warning"} 

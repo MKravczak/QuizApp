@@ -72,6 +72,13 @@ public class QuizService {
                 .map(this::mapToQuizDto)
                 .collect(Collectors.toList());
     }
+    
+    public List<QuizDto> getQuizzesCreatedByUser(Long userId) {
+        List<Quiz> quizzes = quizRepository.findByUserId(userId);
+        return quizzes.stream()
+                .map(this::mapToQuizDto)
+                .collect(Collectors.toList());
+    }
 
     public QuizDto getQuizById(Long quizId, Long userId) {
         Quiz quiz = quizRepository.findById(quizId)
@@ -125,6 +132,23 @@ public class QuizService {
                 .orElseThrow(() -> new ResourceNotFoundException("Quiz o id " + quizId + " nie istnieje"));
         
         List<QuizResult> results = resultRepository.findByUserIdAndQuizId(userId, quizId);
+        return results.stream()
+                .map(this::mapToQuizResultDto)
+                .collect(Collectors.toList());
+    }
+    
+    public List<QuizResultDto> getAllQuizResults(Long quizId, Long userId) {
+        // Pobierz quiz
+        Quiz quiz = quizRepository.findById(quizId)
+                .orElseThrow(() -> new ResourceNotFoundException("Quiz o id " + quizId + " nie istnieje"));
+        
+        // Tylko właściciel quizu może zobaczyć wszystkie wyniki
+        if (!quiz.getUserId().equals(userId)) {
+            throw new IllegalArgumentException("Nie masz uprawnień do przeglądania wszystkich wyników tego quizu");
+        }
+        
+        // Pobierz wszystkie wyniki dla danego quizu
+        List<QuizResult> results = resultRepository.findByQuizId(quizId);
         return results.stream()
                 .map(this::mapToQuizResultDto)
                 .collect(Collectors.toList());
