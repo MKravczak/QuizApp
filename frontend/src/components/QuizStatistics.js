@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Table, Button, Card, Alert, Spinner, Row, Col, Badge, Tab, Tabs } from 'react-bootstrap';
 import QuizService from '../services/QuizService';
+import StatisticsService from '../services/StatisticsService';
 import UserService from '../services/UserService';
 import { Bar, Line } from 'react-chartjs-2';
 import {
@@ -50,8 +51,9 @@ const QuizStatistics = () => {
             const quizResponse = await QuizService.getQuiz(quizId);
             setQuiz(quizResponse.data);
             
-            // Pobierz wszystkie wyniki dla quizu (tylko dla właściciela)
-            const resultsResponse = await QuizService.getAllQuizResults(quizId);
+            // Pobierz wszystkie wyniki dla quizu z serwisu statystyk
+            const resultsResponse = await StatisticsService.getAllQuizResults(quizId);
+            console.log('Otrzymane wyniki z serwisu statystyk:', resultsResponse.data);
             setAllResults(resultsResponse.data);
             
             // Pobierz nazwy użytkowników
@@ -76,6 +78,8 @@ const QuizStatistics = () => {
         // Grupowanie wyników według użytkowników
         const userStatsMap = {};
         
+        console.log('Obliczanie statystyk dla wyników:', results);
+        
         results.forEach(result => {
             if (!userStatsMap[result.userId]) {
                 userStatsMap[result.userId] = {
@@ -97,6 +101,8 @@ const QuizStatistics = () => {
             userStat.totalTime += result.durationInSeconds;
             userStat.results.push(result);
             
+            console.log(`Analiza wyniku użytkownika ${result.userId}: score=${result.score}, currentBest=${userStat.bestScore}`);
+            
             if (result.score > userStat.bestScore) {
                 userStat.bestScore = result.score;
             }
@@ -115,6 +121,7 @@ const QuizStatistics = () => {
             stat.results.sort((a, b) => new Date(a.completedAt) - new Date(b.completedAt));
         });
         
+        console.log('Obliczone statystyki użytkowników:', userStatsMap);
         setUserStats(userStatsMap);
     };
 
@@ -141,31 +148,55 @@ const QuizStatistics = () => {
 
     // Przygotowanie danych dla wykresu wyników
     const prepareScoreChartData = () => {
-        const labels = [];
-        const datasets = [];
+        // Będziemy organizować dane według numeru próby (1. próba, 2. próba, itd.)
         
-        // Przygotuj dane dla każdego użytkownika
-        Object.values(userStats).forEach((userStat, index) => {
-            const data = userStat.results.map(result => {
-                const percentage = (result.score / result.totalQuestions) * 100;
-                return percentage.toFixed(1);
+        // Grupujemy wyniki według użytkowników i sortujemy chronologicznie dla każdego
+        const userResultsMap = {};
+        
+        allResults.forEach(result => {
+            if (!userResultsMap[result.userId]) {
+                userResultsMap[result.userId] = [];
+            }
+            userResultsMap[result.userId].push(result);
+        });
+        
+        // Sortujemy wyniki dla każdego użytkownika chronologicznie
+        Object.values(userResultsMap).forEach(results => {
+            results.sort((a, b) => new Date(a.completedAt) - new Date(b.completedAt));
+        });
+        
+        console.log('Wyniki pogrupowane według użytkowników:', userResultsMap);
+        
+        // Znajdujemy maksymalną liczbę prób
+        const maxAttempts = Math.max(...Object.values(userResultsMap).map(results => results.length));
+        
+        // Generujemy etykiety: 1. próba, 2. próba, itd.
+        const labels = Array.from({ length: maxAttempts }, (_, i) => `${i + 1}. próba`);
+        
+        // Przygotowujemy dane dla każdego użytkownika
+        const datasets = Object.entries(userResultsMap).map(([userId, results], index) => {
+            // Wypełniamy danymi dla każdej próby
+            const data = Array(maxAttempts).fill(null);
+            
+            // Dla każdej próby obliczamy procent wyniku
+            results.forEach((result, attemptIndex) => {
+                if (attemptIndex < maxAttempts) {
+                    const percentage = (result.score / result.totalQuestions) * 100;
+                    data[attemptIndex] = percentage.toFixed(1);
+                }
             });
             
-            // Przygotuj etykiety dat (tylko dla pierwszego użytkownika)
-            if (index === 0) {
-                userStat.results.forEach(result => {
-                    labels.push(formatDate(result.completedAt));
-                });
-            }
-            
-            datasets.push({
-                label: getUsernameById(userStat.userId),
+            return {
+                label: getUsernameById(userId),
                 data,
                 borderColor: getRandomColor(index),
                 backgroundColor: getRandomColor(index, 0.2),
-                tension: 0.1
-            });
+                tension: 0.1,
+                spanGaps: true
+            };
         });
+        
+        console.log('Przygotowane dane do wykresu według prób:', { labels, datasets });
         
         return { labels, datasets };
     };
@@ -283,6 +314,28 @@ const QuizStatistics = () => {
                                                     options={{
                                                         responsive: true,
                                                         maintainAspectRatio: false,
+                                                        plugins: {
+                                                            tooltip: {
+                                                                callbacks: {
+                                                                    label: function(context) {
+                                                                        const label = context.dataset.label || '';
+                                                                        const value = context.parsed.y || 0;
+                                                                        return `${label}: ${value}%`;
+                                                                    }
+                                                                }
+                                                            },
+                                                            legend: {
+                                                                position: 'bottom',
+                                                                labels: {
+                                                                    usePointStyle: true,
+                                                                    padding: 15
+                                                                }
+                                                            },
+                                                            title: {
+                                                                display: true,
+                                                                text: 'Postęp wyników użytkowników'
+                                                            }
+                                                        },
                                                         scales: {
                                                             y: {
                                                                 beginAtZero: true,
@@ -295,7 +348,7 @@ const QuizStatistics = () => {
                                                             x: {
                                                                 title: {
                                                                     display: true,
-                                                                    text: 'Data próby'
+                                                                    text: 'Kolejne próby'
                                                                 }
                                                             }
                                                         }

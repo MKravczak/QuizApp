@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Card, Button, ProgressBar, Alert, Spinner } from 'react-bootstrap';
 import QuizService from '../services/QuizService';
+import StatisticsService from '../services/StatisticsService';
 
 const QuizPlay = () => {
     const { quizId } = useParams();
@@ -73,39 +74,35 @@ const QuizPlay = () => {
             setCurrentQuestionIndex(currentQuestionIndex + 1);
             setSelectedAnswer(null);
         } else {
-            finishQuiz();
+            // Przekażmy aktualny wynik do finishQuiz, aby uwzględnić ostatnie pytanie
+            const finalScore = selectedAnswer === currentQuestion.correctAnswerIndex ? score + 1 : score;
+            finishQuiz(finalScore);
         }
     };
 
-    const finishQuiz = async () => {
-        // Zatrzymaj timer i zapisz finalny czas
-        if (timerRef.current) {
-            clearInterval(timerRef.current);
-            setFinalTime(timer);
-        }
-
-        // Sprawdź ostatnią odpowiedź
-        const currentQuestion = questions[currentQuestionIndex];
-        if (selectedAnswer === currentQuestion.correctAnswerIndex) {
-            setScore(score + 1);
-        }
-
-        // Zapisz wynik
+    const finishQuiz = async (finalScore) => {
+        const finishTime = Date.now();
+        const totalTimeInSeconds = Math.round((finishTime - startTimeRef.current) / 1000);
+        setFinalTime(totalTimeInSeconds);
+        
         try {
-            const quizResult = {
+            // Przygotuj dane do wysłania
+            const resultData = {
                 quizId: parseInt(quizId),
-                score: selectedAnswer === currentQuestion.correctAnswerIndex ? score + 1 : score,
+                quizName: quiz.name,
+                score: finalScore,
                 totalQuestions: questions.length,
-                durationInSeconds: timer
+                durationInSeconds: totalTimeInSeconds
             };
-
-            await QuizService.submitQuizResult(quizResult);
-            setShowResult(true);
-        } catch (err) {
-            console.error('Błąd podczas zapisywania wyniku:', err);
-            setError('Nie udało się zapisać wyniku quizu.');
-            setShowResult(true);
+            
+            // Wyślij wynik do serwisu statystyk
+            await StatisticsService.submitQuizResult(resultData);
+            setScore(finalScore);
+        } catch (error) {
+            console.error('Błąd przy zapisywaniu wyniku:', error);
         }
+        
+        setShowResult(true);
     };
 
     const formatTime = (seconds) => {

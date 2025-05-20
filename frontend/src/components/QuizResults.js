@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Table, Button, Card, Alert, Spinner } from 'react-bootstrap';
 import QuizService from '../services/QuizService';
+import StatisticsService from '../services/StatisticsService';
 
 const QuizResults = () => {
     const { quizId } = useParams();
@@ -31,7 +32,7 @@ const QuizResults = () => {
             }
             
             // Pobierz wyniki dla quizu
-            const resultsResponse = await QuizService.getQuizResults(quizId);
+            const resultsResponse = await StatisticsService.getQuizResults(quizId);
             setResults(resultsResponse.data);
             
             setLoading(false);
