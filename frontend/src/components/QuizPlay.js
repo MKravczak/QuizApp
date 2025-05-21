@@ -196,37 +196,54 @@ const QuizPlay = () => {
             <ProgressBar 
                 now={progress} 
                 label={`${currentQuestionIndex + 1} / ${questions.length}`}
-                className="mb-4"
+                className="mb-4 quiz-progress"
+                variant="success"
+                style={{
+                    height: "20px", 
+                    fontSize: "0.9rem", 
+                    fontWeight: "bold",
+                    borderRadius: "10px",
+                    boxShadow: "0 2px 10px rgba(0,0,0,0.1)"
+                }}
             />
 
-            <Card>
+            <Card className="quiz-question-card">
                 <Card.Body>
-                    <Card.Title className="mb-4 text-center">
+                    <Card.Title className="mb-4 text-center fs-4 fw-bold">
                         {currentQuestion.question}
                     </Card.Title>
                     
-                    <div className="d-grid gap-3">
+                    <div className="d-grid gap-3 quiz-answers">
                         {currentQuestion.answers.map((answer, index) => (
                             <Button
                                 key={index}
-                                variant={selectedAnswer === index ? 'primary' : 'outline-secondary'}
-                                className="text-start p-3"
+                                variant="outline-secondary"
+                                className={`text-start p-3 quiz-answer-option ${selectedAnswer === index ? 'selected' : ''}`}
                                 onClick={() => handleAnswerSelect(index)}
-                                disabled={selectedAnswer !== null && selectedAnswer !== index}
+                                style={{
+                                    backgroundColor: selectedAnswer === index ? 'var(--accent-primary)' : 'rgba(17, 25, 40, 0.8)',
+                                    color: selectedAnswer === index ? 'white' : 'var(--text-primary)',
+                                    fontWeight: selectedAnswer === index ? '600' : '400',
+                                    borderColor: selectedAnswer === index ? 'var(--accent-primary)' : 'rgba(255, 255, 255, 0.1)',
+                                    boxShadow: selectedAnswer === index ? '0 4px 15px rgba(7, 167, 127, 0.4)' : 'none',
+                                    opacity: selectedAnswer !== null && selectedAnswer !== index ? 0.6 : 1,
+                                    transition: 'all 0.3s ease'
+                                }}
                             >
                                 {answer}
                             </Button>
                         ))}
                     </div>
                 </Card.Body>
-                <Card.Footer className="d-flex justify-content-between">
-                    <div>
+                <Card.Footer className="d-flex justify-content-between align-items-center">
+                    <div className="quiz-question-counter">
                         Pytanie {currentQuestionIndex + 1} z {questions.length}
                     </div>
                     <Button
                         variant="primary"
                         onClick={handleNextQuestion}
                         disabled={selectedAnswer === null}
+                        className="quiz-next-button"
                     >
                         {currentQuestionIndex < questions.length - 1 ? 'Następne pytanie' : 'Zakończ quiz'}
                     </Button>

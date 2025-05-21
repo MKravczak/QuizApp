@@ -1,45 +1,75 @@
 .deck-description-card {
-  background-color: #f8f9fa;
-  border-left: 5px solid var(--primary-purple, #6a0dad);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  background-color: rgba(17, 25, 40, 0.75);
+  border-left: 5px solid #0ac799;
+  border-radius: 0 12px 12px 0;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  margin-bottom: 25px;
 }
 
 .deck-description-card .card-title {
-  color: var(--primary-purple, #6a0dad);
+  color: #0ac799;
   font-weight: 600;
+  font-size: 1.4rem;
+}
+
+.deck-description-card .card-text {
+  color: var(--text-secondary);
+  line-height: 1.6;
 }
 
 .flashcard-preview-card {
-  background-color: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-  display: flex; /* Aby stopka była na dole, jeśli ją dodamy */
-  flex-direction: column; /* Aby stopka była na dole */
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  background-color: rgba(17, 25, 40, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.125);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
 }
 
 .flashcard-preview-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .flashcard-preview-card .card-body {
-  padding: 1.25rem;
+  padding: 1.5rem;
   display: flex;
   flex-direction: column;
-  flex-grow: 1; /* Pozwala body karty rosnąć */
+  flex-grow: 1;
 }
 
 .flashcard-term {
   font-size: 1.25rem;
   font-weight: 600;
-  color: var(--primary-purple, #6a0dad);
-  margin-bottom: 0.75rem;
+  color: #0ac799;
+  margin-bottom: 1rem;
+  position: relative;
+  padding-bottom: 0.75rem;
+}
+
+.flashcard-term::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 50px;
+  height: 3px;
+  background: linear-gradient(135deg, #0a95a8, #0ac799);
+  border-radius: 100px;
 }
 
 .flashcard-definition {
   font-size: 1rem;
-  color: #333;
-  flex-grow: 1; /* Definicja wypełnia dostępną przestrzeń */
+  color: var(--text-secondary);
+  flex-grow: 1;
   margin-bottom: 1rem;
   line-height: 1.6;
 }
@@ -48,5 +78,51 @@
   max-height: 150px;
   max-width: 100%;
   object-fit: contain;
-  margin-top: auto; /* Wypycha obrazek na dół, jeśli jest mało tekstu */
+  margin-top: auto;
+  border-radius: 8px;
+}
+
+.deck-stats {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px;
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  background-color: rgba(17, 25, 40, 0.75);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.125);
+  margin-bottom: 25px;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 0 15px;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0ac799;
+  margin-bottom: 5px;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.deck-action-buttons {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.deck-action-buttons .btn {
+  flex: 1;
+  padding: 12px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  border-radius: 10px;
 } 

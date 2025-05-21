@@ -275,7 +275,7 @@ const QuizStatistics = () => {
                                 <Card className="mb-4">
                                     <Card.Body>
                                         <Card.Title>Ogólne statystyki</Card.Title>
-                                        <ul>
+                                        <ul className="list-group list-group-flush">
                                             <li>
                                                 <strong>Średni wynik:</strong>{' '}
                                                 {(allResults.reduce((sum, r) => sum + r.score, 0) / allResults.length).toFixed(2)} / {quiz.questionCount}
@@ -362,7 +362,7 @@ const QuizStatistics = () => {
                         </Row>
                     </Tab>
                     <Tab eventKey="userStats" title="Statystyki użytkowników">
-                        <Table striped bordered hover responsive className="mt-4">
+                        <Table striped bordered hover responsive className="mt-4" variant="dark">
                             <thead>
                                 <tr>
                                     <th>Użytkownik</th>
@@ -394,7 +394,7 @@ const QuizStatistics = () => {
                         </Table>
                     </Tab>
                     <Tab eventKey="allResults" title="Wszystkie próby">
-                        <Table striped bordered hover responsive className="mt-4">
+                        <Table striped bordered hover responsive className="mt-4" variant="dark">
                             <thead>
                                 <tr>
                                     <th>Użytkownik</th>

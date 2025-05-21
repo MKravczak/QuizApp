@@ -31,67 +31,95 @@ function Login() {
   };
 
   return (
-    <div className="row justify-content-center mt-5">
-      <div className="col-md-6 col-lg-5">
-        <div className="card">
-          <div className="card-header text-center" style={{ backgroundColor: 'var(--primary-purple)', color: 'white' }}>
-            <h2 className="mb-0">Logowanie</h2>
-          </div>
-          <div className="card-body p-4">
-            {message && (
-              <div className="alert alert-danger" role="alert">
-                {message}
-              </div>
-            )}
-
-            <form onSubmit={handleLogin}>
-              <div className="mb-3">
-                <label htmlFor="username" className="form-label">Nazwa użytkownika</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="mb-3">
-                <label htmlFor="password" className="form-label">Hasło</label>
-                <input
-                  type="password"
-                  className="form-control"
-                  id="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="d-grid gap-2">
-                <button 
-                  type="submit" 
-                  className="btn btn-primary btn-lg" 
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <>
-                      <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                      Logowanie...
-                    </>
-                  ) : 'Zaloguj się'}
-                </button>
-              </div>
-            </form>
-
-            <div className="text-center mt-4">
-              <p className="mb-0">
-                Nie masz konta? <Link to="/register" className="text-decoration-none" style={{ color: 'var(--primary-purple)' }}>Zarejestruj się</Link>
-              </p>
-            </div>
-          </div>
+    <div className="auth-container">
+      <div className="text-center mb-4">
+        <h2 className="mb-3" style={{ 
+          background: 'linear-gradient(135deg, #0a95a8, #0ac799)', 
+          WebkitBackgroundClip: 'text',
+          backgroundClip: 'text',
+          color: 'transparent',
+          fontWeight: '700'
+        }}>QuizApp</h2>
+        <h3 className="text-white mb-4">Logowanie</h3>
+      </div>
+      
+      {message && (
+        <div className="alert" role="alert" style={{ 
+          backgroundColor: 'rgba(224, 63, 63, 0.2)',
+          borderColor: 'rgba(224, 63, 63, 0.3)',
+          color: '#e03f3f',
+          borderRadius: '8px',
+          padding: '12px'
+        }}>
+          {message}
         </div>
+      )}
+
+      <form onSubmit={handleLogin}>
+        <div className="form-group">
+          <label htmlFor="username" className="form-label text-white mb-2">Nazwa użytkownika</label>
+          <input
+            type="text"
+            className="form-control"
+            id="username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+            style={{
+              backgroundColor: 'rgba(255, 255, 255, 0.05)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              color: 'white'
+            }}
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="password" className="form-label text-white mb-2">Hasło</label>
+          <input
+            type="password"
+            className="form-control"
+            id="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            style={{
+              backgroundColor: 'rgba(255, 255, 255, 0.05)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              color: 'white'
+            }}
+          />
+        </div>
+
+        <div className="d-grid mt-4">
+          <button 
+            type="submit" 
+            className="btn" 
+            disabled={loading}
+            style={{
+              background: 'linear-gradient(135deg, #0a95a8, #0ac799)',
+              color: 'white',
+              border: 'none',
+              padding: '12px',
+              borderRadius: '8px',
+              fontWeight: '600',
+              fontSize: '16px',
+              textShadow: '0 1px 1px rgba(0, 0, 0, 0.2)'
+            }}
+          >
+            {loading ? (
+              <>
+                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                Logowanie...
+              </>
+            ) : 'Zaloguj się'}
+          </button>
+        </div>
+      </form>
+
+      <div className="text-center mt-4">
+        <p className="mb-0 text-white-50">
+          Nie masz konta? <Link to="/register" className="text-decoration-none" style={{ color: '#0ac799' }}>Zarejestruj się</Link>
+        </p>
       </div>
     </div>
   );

@@ -21,13 +21,15 @@ function Dashboard() {
   };
 
   if (!currentUser) {
-    return <div className="text-center my-5"><div className="spinner-border" role="status"></div></div>;
+    return (
+      <div className="text-center my-5">
+        <div className="spinner-border" style={{ color: 'var(--accent-primary)' }} role="status"></div>
+      </div>
+    );
   }
 
   return (
     <div className="mt-4">
-      
-      
       <h3 className="section-title mb-4">Kategorie</h3>
       <div className="row gy-4">
         <div className="col-lg-6 mb-4 d-flex align-items-stretch">

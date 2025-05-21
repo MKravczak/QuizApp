@@ -169,59 +169,63 @@ const FlashcardAnkiMode = () => {
         Fiszka {currentCardIndex + 1} z {flashcards.length}
       </div>
 
-      <div className="anki-card-container">
-        <div 
-          className={`anki-card ${isFlipped ? 'flipped' : ''}`} 
-          onClick={flipCard}
+      <div className="anki-flashcard-layout">
+        <button
+          className="anki-nav-arrow anki-prev-arrow"
+          onClick={prevCard}
+          disabled={animationInProgress}
+          aria-label="Poprzednia fiszka"
         >
-          <div className="anki-card-front">
-            <div className="anki-card-content">
-              <h2>{currentFlashcard.term}</h2>
-              <p className="text-muted mt-4 anki-card-instruction">Kliknij kartę, aby ją odwrócić</p>
+          &lt;
+        </button>
+        
+        <div className="anki-card-container">
+          <div 
+            className={`anki-card ${isFlipped ? 'flipped' : ''}`} 
+            onClick={flipCard}
+          >
+            <div className="anki-card-front">
+              <div className="anki-card-content">
+                <h2>{currentFlashcard.term}</h2>
+                <p className="text-muted mt-4 anki-card-instruction">Kliknij kartę, aby ją odwrócić</p>
+              </div>
             </div>
-          </div>
-          <div className="anki-card-back">
-            <div className="anki-card-content">
-              <h4 className="anki-card-back-term mb-3">{currentFlashcard.term}</h4>
-              <p className="anki-card-back-definition">{currentFlashcard.definition}</p>
-              {currentFlashcard.imagePath && (
-                <div className="mt-3 text-center">
-                  <img
-                    src={currentFlashcard.imagePath}
-                    alt={currentFlashcard.term}
-                    className="img-fluid rounded"
-                    style={{ maxHeight: '150px' }}
-                  />
-                </div>
-              )}
+            <div className="anki-card-back">
+              <div className="anki-card-content">
+                <h4 className="anki-card-back-term mb-3">{currentFlashcard.term}</h4>
+                <p className="anki-card-back-definition">{currentFlashcard.definition}</p>
+                {currentFlashcard.imagePath && (
+                  <div className="mt-3 text-center">
+                    <img
+                      src={currentFlashcard.imagePath}
+                      alt={currentFlashcard.term}
+                      className="img-fluid rounded"
+                      style={{ maxHeight: '150px' }}
+                    />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
-      </div>
-
-      <div className="anki-controls mt-4">
-        <button
-          className="btn btn-lg btn-secondary"
-          onClick={prevCard}
-          disabled={animationInProgress}
-        >
-          <i className="bi bi-arrow-left"></i> Poprzednia
-        </button>
         
         <button
-          className="btn btn-lg btn-primary mx-3"
+          className="anki-nav-arrow anki-next-arrow"
+          onClick={nextCard}
+          disabled={animationInProgress}
+          aria-label="Następna fiszka"
+        >
+          &gt;
+        </button>
+      </div>
+      
+      <div className="anki-flip-button-container">
+        <button
+          className="btn btn-lg btn-primary"
           onClick={flipCard}
           disabled={animationInProgress}
         >
           <i className="bi bi-arrow-repeat"></i> Odwróć
-        </button>
-        
-        <button
-          className="btn btn-lg btn-secondary"
-          onClick={nextCard}
-          disabled={animationInProgress}
-        >
-          Następna <i className="bi bi-arrow-right"></i>
         </button>
       </div>
     </div>

@@ -10,6 +10,10 @@
     margin-right: 8px !important;
     transition: all 0.3s ease !important;
     position: relative !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
 .action-button i {
@@ -19,62 +23,71 @@
     transform: translate(-50%, -50%) !important;
     line-height: 1 !important;
     font-size: 1.5rem !important;
+    color: var(--text-secondary) !important;
 }
 
 /* Style dla przycisku startu */
 .play-button {
-    background-color: #f8f9fa !important;
-    border-color: #28a745 !important;
+    background-color: rgba(15, 244, 198, 0.1) !important;
+    border-color: rgba(15, 244, 198, 0.3) !important;
 }
 
 .play-button i {
-    color: #28a745 !important;
+    color: var(--accent-primary) !important;
 }
 
 .play-button:hover {
-    background-color: #e8f4ea !important;
+    background-color: rgba(15, 244, 198, 0.2) !important;
+    transform: translateY(-3px) !important;
+    box-shadow: 0 5px 15px rgba(15, 244, 198, 0.3) !important;
 }
 
 /* Style dla przycisku statystyk */
 .stats-button {
-    background-color: #f8f9fa !important;
-    border-color: #ffc107 !important;
+    background-color: rgba(249, 203, 40, 0.1) !important;
+    border-color: rgba(249, 203, 40, 0.3) !important;
 }
 
 .stats-button i {
-    color: #ffc107 !important;
+    color: #f9cb28 !important;
 }
 
 .stats-button:hover {
-    background-color: #fff8e1 !important;
+    background-color: rgba(249, 203, 40, 0.2) !important;
+    transform: translateY(-3px) !important;
+    box-shadow: 0 5px 15px rgba(249, 203, 40, 0.3) !important;
 }
 
 /* Style dla przycisku kłódki */
 .lock-button {
-    background-color: #f8f9fa !important;
-    border-color: #0d6efd !important;
+    background-color: rgba(11, 217, 240, 0.1) !important;
+    border-color: rgba(11, 217, 240, 0.3) !important;
 }
 
 .lock-button i {
-    color: #0d6efd !important;
+    color: var(--accent-secondary) !important;
 }
 
 .lock-button:hover {
-    background-color: #e6f2ff !important;
+    background-color: rgba(11, 217, 240, 0.2) !important;
+    transform: translateY(-3px) !important;
+    box-shadow: 0 5px 15px rgba(11, 217, 240, 0.3) !important;
 }
 
 /* Style dla przycisku usuwania */
 .delete-button {
-    background-color: #f8f9fa !important;
-    border-color: #dc3545 !important;
+    background-color: rgba(255, 77, 77, 0.1) !important;
+    border-color: rgba(255, 77, 77, 0.3) !important;
 }
 
 .delete-button i {
-    color: #dc3545 !important;
+    color: #ff4d4d !important;
 }
 
 .delete-button:hover {
-    background-color: #ffebee !important;
+    background-color: rgba(255, 77, 77, 0.2) !important;
+    transform: translateY(-3px) !important;
+    box-shadow: 0 5px 15px rgba(255, 77, 77, 0.3) !important;
 }
 
 .delete-button:hover i {
