@@ -112,6 +112,9 @@ body {
 .list-group {
   color: var(--text-primary);
 }
+.text-muted {
+  color: white !important;
+}
 
 .app-navbar .btn {
   backdrop-filter: blur(var(--blur-amount));
