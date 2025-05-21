@@ -101,8 +101,15 @@ public class QuizService {
             throw new IllegalArgumentException("Nie masz dostępu do tego quizu");
         }
 
-        return quiz.getQuestions().stream()
-                .map(this::mapToQuizQuestionDto)
+        // Pobierz pytania i utwórz kopię listy, aby móc ją bezpiecznie modyfikować
+        List<QuizQuestion> quizQuestions = new ArrayList<>(quiz.getQuestions());
+        
+        // Wymieszaj kolejność pytań
+        Collections.shuffle(quizQuestions);
+        
+        // Dla każdego pytania wymieszaj również kolejność odpowiedzi
+        return quizQuestions.stream()
+                .map(this::mapToRandomizedQuizQuestionDto)
                 .collect(Collectors.toList());
     }
 
@@ -202,6 +209,27 @@ public class QuizService {
                 .question(question.getQuestion())
                 .answers(question.getAnswers())
                 .correctAnswerIndex(question.getCorrectAnswerIndex())
+                .build();
+    }
+    
+    private QuizQuestionDto mapToRandomizedQuizQuestionDto(QuizQuestion question) {
+        // Kopiujemy odpowiedzi, aby nie modyfikować oryginalnej listy
+        List<String> originalAnswers = new ArrayList<>(question.getAnswers());
+        // Zapamiętujemy poprawną odpowiedź
+        String correctAnswer = originalAnswers.get(question.getCorrectAnswerIndex());
+        
+        // Tworzymy nową listę z wymieszanymi odpowiedziami
+        List<String> shuffledAnswers = new ArrayList<>(originalAnswers);
+        Collections.shuffle(shuffledAnswers);
+        
+        // Znajdujemy nowy indeks poprawnej odpowiedzi
+        int newCorrectAnswerIndex = shuffledAnswers.indexOf(correctAnswer);
+        
+        // Zwracamy DTO z wymieszanymi odpowiedziami
+        return QuizQuestionDto.builder()
+                .question(question.getQuestion())
+                .answers(shuffledAnswers)
+                .correctAnswerIndex(newCorrectAnswerIndex)
                 .build();
     }
 
