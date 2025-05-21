@@ -115,7 +115,7 @@ const QuizResults = () => {
             ) : (
                 <>
                     <h4>Twoje próby</h4>
-                    <Table striped bordered hover responsive>
+                    <Table striped bordered hover responsive variant="dark">
                         <thead>
                             <tr>
                                 <th>Data</th>

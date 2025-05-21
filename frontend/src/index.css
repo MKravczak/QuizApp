@@ -5,7 +5,12 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f8f9fa;
+  background-color: var(--bg-primary);
+  background-image: 
+      radial-gradient(at 47% 33%, hsl(162.00, 77%, 40%) 0, transparent 59%), 
+      radial-gradient(at 82% 65%, hsl(218.00, 39%, 11%) 0, transparent 55%);
+  background-attachment: fixed;
+  color: var(--text-primary);
 }
 
 code {
@@ -20,111 +25,210 @@ code {
 }
 
 .auth-container {
-  max-width: 400px;
+  max-width: 450px;
   margin: 100px auto;
   padding: 30px;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(var(--blur-amount)) saturate(180%);
+  -webkit-backdrop-filter: blur(var(--blur-amount)) saturate(180%);
+  background-color: var(--card-bg);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--shadow);
 }
 
 .form-group {
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
 
-input {
+input, 
+textarea, 
+select {
   width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  padding: 12px;
+  border-radius: var(--button-radius);
   font-size: 16px;
+  background-color: rgba(255, 255, 255, 0.08); /* Slightly lighter for better contrast */
+  border: 1px solid rgba(255, 255, 255, 0.15); /* Slightly more visible border */
+  color: var(--text-primary);
+  transition: all 0.3s ease;
+}
+
+input:focus, 
+textarea:focus,
+select:focus {
+  background-color: rgba(255, 255, 255, 0.12);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 0.25rem rgba(var(--accent-primary-rgb), 0.25);
+  outline: none;
+}
+
+/* Ensure select options are readable */
+select option {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
 }
 
 button {
   width: 100%;
   padding: 12px;
-  background-color: #4285f4;
-  color: white;
-  border: none;
-  border-radius: 4px;
+  border-radius: var(--button-radius);
   font-size: 16px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: all 0.3s ease;
+  background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary));
+  border: none;
+  color: var(--text-primary);
+  font-weight: 600;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
 }
 
 button:hover {
-  background-color: #3367d6;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(var(--accent-primary-rgb), 0.4);
 }
 
 .error-message {
-  color: #d32f2f;
+  color: #ff4d4d;
   margin-top: 10px;
 }
 
 .success-message {
-  color: #388e3c;
+  color: var(--accent-primary);
   margin-top: 10px;
 }
 
 .section-title {
-  font-size: 2rem;
-  font-weight: 600;
-  color: #343a40;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--text-primary);
   margin-bottom: 1.5rem;
   padding-bottom: 0.5rem;
-  border-bottom: 2px solid var(--primary-purple, #6a0dad);
+  position: relative;
+}
+
+.section-title::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary));
+  border-radius: 100px;
 }
 
 .page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 30px;
 }
 
 .subject-card {
-  padding: 20px;
-  text-align: center;
-  border-radius: 10px 10px 0 0;
-  color: white;
-  margin-bottom: 0;
+  height: 150px; /* Increased height */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-primary); /* Text color same as flashcards */
+  font-weight: bold;
+  border-radius: var(--card-border-radius);
+  background-color: #212529; /* Dark grey background */
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  border: 2px solid transparent; /* For hover effect */
+}
+
+.subject-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, rgba(0,0,0,0.1), rgba(0,0,0,0));
+  z-index: 1;
+  transition: opacity 0.3s ease;
+  opacity: 0.5;
 }
 
 .subject-card h3 {
-  margin: 0;
+  position: relative;
+  z-index: 2;
   font-size: 1.8rem;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
-.math { background-color: var(--primary-purple, #6a0dad); }
-.physics { background-color: var(--primary-blue, #007bff); }
-.chemistry { background-color: var(--primary-orange, #fd7e14); }
-.reasoning { background-color: var(--primary-yellow, #ffc107); }
+.subject-card:hover {
+  transform: translateY(-5px) scale(1.02); /* Slight scale for pop */
+  background-color: #2a2e33; /* Lighter grey on hover */
+  border-color: var(--accent-primary); /* Accent border on hover */
+  box-shadow: 0 0 20px rgba(var(--accent-primary-rgb), 0.3); /* Glow effect */
+}
+
+.subject-card:hover::before {
+  opacity: 0.2;
+}
+
+.subject-card.math,
+.subject-card.physics,
+.subject-card.chemistry,
+.subject-card.reasoning {
+  background-color: #343a40;
+  color: var(--accent-primary);
+}
+
+.subject-card.math:hover,
+.subject-card.physics:hover,
+.subject-card.chemistry:hover,
+.subject-card.reasoning:hover {
+  background-color: #424950;
+}
 
 .card {
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  backdrop-filter: blur(var(--blur-amount)) saturate(180%);
+  -webkit-backdrop-filter: blur(var(--blur-amount)) saturate(180%);
+  background-color: var(--card-bg);
+  border-radius: var(--card-border-radius);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
 }
 
 .card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  border-color: rgba(255, 255, 255, 0.25);
 }
 
 .card .card-body p.card-text {
   font-size: 0.95rem;
-  color: #555;
+  color: var(--text-secondary);
   flex-grow: 1;
   margin-bottom: 1rem;
 }
 
 :root {
-  --primary-purple: #6a0dad;
-  --primary-blue: #007bff;
-  --primary-orange: #fd7e14;
-  --primary-yellow: #ffc107;
-  --light-blue: #58a6ff;
-  --light-purple: #a46de5;
+  /* Dark mode theme colors */
+  --bg-primary: #111927;
+  --bg-secondary: #0d141e;
+  --accent-primary: #0ac799;
+  --accent-primary-rgb: 10, 199, 153; /* For RGBA shadows/glows */
+  --accent-secondary: #0a95a8;
+  --text-primary: #e0e0e0; /* Slightly off-white for better readability */
+  --text-secondary: rgba(224, 224, 224, 0.8);
+  --text-muted: rgba(224, 224, 224, 0.6);
+  --danger: #ff4d4d;
+  
+  /* UI elements */
+  --card-bg: rgba(20, 28, 40, 0.85); /* Slightly more opaque card */
+  --card-border: rgba(255, 255, 255, 0.15);
+  --shadow: 0 8px 25px 0 rgba(0, 0, 0, 0.3);
+  --border-radius: 12px;
+  --card-border-radius: 10px; /* Slightly smaller radius for cards */
+  --button-radius: 8px;
+  --blur-amount: 12px; /* Reduced blur for performance/clarity */
 }
 
 .action-buttons {
@@ -133,61 +237,172 @@ button:hover {
 }
 
 .action-button {
-  background: none;
+  width: 36px; /* Slightly larger */
+  height: 36px; /* Slightly larger */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: transparent;
   border: none;
-  color: #6c757d;
-  cursor: pointer;
-  padding: 0.3rem;
-  font-size: 1.2rem;
-  transition: color 0.2s ease-in-out;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
 }
 
 .action-button.edit:hover {
-  color: var(--primary-blue, #007bff);
+  color: var(--accent-primary);
+  background-color: rgba(var(--accent-primary-rgb), 0.1);
 }
 
 .action-button.delete:hover {
-  color: var(--primary-orange, #fd7e14);
+  color: var(--danger);
+  background-color: rgba(255, 77, 77, 0.1);
 }
 
 .btn-primary {
-  background-color: var(--primary-purple, #6a0dad);
-  border-color: var(--primary-purple, #6a0dad);
+  background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary));
+  border: none;
+  color: var(--text-primary);
+  font-weight: 600;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
 }
 
 .btn-primary:hover {
-  background-color: #540a86;
-  border-color: #540a86;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); /* Swap gradient on hover */
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(var(--accent-primary-rgb), 0.4);
 }
 
 .btn-outline-primary {
-  color: var(--primary-purple, #6a0dad);
-  border-color: var(--primary-purple, #6a0dad);
+  background-color: transparent; /* More contrast */
+  border: 2px solid var(--accent-primary);
+  color: var(--accent-primary);
+  font-weight: 600;
 }
 
 .btn-outline-primary:hover {
-  background-color: var(--primary-purple, #6a0dad);
-  color: white;
+  background: var(--accent-primary);
+  color: var(--bg-primary); /* Ensure text is readable */
+  transform: translateY(-2px);
+  box-shadow: 0 3px 10px rgba(var(--accent-primary-rgb), 0.3);
 }
 
 .btn-success {
-  background-color: var(--primary-yellow, #ffc107);
-  border-color: var(--primary-yellow, #ffc107);
-  color: #212529;
+  background: linear-gradient(135deg, #0a95a8, #0ac799); /* Using accent colors for consistency */
+  border: none;
+  color: var(--text-primary);
+  font-weight: 600;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
 }
 
 .btn-success:hover {
-  background-color: #e0a800;
-  border-color: #e0a800;
-  color: #212529;
+  background: linear-gradient(135deg, #0ac799, #0a95a8);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(var(--accent-primary-rgb), 0.4);
+}
+
+.form-label {
+  color: var(--text-secondary); /* Ensure labels are readable */
+  margin-bottom: 0.3rem; /* Add a little space */
+  font-weight: 500;
+}
+
+.form-check-input {
+  background-color: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.2);
 }
 
 .form-check-input:checked {
-  background-color: var(--primary-purple, #6a0dad);
-  border-color: var(--primary-purple, #6a0dad);
+  background-color: var(--accent-primary);
+  border-color: var(--accent-primary);
+}
+
+.form-check-label {
+  color: var(--text-secondary);
 }
 
 .form-control:focus {
-  border-color: var(--primary-purple, #6a0dad);
-  box-shadow: 0 0 0 0.25rem rgba(106, 13, 173, 0.25);
+  background-color: rgba(255, 255, 255, 0.12);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 0.25rem rgba(var(--accent-primary-rgb), 0.25);
+  color: var(--text-primary);
+}
+
+/* Team members component - Assuming this is not used or will be removed */
+
+/* Improved deck action buttons */
+.deck-action-button {
+  padding: 8px 12px;
+  font-weight: 600;
+  color: white; /* Ensuring white text on buttons */
+  border: none;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.deck-action-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Quiz answer styling */
+.quiz-answer-option {
+  border-radius: var(--button-radius);
+  transition: all 0.3s ease;
+}
+
+.quiz-answer-option.selected {
+  transform: scale(1.02);
+}
+
+.quiz-progress {
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* Anki mode styling */
+.anki-flashcard-layout {
+  margin-bottom: 20px;
+}
+
+/* General Card Header Styling */
+.card-header {
+    background-color: rgba(var(--accent-secondary-rgb, 10, 149, 168), 0.2); /* Default, can be overridden */
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--card-border);
+    padding: 0.75rem 1.25rem;
+}
+
+.card-title {
+    color: var(--text-primary);
+}
+
+/* FlashcardDeckEdit specific form control styling */
+.flashcard-deck-edit-container .form-control,
+.flashcard-deck-edit-container .form-select {
+    background-color: rgba(255, 255, 255, 0.08) !important; /* Override general input style if necessary */
+    color: var(--text-primary) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+.flashcard-deck-edit-container .form-control:focus,
+.flashcard-deck-edit-container .form-select:focus {
+    background-color: rgba(255, 255, 255, 0.12) !important;
+    border-color: var(--accent-primary) !important;
+    box-shadow: 0 0 0 0.25rem rgba(var(--accent-primary-rgb), 0.25) !important;
+}
+
+/* Make sure bootstrap form-check-input is visible enough */
+.form-switch .form-check-input {
+    background-color: rgba(255, 255, 255, 0.25); /* Lighter for unchecked state */
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.form-switch .form-check-input:checked {
+    background-color: var(--accent-primary);
+    border-color: var(--accent-primary);
+}
+
+.form-switch .form-check-label {
+    color: var(--text-secondary);
 } 

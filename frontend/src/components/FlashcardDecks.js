@@ -89,10 +89,11 @@ const FlashcardDecks = () => {
         <h1 className="section-title">Fiszki</h1>
         {activeTab === 'my' && (
           <button 
-            className="btn btn-primary" 
+            className="btn btn-add-square"
             onClick={() => setShowAddForm(!showAddForm)}
+            title={showAddForm ? 'Anuluj dodawanie' : 'Dodaj nową talię'}
           >
-            {showAddForm ? 'Anuluj' : 'Dodaj nową talię'}
+            {showAddForm ? <i className="bi bi-x-lg"></i> : <i className="bi bi-plus-lg"></i>}
           </button>
         )}
       </div>
@@ -216,11 +217,11 @@ const FlashcardDecks = () => {
                       </div>
                     </div>
                     <div className="card-footer d-flex justify-content-around align-items-center">
-                      <Link to={`/decks/${deck.id}`} className="btn btn-primary btn-sm">
+                      <Link to={`/decks/${deck.id}`} className="btn btn-primary btn-sm deck-action-button">
                         <i className="bi bi-eye-fill me-1"></i>
                         Przeglądaj
                       </Link>
-                      <Link to={`/decks/${deck.id}/anki`} className="btn btn-success btn-sm">
+                      <Link to={`/decks/${deck.id}/anki`} className="btn btn-success btn-sm deck-action-button">
                         <i className="bi bi-layers-half me-1"></i>
                         Tryb Anki
                       </Link>

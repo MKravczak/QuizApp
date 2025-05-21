@@ -84,7 +84,7 @@ const QuizList = () => {
                     Brak dostępnych quizów. Stwórz nowy lub poczekaj aż pojawią się publiczne quizy.
                 </Alert>
             ) : (
-                <Table striped bordered hover responsive>
+                <Table striped bordered hover responsive variant="dark">
                     <thead>
                         <tr>
                             <th>Nazwa</th>
