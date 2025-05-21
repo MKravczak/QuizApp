@@ -760,3 +760,7 @@ textarea.form-control {
   color: var(--accent-primary);
   margin-right: 8px;
 } 
+
+.quiz-question-counter {
+  color: var(--text-primary);
+}

@@ -8,6 +8,8 @@ import com.example.quizservice.model.QuizResult;
 import com.example.quizservice.repository.QuizQuestionRepository;
 import com.example.quizservice.repository.QuizRepository;
 import com.example.quizservice.repository.QuizResultRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +20,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class QuizService {
+
+    private static final Logger logger = LoggerFactory.getLogger(QuizService.class);
 
     private final QuizRepository quizRepository;
     private final QuizQuestionRepository questionRepository;
@@ -35,6 +39,7 @@ public class QuizService {
 
     @Transactional
     public QuizDto createQuiz(CreateQuizRequest request, Long userId) {
+        logger.info("Attempting to create quiz. Request isPublic: {}", request.isPublic());
         // Tworzymy quiz
         Quiz quiz = Quiz.builder()
                 .name(request.getName())
@@ -43,6 +48,7 @@ public class QuizService {
                 .isPublic(request.isPublic())
                 .questionCount(request.getQuestionCount())
                 .build();
+        logger.info("Quiz entity to be saved - isPublic: {}", quiz.isPublic());
         
         // Zapisujemy quiz w bazie danych
         Quiz savedQuiz = quizRepository.save(quiz);
