@@ -8,6 +8,8 @@ import com.example.quizservice.model.QuizResult;
 import com.example.quizservice.repository.QuizQuestionRepository;
 import com.example.quizservice.repository.QuizRepository;
 import com.example.quizservice.repository.QuizResultRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +20,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class QuizService {
+
+    private static final Logger logger = LoggerFactory.getLogger(QuizService.class);
 
     private final QuizRepository quizRepository;
     private final QuizQuestionRepository questionRepository;
@@ -35,6 +39,7 @@ public class QuizService {
 
     @Transactional
     public QuizDto createQuiz(CreateQuizRequest request, Long userId) {
+        logger.info("Attempting to create quiz. Request isPublic: {}", request.isPublic());
         // Tworzymy quiz
         Quiz quiz = Quiz.builder()
                 .name(request.getName())
@@ -43,6 +48,7 @@ public class QuizService {
                 .isPublic(request.isPublic())
                 .questionCount(request.getQuestionCount())
                 .build();
+        logger.info("Quiz entity to be saved - isPublic: {}", quiz.isPublic());
         
         // Zapisujemy quiz w bazie danych
         Quiz savedQuiz = quizRepository.save(quiz);
@@ -101,8 +107,15 @@ public class QuizService {
             throw new IllegalArgumentException("Nie masz dostępu do tego quizu");
         }
 
-        return quiz.getQuestions().stream()
-                .map(this::mapToQuizQuestionDto)
+        // Pobierz pytania i utwórz kopię listy, aby móc ją bezpiecznie modyfikować
+        List<QuizQuestion> quizQuestions = new ArrayList<>(quiz.getQuestions());
+        
+        // Wymieszaj kolejność pytań
+        Collections.shuffle(quizQuestions);
+        
+        // Dla każdego pytania wymieszaj również kolejność odpowiedzi
+        return quizQuestions.stream()
+                .map(this::mapToRandomizedQuizQuestionDto)
                 .collect(Collectors.toList());
     }
 
@@ -202,6 +215,27 @@ public class QuizService {
                 .question(question.getQuestion())
                 .answers(question.getAnswers())
                 .correctAnswerIndex(question.getCorrectAnswerIndex())
+                .build();
+    }
+    
+    private QuizQuestionDto mapToRandomizedQuizQuestionDto(QuizQuestion question) {
+        // Kopiujemy odpowiedzi, aby nie modyfikować oryginalnej listy
+        List<String> originalAnswers = new ArrayList<>(question.getAnswers());
+        // Zapamiętujemy poprawną odpowiedź
+        String correctAnswer = originalAnswers.get(question.getCorrectAnswerIndex());
+        
+        // Tworzymy nową listę z wymieszanymi odpowiedziami
+        List<String> shuffledAnswers = new ArrayList<>(originalAnswers);
+        Collections.shuffle(shuffledAnswers);
+        
+        // Znajdujemy nowy indeks poprawnej odpowiedzi
+        int newCorrectAnswerIndex = shuffledAnswers.indexOf(correctAnswer);
+        
+        // Zwracamy DTO z wymieszanymi odpowiedziami
+        return QuizQuestionDto.builder()
+                .question(question.getQuestion())
+                .answers(shuffledAnswers)
+                .correctAnswerIndex(newCorrectAnswerIndex)
                 .build();
     }
 

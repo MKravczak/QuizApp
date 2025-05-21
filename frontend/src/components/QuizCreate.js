@@ -58,8 +58,8 @@ const QuizCreate = () => {
                     });
                     setSelectedFlashcards(flashcards);
                     
-                    // Ustaw domyślną liczbę pytań na liczbę fiszek w zestawie (max 10)
-                    const defaultQuestionCount = Math.min(flashcards.length, 10);
+                    // Ustaw domyślną liczbę pytań na liczbę fiszek w zestawie
+                    const defaultQuestionCount = flashcards.length;
                     setFormData(prev => ({
                         ...prev,
                         questionCount: defaultQuestionCount

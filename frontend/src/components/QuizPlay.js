@@ -7,6 +7,14 @@ import StatisticsService from '../services/StatisticsService';
 const QuizPlay = () => {
     const { quizId } = useParams();
     const navigate = useNavigate();
+    // Przeniesione definicje kolorów na poziom komponentu
+    const red = 'rgb(255, 0, 0)';
+    const orange = 'rgb(255, 165, 0)';
+    const yellow = 'rgb(255, 255, 0)';
+    const lightGreen = 'rgb(144, 238, 144)';
+    const green = 'rgb(0, 128, 0)';
+    const darkGreen = 'rgb(0, 100, 0)';
+
     const [quiz, setQuiz] = useState(null);
     const [questions, setQuestions] = useState([]);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -17,8 +25,60 @@ const QuizPlay = () => {
     const [error, setError] = useState(null);
     const [timer, setTimer] = useState(0);
     const [finalTime, setFinalTime] = useState(0);
+    const [resultPercentage, setResultPercentage] = useState(0);
     const timerRef = useRef(null);
     const startTimeRef = useRef(Date.now());
+
+    // Funkcja pomocnicza do obliczania koloru lub gradientu paska
+    const getProgressBarBackground = (percentage) => {
+        // Definicje kolorów są teraz na poziomie komponentu, więc są dostępne tutaj
+        // Nie ma potrzeby ich ponownego definiowania
+
+        if (percentage <= 30) {
+            return red; // Czerwony
+        } else if (percentage <= 50) {
+            // Gradient czerwony -> pomarańczowy
+            const factor = (percentage - 30) / (50 - 30);
+            const r = Math.round(255);
+            const g = Math.round(0 + 165 * factor);
+            const b = 0;
+            return `linear-gradient(90deg, ${red}, rgb(${r},${g},${b}))`;
+        } else if (percentage <= 66) {
+            // Gradient pomarańczowy -> żółty
+            const factor = (percentage - 50) / (66 - 50);
+            const r = 255;
+            const g = Math.round(165 + (255 - 165) * factor);
+            const b = 0;
+            return `linear-gradient(90deg, ${orange}, rgb(${r},${g},${b}))`;
+        } else if (percentage <= 75) {
+            // Gradient żółty -> jasnozielony
+            const factor = (percentage - 66) / (75 - 66);
+            const r = Math.round(255 - (255 - 144) * factor);
+            const g = Math.round(255 + (238 - 255) * factor);
+            const b = Math.round(0 + 144 * factor);
+            return `linear-gradient(90deg, ${yellow}, rgb(${r},${g},${b}))`;
+        } else if (percentage <= 90) {
+            // Gradient jasnozielony -> zielony
+            const factor = (percentage - 75) / (90 - 75);
+            const r = Math.round(144 - 144 * factor);
+            const g = Math.round(238 - (238 - 128) * factor);
+            const b = Math.round(144 - 144 * factor);
+            return `linear-gradient(90deg, ${lightGreen}, rgb(${r},${g},${b}))`;
+        } else {
+            // Powyżej 90% do 100% - ciemnozielony
+            // Można też zrobić gradient zielony -> ciemnozielony, jeśli jest taka potrzeba
+            // Na razie, dla uproszczenia, stały ciemnozielony dla 90-100
+            return darkGreen;
+        }
+    };
+    
+    // Funkcja do określenia koloru dla tekstu komunikatu
+    const getResultTextColor = (percentage) => {
+        // Kolory są teraz dostępne z zasięgu komponentu
+        if (percentage < 50) return red;
+        if (percentage < 75) return orange;
+        return green;
+    };
 
     useEffect(() => {
         loadQuiz();
@@ -37,6 +97,21 @@ const QuizPlay = () => {
             }, 1000);
         }
     }, [loading, questions]);
+    
+    // Efekt do animacji paska postępu po zakończeniu quizu
+    useEffect(() => {
+        if (showResult) {
+            const progressBar = document.querySelector('.result-progress .progress-bar');
+            if (progressBar) {
+                // Najpierw ustawiamy szerokość na 0, aby animacja działała płynnie
+                progressBar.style.width = '0%';
+                // Dodajemy odstęp czasowy dla lepszego efektu
+                setTimeout(() => {
+                    progressBar.style.width = `${resultPercentage}%`;
+                }, 100);
+            }
+        }
+    }, [showResult, resultPercentage]);
 
     const loadQuiz = async () => {
         try {
@@ -98,6 +173,10 @@ const QuizPlay = () => {
             // Wyślij wynik do serwisu statystyk
             await StatisticsService.submitQuizResult(resultData);
             setScore(finalScore);
+            
+            // Ustaw wynik procentowy
+            const percentage = Math.round((finalScore / questions.length) * 100);
+            setResultPercentage(percentage);
         } catch (error) {
             console.error('Błąd przy zapisywaniu wyniku:', error);
         }
@@ -133,26 +212,74 @@ const QuizPlay = () => {
     }
 
     if (showResult) {
-        const resultPercentage = Math.round((score / questions.length) * 100);
-        let resultVariant = 'danger';
-        if (resultPercentage >= 80) resultVariant = 'success';
-        else if (resultPercentage >= 60) resultVariant = 'warning';
-        else if (resultPercentage >= 40) resultVariant = 'info';
+        const progressBarBackgroundStyle = getProgressBarBackground(resultPercentage);
+        const messageTextColor = getResultTextColor(resultPercentage);
 
         return (
             <Container className="mt-5">
                 <Card className="text-center">
                     <Card.Header>Quiz zakończony</Card.Header>
                     <Card.Body>
-                        <Card.Title>Twój wynik: {score} / {questions.length}</Card.Title>
-                        <ProgressBar 
-                            now={resultPercentage}
-                            variant={resultVariant}
-                            label={`${resultPercentage}%`}
-                            className="mb-4 result-progress"
-                            style={{height: "30px", fontSize: "1.2rem", fontWeight: "bold"}}
-                            animated
-                        />
+                        <Card.Title className="mb-3">Twój wynik: {score} / {questions.length}</Card.Title>
+                        
+                        <div className="position-relative mb-4 result-progress">
+                            <ProgressBar 
+                                now={resultPercentage}
+                                label={`${resultPercentage}%`}
+                                style={{
+                                    height: "35px", 
+                                    fontSize: "1.2rem", 
+                                    fontWeight: "bold",
+                                    borderRadius: "8px",
+                                    backgroundColor: '#000000', // Czarne tło dla paska
+                                    boxShadow: `0 4px 15px rgba(0, 0, 0, 0.2)`,
+                                }}
+                            >
+                                <div 
+                                    className="progress-bar"
+                                    role="progressbar"
+                                    style={{ 
+                                        width: `${resultPercentage}%`, 
+                                        background: progressBarBackgroundStyle, // Używamy background zamiast backgroundColor
+                                        height: "100%",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        color: '#fff', 
+                                        borderRadius: "8px",
+                                        transition: "width 1.5s cubic-bezier(0.23, 1, 0.32, 1), background 1.5s ease" // Zmieniono na background
+                                    }}
+                                    aria-valuenow={resultPercentage}
+                                    aria-valuemin="0"
+                                    aria-valuemax="100"
+                                >
+                                    {`${resultPercentage}%`}
+                                </div>
+                            </ProgressBar>
+                            
+                            <div 
+                                className="position-absolute" 
+                                style={{
+                                    top: 0,
+                                    left: 0,
+                                    right: 0,
+                                    bottom: 0,
+                                    borderRadius: "8px",
+                                    pointerEvents: "none",
+                                    zIndex: 1 
+                                }}
+                            />
+                        </div>
+                        
+                        {/* Komunikat słowny zależny od wyniku */}
+                        <Card.Text className="mb-4" style={{color: messageTextColor, fontWeight: "bold", fontSize: "1.1rem"}}>
+                            {resultPercentage < 50 ? 'Spróbuj jeszcze raz, możesz lepiej!' : 
+                             resultPercentage < 66 ? 'Całkiem nieźle, ale potrzebujesz więcej praktyki.' : 
+                             resultPercentage < 75 ? 'Dobry wynik!' : 
+                             resultPercentage < 90 ? 'Bardzo dobry wynik!' : 
+                             'Świetny wynik, perfekcyjnie!'}
+                        </Card.Text>
+                        
                         <Card.Text>
                             Czas: {formatTime(finalTime)}
                         </Card.Text>
