@@ -26,10 +26,9 @@ public class DataInitializer {
 
     @PostConstruct
     public void init() {
-        // Inicjalizacja ról
+        
         initRoles();
         
-        // Tworzenie przykładowego użytkownika, jeśli nie istnieje
         createUserIfNotExists(
                 "admin",
                 "admin@example.com",
