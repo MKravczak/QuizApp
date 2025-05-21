@@ -15,8 +15,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -103,5 +105,15 @@ public class UserServiceImpl implements UserService {
         user.setRoles(roles);
         userRepository.save(user);
         return true;
+    }
+    
+    @Override
+    public Map<Long, String> getUsernamesByIds(List<Long> userIds) {
+        List<User> users = userRepository.findAllById(userIds);
+        return users.stream()
+                .collect(Collectors.toMap(
+                    User::getId,
+                    user -> user.getUsername() != null ? user.getUsername() : "Nieznany użytkownik"
+                ));
     }
 } 

@@ -27,7 +27,7 @@ public class FlashcardService {
     private final FlashcardDeckRepository deckRepository;
     private final String uploadDir;
 
-    // Konstruktor z wstrzyknięciem katalogu na podstawie właściwości
+    
     public FlashcardService(
             FlashcardRepository flashcardRepository,
             FlashcardDeckRepository deckRepository,
@@ -82,7 +82,7 @@ public class FlashcardService {
         flashcard.setDefinition(flashcardDTO.getDefinition());
         
         if (flashcardDTO.getImagePath() != null && !flashcardDTO.getImagePath().equals(flashcard.getImagePath())) {
-            // Usuń stare zdjęcie jeśli istnieje
+            
             if (flashcard.getImagePath() != null) {
                 deleteImage(flashcard.getImagePath());
             }
@@ -98,7 +98,7 @@ public class FlashcardService {
         Flashcard flashcard = flashcardRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Fiszka o id " + id + " nie została znaleziona"));
 
-        // Usuń zdjęcie jeśli istnieje
+        
         if (flashcard.getImagePath() != null) {
             deleteImage(flashcard.getImagePath());
         }
@@ -120,7 +120,7 @@ public class FlashcardService {
             Path filePath = Paths.get(uploadDir).resolve(imagePath);
             Files.deleteIfExists(filePath);
         } catch (IOException e) {
-            // Logowanie błędu, ale nie przerywanie operacji
+            
             System.err.println("Nie można usunąć pliku: " + imagePath);
         }
     }

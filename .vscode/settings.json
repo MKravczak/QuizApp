@@ -1,3 +1,10 @@
 {
-    "java.compile.nullAnalysis.mode": "automatic"
+    "java.compile.nullAnalysis.mode": "automatic",
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.project.sourcePaths": [
+        "statistics-service/src/main/java",
+        "user-service/src/main/java",
+        "quiz-service/src/main/java",
+        "flashcard-service/src/main/java"
+    ]
 }

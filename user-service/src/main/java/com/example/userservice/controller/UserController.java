@@ -51,6 +51,11 @@ public class UserController {
         return ResponseEntity.ok(userService.getAllUsers(page, size, sort));
     }
 
+    @PostMapping("/usernames")
+    public ResponseEntity<Map<Long, String>> getUsernamesByIds(@RequestBody List<Long> userIds) {
+        return ResponseEntity.ok(userService.getUsernamesByIds(userIds));
+    }
+
     @PutMapping("/{id}/role")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> changeUserRole(

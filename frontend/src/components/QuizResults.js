@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Table, Button, Card, Alert, Spinner } from 'react-bootstrap';
 import QuizService from '../services/QuizService';
+import StatisticsService from '../services/StatisticsService';
 
 const QuizResults = () => {
     const { quizId } = useParams();
@@ -10,6 +11,7 @@ const QuizResults = () => {
     const [results, setResults] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [isOwner, setIsOwner] = useState(false);
 
     useEffect(() => {
         loadQuizAndResults();
@@ -23,8 +25,14 @@ const QuizResults = () => {
             const quizResponse = await QuizService.getQuiz(quizId);
             setQuiz(quizResponse.data);
             
+            // Sprawdź, czy użytkownik jest właścicielem quizu
+            const currentUser = JSON.parse(localStorage.getItem('user'));
+            if (currentUser && quizResponse.data.userId === currentUser.id) {
+                setIsOwner(true);
+            }
+            
             // Pobierz wyniki dla quizu
-            const resultsResponse = await QuizService.getQuizResults(quizId);
+            const resultsResponse = await StatisticsService.getQuizResults(quizId);
             setResults(resultsResponse.data);
             
             setLoading(false);
@@ -79,7 +87,6 @@ const QuizResults = () => {
                 <Card.Body>
                     <Card.Title>{quiz.name} - Historia wyników</Card.Title>
                     <Card.Text>
-                        <strong>Zestaw fiszek:</strong> {quiz.flashcardDeckName}<br />
                         <strong>Liczba pytań:</strong> {quiz.questionCount}<br />
                         {quiz.description && (
                             <><strong>Opis:</strong> {quiz.description}<br /></>
@@ -89,6 +96,11 @@ const QuizResults = () => {
                         <Button variant="primary" onClick={() => navigate(`/quizzes/${quizId}/play`)}>
                             Rozwiąż quiz
                         </Button>
+                        {isOwner && (
+                            <Button variant="info" onClick={() => navigate(`/quizzes/${quizId}/statistics`)}>
+                                Zobacz statystyki wszystkich użytkowników
+                            </Button>
+                        )}
                         <Button variant="secondary" onClick={() => navigate('/quizzes')}>
                             Wróć do listy quizów
                         </Button>

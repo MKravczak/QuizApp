@@ -71,7 +71,6 @@ public class AuthServiceImpl implements AuthService {
             return new MessageResponse("Błąd: Email jest już w użyciu!");
         }
 
-        // Utworzenie nowego konta użytkownika
         User user = new User();
         user.setUsername(signupRequest.getUsername());
         user.setEmail(signupRequest.getEmail());

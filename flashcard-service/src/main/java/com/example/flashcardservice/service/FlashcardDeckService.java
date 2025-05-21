@@ -66,7 +66,7 @@ public class FlashcardDeckService {
         FlashcardDeck deck = deckRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Zestaw o id " + id + " nie został znaleziony"));
 
-        // Sprawdź, czy użytkownik jest właścicielem zestawu
+        
         if (!deck.getUserId().equals(userId)) {
             throw new IllegalStateException("Nie masz uprawnień do edycji tego zestawu");
         }
@@ -90,12 +90,12 @@ public class FlashcardDeckService {
         FlashcardDeck deck = deckRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Zestaw o id " + id + " nie został znaleziony"));
 
-        // Sprawdź, czy użytkownik jest właścicielem zestawu
+        
         if (!deck.getUserId().equals(userId)) {
             throw new IllegalStateException("Nie masz uprawnień do usunięcia tego zestawu");
         }
 
-        // Fiszki zostaną usunięte automatycznie dzięki CascadeType.ALL
+       
         deckRepository.delete(deck);
     }
 
@@ -113,7 +113,7 @@ public class FlashcardDeckService {
         int recordCount = 0;
         
         try (BufferedReader fileReader = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8));
-             CSVParser csvParser = new CSVParser(fileReader, CSVFormat.DEFAULT.withFirstRecordAsHeader())) {
+             CSVParser csvParser = new CSVParser(fileReader, CSVFormat.DEFAULT.builder().setHeader().setSkipHeaderRecord(true).build())) {
 
             for (CSVRecord csvRecord : csvParser) {
                 recordCount++;
@@ -153,7 +153,7 @@ public class FlashcardDeckService {
         FlashcardDeck deck = deckRepository.findById(deckId)
                 .orElseThrow(() -> new ResourceNotFoundException("Zestaw o id " + deckId + " nie został znaleziony"));
 
-        // Sprawdź, czy użytkownik jest właścicielem zestawu
+        
         if (!deck.getUserId().equals(userId)) {
             throw new IllegalStateException("Nie masz uprawnień do modyfikacji tego zestawu");
         }
@@ -166,7 +166,7 @@ public class FlashcardDeckService {
             while ((line = fileReader.readLine()) != null) {
                 lineCount++;
                 if (line.trim().isEmpty()) {
-                    continue; // Pomijamy puste linie
+                    continue; 
                 }
                 
                 try {
