@@ -1,6 +1,8 @@
 package com.example.userservice.config;
 
+import com.example.userservice.security.AntiPostmanFilter;
 import com.example.userservice.security.JwtAuthenticationFilter;
+import com.example.userservice.security.RateLimitingFilter;
 import com.example.userservice.security.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -30,6 +32,8 @@ import java.util.Arrays;
 public class SecurityConfig {
     private final UserDetailsServiceImpl userDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final AntiPostmanFilter antiPostmanFilter;
+    private final RateLimitingFilter rateLimitingFilter;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -64,6 +68,10 @@ public class SecurityConfig {
             );
         
         http.authenticationProvider(authenticationProvider());
+        
+        // Kolejność filtrów jest ważna: Rate Limiting -> Anti-Postman -> JWT
+        http.addFilterBefore(rateLimitingFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(antiPostmanFilter, UsernamePasswordAuthenticationFilter.class);
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         
         return http.build();
@@ -73,8 +81,18 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With", "Accept", "X-User-ID"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        configuration.setAllowedHeaders(Arrays.asList(
+                "Authorization", 
+                "Content-Type", 
+                "X-Requested-With", 
+                "Accept", 
+                "X-User-ID",
+                "X-Client-Signature",
+                "X-Timestamp",
+                "Accept-Language",
+                "Accept-Encoding"
+        ));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
         

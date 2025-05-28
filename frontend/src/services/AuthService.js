@@ -1,67 +1,40 @@
-import axios from 'axios';
-import API_BASE_URL from './api-config';
-
-// Add request interceptor for debugging
-axios.interceptors.request.use(
-  config => {
-    console.log('Request:', {
-      url: config.url,
-      method: config.method,
-      data: config.data,
-      headers: config.headers
-    });
-    return config;
-  },
-  error => {
-    console.error('Request Error:', error);
-    return Promise.reject(error);
-  }
-);
-
-// Add response interceptor for debugging
-axios.interceptors.response.use(
-  response => {
-    console.log('Response:', {
-      status: response.status,
-      data: response.data,
-      headers: response.headers
-    });
-    return response;
-  },
-  error => {
-    console.error('Response Error:', error.response ? {
-      status: error.response.status,
-      data: error.response.data,
-      headers: error.response.headers
-    } : error.message);
-    return Promise.reject(error);
-  }
-);
+import { userAPI } from './api';
 
 class AuthService {
   async login(username, password) {
-    const response = await axios.post(`${API_BASE_URL.auth}/login`, {
-      username,
-      password
-    });
-    if (response.data.token) {
-      localStorage.setItem('user', JSON.stringify(response.data));
+    try {
+      const response = await userAPI.login({ username, password });
+      if (response.data.token) {
+        localStorage.setItem('user', JSON.stringify(response.data));
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('userId', response.data.id);
+      }
+      return response.data;
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
     }
-    return response.data;
   }
 
   logout() {
     localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    localStorage.removeItem('userId');
   }
 
   async register(username, email, password, firstName = '', lastName = '') {
-    return axios.post(`${API_BASE_URL.auth}/register`, {
-      username,
-      email,
-      password,
-      firstName,
-      lastName
-    });
+    try {
+      return await userAPI.register({
+        username,
+        email,
+        password,
+        firstName,
+        lastName
+      });
+    } catch (error) {
+      console.error('Register error:', error);
+      throw error;
+    }
   }
 
   getCurrentUser() {
@@ -79,7 +52,7 @@ class AuthService {
 
   getToken() {
     const user = this.getCurrentUser();
-    return user?.token;
+    return user?.token || localStorage.getItem('token');
   }
 
   getAuthHeader() {

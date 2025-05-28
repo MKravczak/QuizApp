@@ -311,6 +311,17 @@ const QuizPlay = () => {
     const currentQuestion = questions[currentQuestionIndex];
     const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
 
+    // Add safety check for currentQuestion
+    if (!currentQuestion) {
+        return (
+            <Container className="mt-5 text-center">
+                <Spinner animation="border" role="status">
+                    <span className="visually-hidden">Ładowanie pytań...</span>
+                </Spinner>
+            </Container>
+        );
+    }
+
     return (
         <Container className="mt-4">
             <div className="d-flex justify-content-between align-items-center mb-3">

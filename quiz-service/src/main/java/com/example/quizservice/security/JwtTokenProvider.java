@@ -1,0 +1,51 @@
+package com.example.quizservice.security;
+
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import java.security.Key;
+
+@Component
+@Slf4j
+public class JwtTokenProvider {
+
+    @Value("${app.jwt.secret}")
+    private String jwtSecret;
+    
+    public String getUsernameFromJwtToken(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
+    }
+    
+    public boolean validateJwtToken(String authToken) {
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(getSigningKey())
+                    .build()
+                    .parseClaimsJws(authToken);
+            return true;
+        } catch (MalformedJwtException e) {
+            log.error("Nieprawidłowy token JWT: {}", e.getMessage());
+        } catch (ExpiredJwtException e) {
+            log.error("Token JWT wygasł: {}", e.getMessage());
+        } catch (UnsupportedJwtException e) {
+            log.error("Token JWT nie jest obsługiwany: {}", e.getMessage());
+        } catch (IllegalArgumentException e) {
+            log.error("Pusty ciąg JWT: {}", e.getMessage());
+        }
+
+        return false;
+    }
+    
+    private Key getSigningKey() {
+        byte[] keyBytes = jwtSecret.getBytes();
+        return Keys.hmacShaKeyFor(keyBytes);
+    }
+} 

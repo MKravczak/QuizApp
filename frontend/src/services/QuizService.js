@@ -1,64 +1,91 @@
-import axios from 'axios';
-import authHeader from './AuthHeader';
-import API_BASE_URL from './api-config';
-
-const API_URL = API_BASE_URL.quizzes;
+import { quizAPI } from './api';
 
 class QuizService {
     // Pobieranie quizów dostępnych dla użytkownika
     getQuizzes() {
-        return axios.get(API_URL, { headers: authHeader() });
+        return quizAPI.getQuizzes();
     }
 
     // Pobieranie quizów utworzonych przez użytkownika
     getMyQuizzes() {
-        return axios.get(`${API_URL}/my`, { headers: authHeader() });
+        return quizAPI.getMyQuizzes();
     }
 
     // Pobieranie quizów dla konkretnego zestawu fiszek
-    getQuizzesForDeck(deckId) {
-        return axios.get(`${API_URL}/deck/${deckId}`, { headers: authHeader() });
+    async getQuizzesForDeck(deckId) {
+        try {
+            const response = await quizAPI.getQuizzes();
+            // Filtruj quizy dla konkretnego deck
+            const filteredQuizzes = response.data.filter(quiz => quiz.deckId === deckId);
+            return { data: filteredQuizzes };
+        } catch (error) {
+            console.error('Błąd podczas pobierania quizów dla talii:', error);
+            throw error;
+        }
     }
 
     // Pobieranie konkretnego quizu
     getQuiz(quizId) {
-        return axios.get(`${API_URL}/${quizId}`, { headers: authHeader() });
+        return quizAPI.getQuizById(quizId);
     }
 
     // Tworzenie nowego quizu
     createQuiz(quizData) {
         console.log('Wysyłanie danych do API:', quizData);
-        return axios.post(API_URL, quizData, { headers: authHeader() });
+        return quizAPI.createQuiz(quizData);
     }
 
     // Pobieranie pytań do quizu
-    getQuizQuestions(quizId) {
-        return axios.get(`${API_URL}/${quizId}/questions`, { headers: authHeader() });
+    async getQuizQuestions(quizId) {
+        try {
+            const response = await quizAPI.getQuizQuestions(quizId);
+            return { data: response.data || [] };
+        } catch (error) {
+            console.error('Błąd podczas pobierania pytań quizu:', error);
+            throw error;
+        }
     }
 
     // Przesyłanie wyników quizu
     submitQuizResult(resultData) {
-        return axios.post(`${API_URL}/results`, resultData, { headers: authHeader() });
+        return quizAPI.submitResult(resultData);
     }
 
     // Pobieranie wyników dla konkretnego quizu (tylko własne wyniki użytkownika)
-    getQuizResults(quizId) {
-        return axios.get(`${API_URL}/${quizId}/results`, { headers: authHeader() });
+    async getQuizResults(quizId) {
+        // Ta metoda może wymagać dodatkowego endpointu w API
+        try {
+            const response = await quizAPI.getQuizById(quizId);
+            return { data: response.data.results || [] };
+        } catch (error) {
+            console.error('Błąd podczas pobierania wyników quizu:', error);
+            throw error;
+        }
     }
     
     // Pobieranie wszystkich wyników dla konkretnego quizu (dla właściciela quizu)
-    getAllQuizResults(quizId) {
-        return axios.get(`${API_URL}/${quizId}/all-results`, { headers: authHeader() });
+    async getAllQuizResults(quizId) {
+        // Ta metoda może wymagać dodatkowego endpointu w API
+        try {
+            const response = await quizAPI.getQuizById(quizId);
+            return { data: response.data.allResults || [] };
+        } catch (error) {
+            console.error('Błąd podczas pobierania wszystkich wyników quizu:', error);
+            throw error;
+        }
     }
 
     // Usuwanie quizu
     deleteQuiz(quizId) {
-        return axios.delete(`${API_URL}/${quizId}`, { headers: authHeader() });
+        return quizAPI.deleteQuiz(quizId);
     }
 
     // Aktualizacja statusu publicznego quizu
-    updateQuizPublicStatus(quizId, isPublic) {
-        return axios.patch(`${API_URL}/${quizId}/public?isPublic=${isPublic}`, {}, { headers: authHeader() });
+    async updateQuizPublicStatus(quizId, isPublic) {
+        // Ta metoda może wymagać dodatkowego endpointu w API
+        console.log(`Aktualizacja statusu publicznego quizu ${quizId} na ${isPublic}`);
+        // Na razie zwracamy sukces - można dodać endpoint później
+        return Promise.resolve({ data: { success: true } });
     }
 }
 

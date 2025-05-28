@@ -35,6 +35,8 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      APP_SECURITY_ANTI_POSTMAN_ENABLED: "false"
+      APP_JWT_SECRET: "MIkolajKrawczakJWTSecretKey2024SuperBezpiecznyKluczDoTokenowMinimum256BitowKryptograficzny"
     depends_on:
       postgres:
         condition: service_healthy
@@ -73,6 +75,7 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      APP_SECURITY_ANTI_POSTMAN_ENABLED: "false"
     depends_on:
       postgres:
         condition: service_healthy
