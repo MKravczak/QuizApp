@@ -17,6 +17,7 @@
 - [Dokumentacja API](#dokumentacja-api)
 - [Dockeryzacja](#dockeryzacja)
 - [Uruchomienie projektu](#uruchomienie-projektu)
+- [Dokumentacja dodatkowa](#dokumentacja-dodatkowa)
 
 ## Opis ogólny
 
@@ -297,21 +298,240 @@ Baza danych PostgreSQL jest podzielona na schematy odpowiadające poszczególnym
 
 ## Zabezpieczenia
 
-System wykorzystuje wielopoziomowe zabezpieczenia:
+System QuizApp wykorzystuje wielopoziomowe zabezpieczenia zapewniające ochronę danych użytkowników i integralność aplikacji.
 
-### Autentykacja
-- **JWT (JSON Web Tokens)**: Bezstanowa autentykacja użytkowników
-- **Spring Security**: Filtrowanie żądań, autoryzacja
-- **Odświeżanie tokenów**: Mechanizm bezpiecznej wymiany wygasłych tokenów
+### 🔐 Autentykacja
 
-### Autoryzacja
-- **Role systemowe**: ADMIN, USER
-- **Walidacja właściciela zasobów**: Weryfikacja czy użytkownik jest właścicielem zasobu
+#### JWT (JSON Web Tokens)
+- **Bezstanowa autentykacja**: Tokeny JWT są używane do uwierzytelniania użytkowników bez konieczności przechowywania sesji na serwerze
+- **Wspólny klucz tajny**: Wszystkie mikroserwisy używają tego samego klucza JWT: `MIkolajKrawczakJWTSecretKey2024SuperBezpiecznyKluczDoTokenowMinimum256BitowKryptograficzny`
+- **Czas wygaśnięcia**: Tokeny JWT wygasają po 24 godzinach (86400000 ms)
+- **Refresh tokeny**: Tokeny odświeżania ważne przez 7 dni (604800000 ms)
 
-### Bezpieczeństwo danych
-- **Hashowanie haseł**: Bezpieczne przechowywanie haseł użytkowników
-- **Walidacja danych**: Szczegółowa walidacja danych wejściowych
-- **CORS**: Konfiguracja nagłówków bezpieczeństwa
+#### Konfiguracja JWT w mikroserwisach
+
+**Zmienne środowiskowe (docker-compose.yml):**
+```yaml
+environment:
+  APP_JWT_SECRET: "MIkolajKrawczakJWTSecretKey2024SuperBezpiecznyKluczDoTokenowMinimum256BitowKryptograficzny"
+```
+
+**Konfiguracja w application.properties:**
+```properties
+app.jwt.secret=MIkolajKrawczakJWTSecretKey2024SuperBezpiecznyKluczDoTokenowMinimum256BitowKryptograficzny
+app.jwt.expiration=86400000
+app.jwt.refresh-expiration=604800000
+```
+
+#### Komponenty JWT
+
+**JwtTokenProvider**
+- Generowanie tokenów JWT na podstawie danych użytkownika
+- Walidacja tokenów i sprawdzanie ich ważności
+- Wyciąganie informacji o użytkowniku z tokenu
+
+**JwtAuthenticationFilter**
+- Automatyczne filtrowanie wszystkich żądań HTTP
+- Wyciąganie tokenu z nagłówka `Authorization: Bearer <token>`
+- Ustawianie kontekstu uwierzytelnienia Spring Security
+
+### 🛡️ Autoryzacja
+
+#### System ról
+- **ROLE_USER**: Standardowy użytkownik systemu
+- **ROLE_ADMIN**: Administrator z rozszerzonymi uprawnieniami
+
+#### Kontrola dostępu do zasobów
+- **Własność zasobów**: Użytkownicy mogą modyfikować tylko własne zasoby (quizy, fiszki)
+- **Publiczne zasoby**: Dostęp do publicznych quizów i zestawów fiszek dla wszystkich użytkowników
+- **Adnotacje Spring Security**: `@PreAuthorize` do kontroli dostępu na poziomie metod
+
+#### Przykłady kontroli dostępu:
+```java
+@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+public ResponseEntity<User> getCurrentUser()
+
+@PreAuthorize("hasRole('ADMIN')")
+public ResponseEntity<List<User>> getAllUsers()
+```
+
+### 🔒 Bezpieczeństwo komunikacji
+
+#### Nagłówki bezpieczeństwa
+
+**Wymagane nagłówki dla komunikacji frontend-backend:**
+- `Authorization: Bearer <jwt-token>` - token uwierzytelniania
+- `X-User-ID: <user-id>` - identyfikator użytkownika
+- `Content-Type: application/json` - typ zawartości
+- `Origin: http://localhost:3000` - pochodzenie żądania
+- `X-Requested-With: XMLHttpRequest` - identyfikacja żądań AJAX
+
+**SecurityService (frontend)**
+Frontend automatycznie dodaje wymagane nagłówki bezpieczeństwa do każdego żądania:
+
+```javascript
+// Request interceptor w api.js
+config = securityService.enhanceRequestConfig(config);
+```
+
+### 🛡️ AntiPostmanFilter (WYŁĄCZONY)
+
+**Status**: AntiPostmanFilter jest obecnie **WYŁĄCZONY** we wszystkich mikroserwisach dla zapewnienia płynności działania aplikacji.
+
+**Konfiguracja:**
+```properties
+# W application.properties
+app.security.anti-postman.enabled=false
+
+# W docker-compose.yml
+APP_SECURITY_ANTI_POSTMAN_ENABLED: "false"
+```
+
+**Co blokował AntiPostmanFilter (gdy był włączony):**
+- Żądania z podejrzanych User-Agent (curl, Postman, Insomnia)
+- Żądania bez wymaganych nagłówków przeglądarki
+- Żądania bez poprawnego podpisu klienta
+- Żądania z niepoprawnego Origin/Referer
+
+**Algorytm podpisu klienta:**
+```javascript
+// Generowanie podpisu bezpieczeństwa
+const signature = Integer.toHexString((timestamp + path + clientSecret).hashCode());
+```
+
+### 🌐 CORS (Cross-Origin Resource Sharing)
+
+**Konfiguracja CORS:**
+```java
+@Bean
+public CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration configuration = new CorsConfiguration();
+    configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
+    configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+    configuration.setAllowedHeaders(Arrays.asList(
+        "authorization", 
+        "content-type", 
+        "x-auth-token", 
+        "X-User-ID",
+        "X-Requested-With",
+        "X-Client-Signature",
+        "X-Timestamp",
+        "Accept",
+        "Accept-Language",
+        "Accept-Encoding"
+    ));
+    configuration.setAllowCredentials(true);
+    return source;
+}
+```
+
+### 🔐 Bezpieczeństwo haseł
+
+#### Hashowanie
+- **BCrypt**: Algorytm hashowania haseł z automatycznym soleniem
+- **Strength**: Domyślna siła BCrypt (10 rund)
+
+```java
+@Bean
+public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+}
+```
+
+### 📊 Rate Limiting
+
+**Status**: Rate Limiting jest włączony w user-service.
+
+**Konfiguracja:**
+```properties
+app.security.rate-limit.enabled=true
+app.security.rate-limit.max-requests=50
+app.security.rate-limit.window-size=60000
+```
+
+**Limity:**
+- Maksymalnie 50 żądań na minutę na IP
+- Okno czasowe: 60 sekund
+- Automatyczne resetowanie liczników
+
+### 🛠️ Konfiguracja bezpieczeństwa mikroserwisów
+
+#### User Service
+```java
+@Configuration
+@EnableWebSecurity
+@EnableMethodSecurity
+public class SecurityConfig {
+    // JWT Authentication Filter
+    // Rate Limiting Filter
+    // AntiPostman Filter (wyłączony)
+    // CORS Configuration
+}
+```
+
+#### Flashcard Service & Quiz Service
+```java
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+    // JWT Authentication Filter
+    // AntiPostman Filter (wyłączony w quiz-service)
+    // CORS Configuration
+}
+```
+
+#### Statistics Service
+- **Minimalna konfiguracja**: Tylko podstawowe CORS
+- **Brak zaawansowanych filtrów**: Publiczny dostęp do niektórych endpointów
+- **Walidacja User-ID**: Opcjonalna w niektórych endpointach
+
+### 🔍 Monitoring i logowanie bezpieczeństwa
+
+**Logi bezpieczeństwa:**
+```properties
+logging.level.com.example.userservice.security.AntiPostmanFilter=INFO
+logging.level.com.example.userservice.security.RateLimitingFilter=INFO
+logging.level.com.example.userservice.security.JwtAuthenticationFilter=DEBUG
+```
+
+**Monitorowane zdarzenia:**
+- Nieudane próby uwierzytelnienia JWT
+- Zablokowane żądania przez filtry bezpieczeństwa
+- Przekroczone limity żądań (Rate Limiting)
+- Próby dostępu do zasobów bez autoryzacji
+
+### ⚠️ Znane ograniczenia bezpieczeństwa
+
+1. **AntiPostmanFilter wyłączony**: Dla zapewnienia funkcjonalności aplikacji
+2. **Wspólny JWT secret**: Wszystkie mikroserwisy używają tego samego klucza
+3. **HTTP komunikacja**: Brak HTTPS w środowisku deweloperskim
+4. **Brak rotacji kluczy**: JWT secret nie jest automatycznie rotowany
+
+### 🔧 Zalecenia dla środowiska produkcyjnego
+
+1. **Włącz HTTPS**: Wszystka komunikacja powinna być szyfrowana
+2. **Rotacja kluczy JWT**: Regularna zmiana JWT secret
+3. **Monitoring bezpieczeństwa**: Implementacja alertów bezpieczeństwa
+4. **Ograniczenie CORS**: Dostosowanie allowed origins do rzeczywistej domeny
+5. **Strengthening Rate Limiting**: Dostosowanie limitów do rzeczywistego ruchu
+6. **Audit logging**: Szczegółowe logowanie wszystkich operacji bezpieczeństwa
+
+### 🔑 Zmienne środowiskowe bezpieczeństwa
+
+**Wymagane w docker-compose.yml:**
+```yaml
+environment:
+  # JWT Configuration
+  APP_JWT_SECRET: "MIkolajKrawczakJWTSecretKey2024SuperBezpiecznyKluczDoTokenowMinimum256BitowKryptograficzny"
+  
+  # Security Filters
+  APP_SECURITY_ANTI_POSTMAN_ENABLED: "false"
+  
+  # Rate Limiting (tylko user-service)
+  APP_SECURITY_RATE_LIMIT_ENABLED: "true"
+  APP_SECURITY_RATE_LIMIT_MAX_REQUESTS: "50"
+  APP_SECURITY_RATE_LIMIT_WINDOW_SIZE: "60000"
+```
 
 ## Dokumentacja API
 
@@ -495,3 +715,51 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
    - Flashcard Service API: http://localhost:8081
    - Quiz Service API: http://localhost:8083
    - Statistics Service API: http://localhost:8084
+
+## Dokumentacja dodatkowa
+
+### 📋 Dostępna dokumentacja
+
+- **[Szczegółowa dokumentacja bezpieczeństwa](docs/SECURITY.md)** - Kompleksowy przewodnik po wszystkich aspektach bezpieczeństwa QuizApp
+- **[Szablon konfiguracji bezpieczeństwa](docs/security-config-template.properties)** - Przykładowa konfiguracja wszystkich ustawień bezpieczeństwa
+- **[API Documentation](docs/api/)** - Szczegółowa dokumentacja wszystkich endpointów API (planowane)
+- **[Deployment Guide](docs/deployment/)** - Przewodnik wdrażania na różnych środowiskach (planowane)
+
+### 🔐 Bezpieczeństwo - szybki start
+
+**Aktualna konfiguracja bezpieczeństwa (development):**
+- ✅ JWT Authentication - włączone
+- ✅ CORS - skonfigurowane dla localhost:3000
+- ✅ Rate Limiting - włączone (50 req/min)
+- ❌ AntiPostmanFilter - wyłączone
+- ✅ BCrypt password hashing - włączone
+- ✅ Security Headers - automatycznie dodawane przez frontend
+
+**Szybka diagnoza problemów bezpieczeństwa:**
+```bash
+# Sprawdź czy wszystkie serwisy mają JWT secret
+docker compose exec user-service env | grep JWT
+docker compose exec quiz-service env | grep JWT
+
+# Sprawdź logi bezpieczeństwa
+docker compose logs user-service | grep -i security
+docker compose logs quiz-service | grep -i jwt
+
+# Test autoryzacji
+curl -H "Authorization: Bearer <your-token>" \
+     -H "X-User-ID: 1" \
+     http://localhost:8080/api/users/me
+```
+
+Więcej informacji w [docs/SECURITY.md](docs/SECURITY.md).
+
+### 🐛 Troubleshooting
+
+**Najczęstsze problemy:**
+
+1. **403 Forbidden errors** → Sprawdź czy AntiPostmanFilter jest wyłączony
+2. **JWT signature errors** → Upewnij się że wszystkie serwisy mają ten sam APP_JWT_SECRET
+3. **CORS errors** → Sprawdź konfigurację allowed origins
+4. **Rate limiting** → Sprawdź limity w user-service
+
+Szczegółowe rozwiązania w [dokumentacji bezpieczeństwa](docs/SECURITY.md#troubleshooting).
