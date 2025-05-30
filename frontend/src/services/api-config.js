@@ -10,6 +10,7 @@ const STATISTICS_SERVICE_URL = 'http://localhost:8084';
 const API_BASE_URL = {
   auth: `${USER_SERVICE_URL}/api/auth`,
   users: `${USER_SERVICE_URL}/api/users`,
+  groups: `${USER_SERVICE_URL}/api/groups`,
   flashcards: `${FLASHCARD_SERVICE_URL}/api/flashcards`,
   decks: `${FLASHCARD_SERVICE_URL}/api/decks`,
   quizzes: `${QUIZ_SERVICE_URL}/api/quizzes`,

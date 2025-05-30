@@ -29,6 +29,9 @@ const NavBar = () => {
                 <Link to="/dashboard" className="btn btn-sm me-2" style={{ fontWeight: '600' }}>
                   Dashboard
                 </Link>
+                <Link to="/groups" className="btn btn-sm me-2" style={{ fontWeight: '600' }}>
+                  Grupy
+                </Link>
                 <Link to="/decks" className="btn btn-sm me-2" style={{ fontWeight: '600' }}>
                   Fiszki
                 </Link>

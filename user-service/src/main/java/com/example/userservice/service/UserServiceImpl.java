@@ -44,6 +44,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<User> searchUsersByUsername(String searchTerm) {
+        if (searchTerm == null || searchTerm.trim().isEmpty()) {
+            return List.of();
+        }
+        return userRepository.findByUsernameContainingIgnoreCase(searchTerm.trim());
+    }
+
+    @Override
     @Transactional
     public User updateUser(Long id, User userDetails) {
         User user = userRepository.findById(id)

@@ -1,7 +1,6 @@
 package com.example.userservice.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -15,50 +14,34 @@ import java.util.Objects;
 import java.util.Set;
 
 @Entity
-@Table(name = "users", uniqueConstraints = {
-        @UniqueConstraint(columnNames = "username"),
-        @UniqueConstraint(columnNames = "email")
-})
+@Table(name = "user_groups")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public class Group {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank
-    @Size(max = 50)
-    private String username;
-
-    @NotBlank
     @Size(max = 100)
-    @Email
-    private String email;
+    @Column(unique = true)
+    private String name;
 
-    @NotBlank
-    @Size(max = 120)
-    private String password;
+    @Size(max = 500)
+    private String description;
 
-    @Size(max = 50)
-    @Column(name = "first_name")
-    private String firstName;
+    @Column(name = "creator_id", nullable = false)
+    private Long creatorId;
 
-    @Size(max = 50)
-    @Column(name = "last_name")
-    private String lastName;
-
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-            name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id")
+            name = "group_members",
+            joinColumns = @JoinColumn(name = "group_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    private Set<Role> roles = new HashSet<>();
-
-    @ManyToMany(mappedBy = "members", fetch = FetchType.LAZY)
-    private Set<Group> groups = new HashSet<>();
+    private Set<User> members = new HashSet<>();
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -77,12 +60,23 @@ public class User {
         updatedAt = LocalDateTime.now();
     }
 
+    public Group(String name, String description) {
+        this.name = name;
+        this.description = description;
+    }
+
+    public Group(String name, String description, Long userId) {
+        this.name = name;
+        this.description = description;
+        this.creatorId = userId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        User user = (User) o;
-        return Objects.equals(id, user.id);
+        Group group = (Group) o;
+        return Objects.equals(id, group.id);
     }
 
     @Override
@@ -92,12 +86,11 @@ public class User {
 
     @Override
     public String toString() {
-        return "User{" +
+        return "Group{" +
                 "id=" + id +
-                ", username='" + username + '\'' +
-                ", email='" + email + '\'' +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", creatorId=" + creatorId +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
                 '}';

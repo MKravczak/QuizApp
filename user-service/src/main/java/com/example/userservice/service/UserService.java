@@ -13,6 +13,8 @@ public interface UserService {
     
     Optional<User> getUserByUsername(String username);
     
+    List<User> searchUsersByUsername(String searchTerm);
+    
     User updateUser(Long id, User userDetails);
     
     void deleteUser(Long id);
