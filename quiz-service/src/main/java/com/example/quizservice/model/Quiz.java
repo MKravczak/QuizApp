@@ -9,7 +9,9 @@ import lombok.ToString;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "quizzes")
@@ -34,6 +36,14 @@ public class Quiz {
 
     @Column(name = "is_public")
     private boolean isPublic;
+
+    @ElementCollection
+    @CollectionTable(
+        name = "quiz_groups", 
+        joinColumns = @JoinColumn(name = "quiz_id")
+    )
+    @Column(name = "group_id")
+    private Set<Long> groupIds = new HashSet<>();
 
     @Column(nullable = false)
     private Integer questionCount;

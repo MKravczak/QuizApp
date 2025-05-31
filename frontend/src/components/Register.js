@@ -6,30 +6,43 @@ function Register() {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [errors, setErrors] = useState({});
   const [successful, setSuccessful] = useState(false);
 
   const handleRegister = async (e) => {
     e.preventDefault();
     setMessage('');
+    setErrors({});
     setLoading(true);
     setSuccessful(false);
 
     try {
-      const response = await AuthService.register(username, email, password);
+      console.log("Sending registration data:", { username, email, password, firstName, lastName });
+      const response = await AuthService.register(username, email, password, firstName, lastName);
       setMessage(response.data.message || 'Rejestracja zakończona sukcesem!');
       setSuccessful(true);
       setLoading(false);
     } catch (error) {
-      const errorMessage =
-        (error.response &&
-          error.response.data &&
-          error.response.data.message) ||
-        error.message ||
-        error.toString();
-
-      setMessage('Błąd rejestracji: ' + errorMessage);
+      console.error("Registration error:", error);
+      
+      if (error.response && error.response.data) {
+        // Handle structured validation errors
+        if (typeof error.response.data === 'object' && !Array.isArray(error.response.data)) {
+          setErrors(error.response.data);
+          setMessage('Proszę poprawić błędy w formularzu.');
+        } else {
+          // Handle message-based errors
+          const errorMessage = error.response.data.message || error.message || error.toString();
+          setMessage('Błąd rejestracji: ' + errorMessage);
+        }
+      } else {
+        setMessage('Błąd rejestracji: ' + (error.message || 'Nieznany błąd'));
+      }
+      
       setSuccessful(false);
       setLoading(false);
     }
@@ -58,36 +71,73 @@ function Register() {
                   <label htmlFor="username" className="form-label">Nazwa użytkownika</label>
                   <input
                     type="text"
-                    className="form-control"
+                    className={`form-control ${errors.username ? 'is-invalid' : ''}`}
                     id="username"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     required
                   />
+                  {errors.username && (
+                    <div className="invalid-feedback">{errors.username}</div>
+                  )}
                 </div>
 
                 <div className="mb-3">
                   <label htmlFor="email" className="form-label">Email</label>
                   <input
                     type="email"
-                    className="form-control"
+                    className={`form-control ${errors.email ? 'is-invalid' : ''}`}
                     id="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
                   />
+                  {errors.email && (
+                    <div className="invalid-feedback">{errors.email}</div>
+                  )}
+                </div>
+
+                <div className="mb-3">
+                  <label htmlFor="firstName" className="form-label">Imię</label>
+                  <input
+                    type="text"
+                    className={`form-control ${errors.firstName ? 'is-invalid' : ''}`}
+                    id="firstName"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                  />
+                  {errors.firstName && (
+                    <div className="invalid-feedback">{errors.firstName}</div>
+                  )}
+                </div>
+
+                <div className="mb-3">
+                  <label htmlFor="lastName" className="form-label">Nazwisko</label>
+                  <input
+                    type="text"
+                    className={`form-control ${errors.lastName ? 'is-invalid' : ''}`}
+                    id="lastName"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                  />
+                  {errors.lastName && (
+                    <div className="invalid-feedback">{errors.lastName}</div>
+                  )}
                 </div>
 
                 <div className="mb-3">
                   <label htmlFor="password" className="form-label">Hasło</label>
                   <input
                     type="password"
-                    className="form-control"
+                    className={`form-control ${errors.password ? 'is-invalid' : ''}`}
                     id="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
                   />
+                  {errors.password && (
+                    <div className="invalid-feedback">{errors.password}</div>
+                  )}
                 </div>
 
                 <div className="d-grid gap-2">

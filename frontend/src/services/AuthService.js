@@ -1,28 +1,40 @@
-import axios from 'axios';
-import API_BASE_URL from './api-config';
+import { userAPI } from './api';
 
 class AuthService {
   async login(username, password) {
-    const response = await axios.post(`${API_BASE_URL.auth}/login`, {
-      username,
-      password
-    });
-    if (response.data.token) {
-      localStorage.setItem('user', JSON.stringify(response.data));
+    try {
+      const response = await userAPI.login({ username, password });
+      if (response.data.token) {
+        localStorage.setItem('user', JSON.stringify(response.data));
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('userId', response.data.id);
+      }
+      return response.data;
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
     }
-    return response.data;
   }
 
   logout() {
     localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    localStorage.removeItem('userId');
   }
 
-  async register(username, email, password) {
-    return axios.post(`${API_BASE_URL.auth}/register`, {
-      username,
-      email,
-      password
-    });
+  async register(username, email, password, firstName = '', lastName = '') {
+    try {
+      return await userAPI.register({
+        username,
+        email,
+        password,
+        firstName,
+        lastName
+      });
+    } catch (error) {
+      console.error('Register error:', error);
+      throw error;
+    }
   }
 
   getCurrentUser() {
@@ -40,7 +52,7 @@ class AuthService {
 
   getToken() {
     const user = this.getCurrentUser();
-    return user?.token;
+    return user?.token || localStorage.getItem('token');
   }
 
   getAuthHeader() {

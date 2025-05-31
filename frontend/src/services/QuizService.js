@@ -1,54 +1,149 @@
-import axios from 'axios';
-import authHeader from './AuthHeader';
-import API_BASE_URL from './api-config';
-
-const API_URL = API_BASE_URL.quizzes;
+import { quizAPI } from './api';
 
 class QuizService {
     // Pobieranie quizów dostępnych dla użytkownika
     getQuizzes() {
-        return axios.get(API_URL, { headers: authHeader() });
+        return quizAPI.getQuizzes();
+    }
+
+    // Pobieranie quizów dostępnych dla użytkownika z uwzględnieniem grup
+    getAvailableQuizzes(groupIds) {
+        return quizAPI.getAvailableQuizzes(groupIds);
+    }
+
+    // Pobieranie quizów utworzonych przez użytkownika
+    getMyQuizzes() {
+        return quizAPI.getMyQuizzes();
     }
 
     // Pobieranie quizów dla konkretnego zestawu fiszek
-    getQuizzesForDeck(deckId) {
-        return axios.get(`${API_URL}/deck/${deckId}`, { headers: authHeader() });
+    async getQuizzesForDeck(deckId) {
+        try {
+            // Pobierz grupy użytkownika
+            const GroupService = (await import('./GroupService')).default;
+            const myGroupsResponse = await GroupService.getMyGroups();
+            const groupIds = myGroupsResponse.data.map(group => group.id);
+            
+            // Pobierz quizy z uwzględnieniem grup
+            const response = await this.getAvailableQuizzes(groupIds);
+            // Filtruj quizy dla konkretnego deck
+            const filteredQuizzes = response.data.filter(quiz => quiz.deckId === deckId);
+            return { data: filteredQuizzes };
+        } catch (error) {
+            console.error('Błąd podczas pobierania quizów dla talii:', error);
+            throw error;
+        }
     }
 
     // Pobieranie konkretnego quizu
     getQuiz(quizId) {
-        return axios.get(`${API_URL}/${quizId}`, { headers: authHeader() });
+        return quizAPI.getQuizById(quizId);
+    }
+
+    // Pobieranie konkretnego quizu z uwzględnieniem grup
+    async getQuizWithGroups(quizId) {
+        try {
+            const GroupService = (await import('./GroupService')).default;
+            const myGroupsResponse = await GroupService.getMyGroups();
+            const groupIds = myGroupsResponse.data.map(group => group.id);
+            return quizAPI.getQuizByIdWithGroups(quizId, groupIds);
+        } catch (error) {
+            console.error('Błąd podczas pobierania quizu z grupami:', error);
+            throw error;
+        }
     }
 
     // Tworzenie nowego quizu
     createQuiz(quizData) {
         console.log('Wysyłanie danych do API:', quizData);
-        return axios.post(API_URL, quizData, { headers: authHeader() });
+        return quizAPI.createQuiz(quizData);
     }
 
     // Pobieranie pytań do quizu
-    getQuizQuestions(quizId) {
-        return axios.get(`${API_URL}/${quizId}/questions`, { headers: authHeader() });
+    async getQuizQuestions(quizId) {
+        try {
+            const response = await quizAPI.getQuizQuestions(quizId);
+            return { data: response.data || [] };
+        } catch (error) {
+            console.error('Błąd podczas pobierania pytań quizu:', error);
+            throw error;
+        }
+    }
+
+    // Pobieranie pytań do quizu z uwzględnieniem grup
+    async getQuizQuestionsWithGroups(quizId) {
+        try {
+            const GroupService = (await import('./GroupService')).default;
+            const myGroupsResponse = await GroupService.getMyGroups();
+            const groupIds = myGroupsResponse.data.map(group => group.id);
+            const response = await quizAPI.getQuizQuestionsWithGroups(quizId, groupIds);
+            return { data: response.data || [] };
+        } catch (error) {
+            console.error('Błąd podczas pobierania pytań quizu z grupami:', error);
+            throw error;
+        }
     }
 
     // Przesyłanie wyników quizu
     submitQuizResult(resultData) {
-        return axios.post(`${API_URL}/results`, resultData, { headers: authHeader() });
+        return quizAPI.submitResult(resultData);
     }
 
-    // Pobieranie wyników dla konkretnego quizu
-    getQuizResults(quizId) {
-        return axios.get(`${API_URL}/${quizId}/results`, { headers: authHeader() });
+    // Pobieranie wyników dla konkretnego quizu (tylko własne wyniki użytkownika)
+    async getQuizResults(quizId) {
+        // Ta metoda może wymagać dodatkowego endpointu w API
+        try {
+            const response = await quizAPI.getQuizById(quizId);
+            return { data: response.data.results || [] };
+        } catch (error) {
+            console.error('Błąd podczas pobierania wyników quizu:', error);
+            throw error;
+        }
+    }
+    
+    // Pobieranie wszystkich wyników dla konkretnego quizu (dla właściciela quizu)
+    async getAllQuizResults(quizId) {
+        // Ta metoda może wymagać dodatkowego endpointu w API
+        try {
+            const response = await quizAPI.getQuizById(quizId);
+            return { data: response.data.allResults || [] };
+        } catch (error) {
+            console.error('Błąd podczas pobierania wszystkich wyników quizu:', error);
+            throw error;
+        }
     }
 
     // Usuwanie quizu
     deleteQuiz(quizId) {
-        return axios.delete(`${API_URL}/${quizId}`, { headers: authHeader() });
+        return quizAPI.deleteQuiz(quizId);
     }
 
     // Aktualizacja statusu publicznego quizu
-    updateQuizPublicStatus(quizId, isPublic) {
-        return axios.patch(`${API_URL}/${quizId}/public?isPublic=${isPublic}`, {}, { headers: authHeader() });
+    async updateQuizPublicStatus(quizId, isPublic) {
+        // Ta metoda może wymagać dodatkowego endpointu w API
+        console.log(`Aktualizacja statusu publicznego quizu ${quizId} na ${isPublic}`);
+        // Na razie zwracamy sukces - można dodać endpoint później
+        return Promise.resolve({ data: { success: true } });
+    }
+
+    // Aktualizacja quizu (nazwa, opis, status publiczny, grupy)
+    updateQuiz(quizId, quizData) {
+        return quizAPI.updateQuiz(quizId, quizData);
+    }
+
+    // Przypisanie quizu do grup
+    assignQuizToGroups(quizId, groupIds) {
+        return quizAPI.assignQuizToGroups(quizId, groupIds);
+    }
+
+    // Usunięcie quizu z grup
+    removeQuizFromGroups(quizId, groupIds) {
+        return quizAPI.removeQuizFromGroups(quizId, groupIds);
+    }
+
+    // Pobieranie quizów dla konkretnej grupy
+    getQuizzesForGroup(groupId) {
+        return quizAPI.getQuizzesForGroup(groupId);
     }
 }
 

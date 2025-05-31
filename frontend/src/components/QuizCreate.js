@@ -58,8 +58,8 @@ const QuizCreate = () => {
                     });
                     setSelectedFlashcards(flashcards);
                     
-                    // Ustaw domyślną liczbę pytań na liczbę fiszek w zestawie (max 10)
-                    const defaultQuestionCount = Math.min(flashcards.length, 10);
+                    // Ustaw domyślną liczbę pytań na liczbę fiszek w zestawie
+                    const defaultQuestionCount = flashcards.length;
                     setFormData(prev => ({
                         ...prev,
                         questionCount: defaultQuestionCount
@@ -186,6 +186,13 @@ const QuizCreate = () => {
                         value={formData.name}
                         onChange={handleChange}
                         required
+                        className="quiz-form-control"
+                        style={{
+                            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                            color: 'var(--text-primary)',
+                            border: '1px solid rgba(255, 255, 255, 0.2)',
+                            borderRadius: '8px'
+                        }}
                     />
                 </Form.Group>
 
@@ -197,68 +204,106 @@ const QuizCreate = () => {
                         value={formData.description}
                         onChange={handleChange}
                         rows={3}
+                        className="quiz-form-control"
+                        style={{
+                            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                            color: 'var(--text-primary)',
+                            border: '1px solid rgba(255, 255, 255, 0.2)',
+                            borderRadius: '8px'
+                        }}
                     />
                 </Form.Group>
 
                 <Form.Group className="mb-3">
-                    <Form.Label>Wybierz zestaw fiszek dla pytań</Form.Label>
-                    <Form.Select
+                    <Form.Label>Wybierz zestaw fiszek</Form.Label>
+                    <Form.Select 
                         name="flashcardDeckId"
                         value={formData.flashcardDeckId}
                         onChange={handleChange}
                         required
+                        className="quiz-form-control"
+                        style={{
+                            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                            color: 'var(--text-primary)',
+                            border: '1px solid rgba(255, 255, 255, 0.2)',
+                            borderRadius: '8px'
+                        }}
                     >
                         <option value="">Wybierz zestaw...</option>
                         {decks.map(deck => (
                             <option key={deck.id} value={deck.id}>
-                                {deck.name} ({deck.flashcards.length} fiszek)
+                                {deck.name} ({deck.flashcards?.length || 0} fiszek)
                             </option>
                         ))}
                     </Form.Select>
-                    <Form.Text className="text-muted">
-                        Pytania zostaną wygenerowane na podstawie wybranego zestawu fiszek.
-                    </Form.Text>
                 </Form.Group>
 
-                {selectedDeckInfo && (
-                    <Form.Group className="mb-3">
-                        <Form.Label>Liczba pytań (max: {selectedDeckInfo.flashcardCount})</Form.Label>
-                        <Form.Control
-                            type="number"
-                            name="questionCount"
-                            value={formData.questionCount}
-                            onChange={handleChange}
-                            min={1}
-                            max={selectedDeckInfo.flashcardCount}
-                            required
-                        />
-                        <Form.Text className="text-muted">
-                            Wybierz liczbę pytań, które pojawią się w quizie (maksymalnie tyle, ile jest fiszek w zestawie).
-                        </Form.Text>
-                    </Form.Group>
-                )}
-
                 <Form.Group className="mb-3">
+                    <Form.Label>Liczba pytań</Form.Label>
+                    <Form.Control
+                        type="number"
+                        name="questionCount"
+                        value={formData.questionCount}
+                        onChange={handleChange}
+                        min={1}
+                        max={selectedDeckInfo ? selectedDeckInfo.flashcardCount : 20}
+                        required
+                        className="quiz-form-control"
+                        style={{
+                            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                            color: 'var(--text-primary)',
+                            border: '1px solid rgba(255, 255, 255, 0.2)',
+                            borderRadius: '8px'
+                        }}
+                    />
+                    {selectedDeckInfo && (
+                        <Form.Text className="text-muted">
+                            Maksymalna liczba pytań: {selectedDeckInfo.flashcardCount}
+                        </Form.Text>
+                    )}
+                </Form.Group>
+
+                <Form.Group className="mb-4">
                     <Form.Check
                         type="checkbox"
+                        id="isPublic"
                         name="isPublic"
-                        label="Quiz publiczny (dostępny dla wszystkich użytkowników)"
+                        label="Quiz publiczny"
                         checked={formData.isPublic}
                         onChange={handleChange}
+                        className="quiz-form-check"
+                        style={{
+                            color: 'var(--text-primary)'
+                        }}
                     />
                 </Form.Group>
 
-                <div className="d-flex gap-2">
-                    <Button variant="primary" type="submit" disabled={loading}>
+                <div className="d-flex justify-content-end">
+                    <Button 
+                        variant="secondary" 
+                        onClick={() => navigate('/quizzes')}
+                        className="me-2"
+                    >
+                        Anuluj
+                    </Button>
+                    <Button 
+                        variant="primary" 
+                        type="submit"
+                        disabled={loading || !formData.flashcardDeckId}
+                    >
                         {loading ? (
                             <>
-                                <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
-                                <span className="ms-2">Tworzenie...</span>
+                                <Spinner
+                                    as="span"
+                                    animation="border"
+                                    size="sm"
+                                    role="status"
+                                    aria-hidden="true"
+                                    className="me-2"
+                                />
+                                Tworzenie...
                             </>
                         ) : 'Utwórz quiz'}
-                    </Button>
-                    <Button variant="secondary" onClick={() => navigate('/quizzes')}>
-                        Anuluj
                     </Button>
                 </div>
             </Form>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import QuizService from '../services/QuizService';
+import GroupService from '../services/GroupService';
 import { Container, Table, Button, Spinner, Alert } from 'react-bootstrap';
 import './QuizList.css';
 
@@ -14,18 +15,22 @@ const QuizList = () => {
         loadQuizzes();
     }, []);
 
-    const loadQuizzes = () => {
+    const loadQuizzes = async () => {
         setLoading(true);
-        QuizService.getQuizzes()
-            .then(response => {
-                setQuizzes(response.data);
-                setLoading(false);
-            })
-            .catch(err => {
-                console.error('Błąd podczas pobierania quizów:', err);
-                setError('Nie udało się pobrać listy quizów.');
-                setLoading(false);
-            });
+        try {
+            // Pobierz grupy użytkownika
+            const myGroupsResponse = await GroupService.getMyGroups();
+            const groupIds = myGroupsResponse.data.map(group => group.id);
+            
+            // Pobierz quizy z uwzględnieniem grup
+            const response = await QuizService.getAvailableQuizzes(groupIds);
+            setQuizzes(response.data);
+        } catch (err) {
+            console.error('Błąd podczas pobierania quizów:', err);
+            setError('Nie udało się pobrać listy quizów.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleDelete = (quizId) => {
@@ -84,7 +89,7 @@ const QuizList = () => {
                     Brak dostępnych quizów. Stwórz nowy lub poczekaj aż pojawią się publiczne quizy.
                 </Alert>
             ) : (
-                <Table striped bordered hover responsive>
+                <Table striped bordered hover responsive variant="dark">
                     <thead>
                         <tr>
                             <th>Nazwa</th>
@@ -117,9 +122,19 @@ const QuizList = () => {
                                         className="me-2 action-button stats-button"
                                         as={Link}
                                         to={`/quizzes/${quiz.id}/results`}
-                                        title="Wyniki"
+                                        title="Moje wyniki"
                                     >
                                         <i className="bi bi-bar-chart-fill"></i>
+                                    </Button>
+                                    <Button 
+                                        variant="primary" 
+                                        size="sm" 
+                                        className="me-2 action-button all-stats-button"
+                                        as={Link}
+                                        to={`/quizzes/${quiz.id}/statistics`}
+                                        title="Statystyki wszystkich użytkowników"
+                                    >
+                                        <i className="bi bi-graph-up"></i>
                                     </Button>
                                     <Button 
                                         variant={quiz.public ? "secondary" : "warning"} 

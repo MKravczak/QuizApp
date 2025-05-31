@@ -12,7 +12,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -27,10 +26,9 @@ public class DataInitializer {
 
     @PostConstruct
     public void init() {
-        // Inicjalizacja ról
+        
         initRoles();
         
-        // Tworzenie przykładowego użytkownika, jeśli nie istnieje
         createUserIfNotExists(
                 "admin",
                 "admin@example.com",

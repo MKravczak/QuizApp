@@ -15,8 +15,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +41,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<User> getUserByUsername(String username) {
         return userRepository.findByUsername(username);
+    }
+
+    @Override
+    public List<User> searchUsersByUsername(String searchTerm) {
+        if (searchTerm == null || searchTerm.trim().isEmpty()) {
+            return List.of();
+        }
+        return userRepository.findByUsernameContainingIgnoreCase(searchTerm.trim());
     }
 
     @Override
@@ -103,5 +113,27 @@ public class UserServiceImpl implements UserService {
         user.setRoles(roles);
         userRepository.save(user);
         return true;
+    }
+    
+    @Override
+    public Map<Long, String> getUsernamesByIds(List<Long> userIds) {
+        List<User> users = userRepository.findAllById(userIds);
+        return users.stream()
+                .collect(Collectors.toMap(
+                    User::getId,
+                    user -> user.getUsername() != null ? user.getUsername() : "Nieznany użytkownik"
+                ));
+    }
+    
+    @Override
+    public boolean isUserAdmin(Long userId) {
+        Optional<User> userOpt = userRepository.findById(userId);
+        if (userOpt.isEmpty()) {
+            return false;
+        }
+        
+        User user = userOpt.get();
+        return user.getRoles().stream()
+                .anyMatch(role -> role.getName() == ERole.ROLE_ADMIN);
     }
 } 

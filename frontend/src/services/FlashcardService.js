@@ -1,5 +1,5 @@
 import AuthService from './AuthService';
-import API_BASE_URL from './api-config';
+import { flashcardAPI } from './api';
 
 class FlashcardService {
   async getDecks() {
@@ -32,59 +32,29 @@ class FlashcardService {
   }
 
   async getMyDecks() {
-    const userId = AuthService.getCurrentUser().id;
-    const response = await fetch(`${API_BASE_URL.decks}/my`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${AuthService.getToken()}`,
-        'X-User-ID': userId
-      }
-    });
-    
-    if (!response.ok) {
+    try {
+      const response = await flashcardAPI.getMyDecks();
+      return response.data;
+    } catch (error) {
+      console.error('Błąd podczas pobierania talii fiszek:', error);
       throw new Error('Nie udało się pobrać talii fiszek');
     }
-    
-    return response.json();
   }
 
   async getPublicDecks() {
-    const response = await fetch(`${API_BASE_URL.decks}/public`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${AuthService.getToken()}`
-      }
-    });
-    
-    if (!response.ok) {
+    try {
+      const response = await flashcardAPI.getPublicDecks();
+      return response.data;
+    } catch (error) {
+      console.error('Błąd podczas pobierania publicznych talii fiszek:', error);
       throw new Error('Nie udało się pobrać publicznych talii fiszek');
     }
-    
-    return response.json();
   }
 
   async getDeckById(deckId) {
-    const userId = AuthService.getCurrentUser().id;
-    const token = AuthService.getToken();
-    
     try {
-      const response = await fetch(`${API_BASE_URL.decks}/${deckId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-          'X-User-ID': userId
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error('Nie udało się pobrać talii fiszek');
-      }
-      
-      const data = await response.json();
-      return { data: data }; // Zwracamy w formacie zgodnym z axios
+      const response = await flashcardAPI.getDeckById(deckId);
+      return { data: response.data }; // Zwracamy w formacie zgodnym z axios
     } catch (error) {
       console.error('Błąd podczas pobierania zestawu fiszek:', error);
       throw error;
@@ -92,233 +62,122 @@ class FlashcardService {
   }
 
   async createDeck(deckData) {
-    const userId = AuthService.getCurrentUser().id;
-    const response = await fetch(`${API_BASE_URL.decks}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${AuthService.getToken()}`,
-        'X-User-ID': userId
-      },
-      body: JSON.stringify(deckData)
-    });
-    
-    if (!response.ok) {
+    try {
+      const response = await flashcardAPI.createDeck(deckData);
+      return response.data;
+    } catch (error) {
+      console.error('Błąd podczas tworzenia talii:', error);
       throw new Error('Nie udało się utworzyć talii fiszek');
     }
-    
-    return response.json();
   }
 
   async updateDeck(deckId, deckData) {
-    const userId = AuthService.getCurrentUser().id;
     console.log('Aktualizuję talię ID:', deckId);
     console.log('Dane do wysłania:', JSON.stringify(deckData));
     
-    const response = await fetch(`${API_BASE_URL.decks}/${deckId}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${AuthService.getToken()}`,
-        'X-User-ID': userId
-      },
-      body: JSON.stringify(deckData)
-    });
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Błąd odpowiedzi:', errorText);
+    try {
+      const response = await flashcardAPI.updateDeck(deckId, deckData);
+      console.log('Otrzymana odpowiedź:', JSON.stringify(response.data));
+      return response.data;
+    } catch (error) {
+      console.error('Błąd podczas aktualizacji talii:', error);
       throw new Error('Nie udało się zaktualizować talii fiszek');
     }
-    
-    const data = await response.json();
-    console.log('Otrzymana odpowiedź:', JSON.stringify(data));
-    return data;
   }
 
   async deleteDeck(deckId) {
-    const userId = AuthService.getCurrentUser().id;
-    const response = await fetch(`${API_BASE_URL.decks}/${deckId}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${AuthService.getToken()}`,
-        'X-User-ID': userId
-      }
-    });
-    
-    if (!response.ok) {
+    try {
+      await flashcardAPI.deleteDeck(deckId);
+      return true;
+    } catch (error) {
+      console.error('Błąd podczas usuwania talii:', error);
       throw new Error('Nie udało się usunąć talii fiszek');
     }
-    
-    return true;
   }
 
   async getFlashcardsByDeckId(deckId) {
-    const response = await fetch(`${API_BASE_URL.flashcards}/deck/${deckId}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${AuthService.getToken()}`
-      }
-    });
-    
-    if (!response.ok) {
+    try {
+      const response = await flashcardAPI.getFlashcardsByDeckId(deckId);
+      return response.data;
+    } catch (error) {
+      console.error('Błąd podczas pobierania fiszek:', error);
       throw new Error('Nie udało się pobrać fiszek');
     }
-    
-    return response.json();
   }
 
   async getFlashcardById(flashcardId) {
-    const response = await fetch(`${API_BASE_URL.flashcards}/${flashcardId}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${AuthService.getToken()}`
-      }
-    });
-    
-    if (!response.ok) {
+    try {
+      const response = await flashcardAPI.getFlashcardById(flashcardId);
+      return response.data;
+    } catch (error) {
+      console.error('Błąd podczas pobierania fiszki:', error);
       throw new Error('Nie udało się pobrać fiszki');
     }
-    
-    return response.json();
   }
 
   async createFlashcard(flashcardData) {
-    const response = await fetch(`${API_BASE_URL.flashcards}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${AuthService.getToken()}`
-      },
-      body: JSON.stringify(flashcardData)
-    });
-    
-    if (!response.ok) {
+    try {
+      const response = await flashcardAPI.createFlashcard(flashcardData);
+      return response.data;
+    } catch (error) {
+      console.error('Błąd podczas tworzenia fiszki:', error);
       throw new Error('Nie udało się utworzyć fiszki');
     }
-    
-    return response.json();
   }
 
   async updateFlashcard(flashcardId, flashcardData) {
-    const response = await fetch(`${API_BASE_URL.flashcards}/${flashcardId}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${AuthService.getToken()}`
-      },
-      body: JSON.stringify(flashcardData)
-    });
-    
-    if (!response.ok) {
+    try {
+      const response = await flashcardAPI.updateFlashcard(flashcardId, flashcardData);
+      return response.data;
+    } catch (error) {
+      console.error('Błąd podczas aktualizacji fiszki:', error);
       throw new Error('Nie udało się zaktualizować fiszki');
     }
-    
-    return response.json();
   }
 
   async deleteFlashcard(flashcardId) {
-    const response = await fetch(`${API_BASE_URL.flashcards}/${flashcardId}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${AuthService.getToken()}`
-      }
-    });
-    
-    if (!response.ok) {
+    try {
+      await flashcardAPI.deleteFlashcard(flashcardId);
+      return true;
+    } catch (error) {
+      console.error('Błąd podczas usuwania fiszki:', error);
       throw new Error('Nie udało się usunąć fiszki');
     }
-    
-    return true;
   }
 
   async uploadImage(flashcardId, formData) {
-    const response = await fetch(`${API_BASE_URL.flashcards}/upload-image`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${AuthService.getToken()}`
-      },
-      body: formData
-    });
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Błąd uploadImage:', errorText);
-      throw new Error('Nie udało się przesłać obrazu: ' + errorText);
+    try {
+      const response = await flashcardAPI.uploadImage(flashcardId, formData);
+      return response.data;
+    } catch (error) {
+      console.error('Błąd podczas przesyłania obrazu:', error);
+      throw new Error('Nie udało się przesłać obrazu');
     }
-    
-    // Serwer zwraca ścieżkę do zapisanego obrazu
-    const imagePath = await response.text();
-    console.log('Otrzymana ścieżka obrazu:', imagePath);
-    
-    // Aktualizuj fiszkę z ścieżką do obrazu
-    const flashcardData = {
-      imagePath: imagePath
-    };
-    
-    await this.updateFlashcard(flashcardId, flashcardData);
-    
-    return imagePath;
   }
 
   async importFlashcardsFromCSV(deckId, file) {
-    const userId = AuthService.getCurrentUser().id;
-    const formData = new FormData();
-    formData.append('file', file);
-
-    const response = await fetch(`${API_BASE_URL.decks}/${deckId}/import/csv`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${AuthService.getToken()}`,
-        'X-User-ID': userId
-      },
-      body: formData
-    });
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(errorText || 'Nie udało się zaimportować fiszek z pliku CSV');
+    try {
+      const response = await flashcardAPI.importFromCSV(deckId, file);
+      return response.data;
+    } catch (error) {
+      console.error('Błąd podczas importu z CSV:', error);
+      throw new Error('Nie udało się zaimportować fiszek z pliku CSV');
     }
-    
-    return response.json();
   }
 
   async importFlashcardsFromTxt(deckId, file) {
-    const userId = AuthService.getCurrentUser().id;
-    const formData = new FormData();
-    formData.append('file', file);
-
-    const response = await fetch(`${API_BASE_URL.decks}/${deckId}/import/txt`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${AuthService.getToken()}`,
-        'X-User-ID': userId
-      },
-      body: formData
-    });
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(errorText || 'Nie udało się zaimportować fiszek z pliku TXT');
+    try {
+      const response = await flashcardAPI.importFromTxt(deckId, file);
+      return response.data;
+    } catch (error) {
+      console.error('Błąd podczas importu z TXT:', error);
+      throw new Error('Nie udało się zaimportować fiszek z pliku TXT');
     }
-    
-    return response.json();
   }
 
-  // Dodaję alias funkcji getDeck, aby była zgodna z wywołaniem w QuizCreate.js
   async getDeck(deckId) {
-    try {
-      // Pobierz talię za pomocą fetch
-      const deck = await this.getDeckById(deckId);
-      return deck;
-    } catch (error) {
-      console.error('Błąd podczas pobierania talii fiszek:', error);
-      throw error;
-    }
+    // Alias dla getDeckById dla kompatybilności
+    return this.getDeckById(deckId);
   }
 }
 

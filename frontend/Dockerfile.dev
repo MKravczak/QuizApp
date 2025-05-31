@@ -8,6 +8,10 @@ COPY package*.json ./
 # Instalujemy zależności
 RUN npm install
 
+# Tworzenie katalogu cache z odpowiednimi uprawnieniami
+RUN mkdir -p /app/node_modules/.cache && \
+    chmod -R 777 /app/node_modules/.cache
+
 # Nie kopiujemy kodu źródłowego - będzie on montowany przez volume
 # COPY . .
 

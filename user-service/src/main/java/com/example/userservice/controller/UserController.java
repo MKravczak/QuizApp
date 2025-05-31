@@ -1,5 +1,6 @@
 package com.example.userservice.controller;
 
+import com.example.userservice.dto.response.UserSummaryResponse;
 import com.example.userservice.model.User;
 import com.example.userservice.security.UserPrincipal;
 import com.example.userservice.service.UserService;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users")
@@ -44,11 +46,37 @@ public class UserController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<User>> getAllUsers(
+    public ResponseEntity<List<UserSummaryResponse>> getAllUsers(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sort) {
-        return ResponseEntity.ok(userService.getAllUsers(page, size, sort));
+        List<User> users = userService.getAllUsers(page, size, sort);
+        List<UserSummaryResponse> userSummaries = users.stream()
+                .map(this::convertToUserSummary)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(userSummaries);
+    }
+
+    @GetMapping("/search")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<UserSummaryResponse>> searchUsers(
+            @RequestParam String query) {
+        List<User> users = userService.searchUsersByUsername(query);
+        List<UserSummaryResponse> userSummaries = users.stream()
+                .map(this::convertToUserSummary)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(userSummaries);
+    }
+
+    @PostMapping("/usernames")
+    public ResponseEntity<Map<Long, String>> getUsernamesByIds(@RequestBody List<Long> userIds) {
+        return ResponseEntity.ok(userService.getUsernamesByIds(userIds));
+    }
+
+    @GetMapping("/{id}/is-admin")
+    public ResponseEntity<Map<String, Boolean>> isUserAdmin(@PathVariable Long id) {
+        boolean isAdmin = userService.isUserAdmin(id);
+        return ResponseEntity.ok(Map.of("isAdmin", isAdmin));
     }
 
     @PutMapping("/{id}/role")
@@ -71,5 +99,22 @@ public class UserController {
     public ResponseEntity<?> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return ResponseEntity.ok().build();
+    }
+
+    private UserSummaryResponse convertToUserSummary(User user) {
+        List<String> roleNames = user.getRoles().stream()
+                .map(role -> role.getName().name())
+                .collect(Collectors.toList());
+        
+        return new UserSummaryResponse(
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getFirstName(),
+                user.getLastName(),
+                roleNames,
+                user.getCreatedAt(),
+                user.getUpdatedAt()
+        );
     }
 } 

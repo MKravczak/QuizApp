@@ -1,5 +1,7 @@
 package com.example.userservice.exception;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -16,6 +18,7 @@ import java.util.Map;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(TokenRefreshException.class)
     public ResponseEntity<ErrorDetails> handleTokenRefreshException(TokenRefreshException ex, WebRequest request) {
@@ -42,8 +45,13 @@ public class GlobalExceptionHandler {
         Map<String, String> errors = new HashMap<>();
         BindingResult result = ex.getBindingResult();
         
+        logger.error("Validation error in request: {}", ex.getMessage());
+        
         for (FieldError fieldError : result.getFieldErrors()) {
-            errors.put(fieldError.getField(), fieldError.getDefaultMessage());
+            String fieldName = fieldError.getField();
+            String errorMessage = fieldError.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+            logger.error("Field validation error - Field: {}, Message: {}", fieldName, errorMessage);
         }
         
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
@@ -51,6 +59,8 @@ public class GlobalExceptionHandler {
     
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorDetails> handleGlobalException(Exception ex, WebRequest request) {
+        logger.error("Global exception handler caught: ", ex);
+        
         ErrorDetails errorDetails = new ErrorDetails(
                 new Date(),
                 ex.getMessage(),

@@ -33,7 +33,6 @@ public class RefreshTokenService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Nie znaleziono użytkownika o podanym ID"));
 
-        // Usuń istniejący token odświeżający dla użytkownika (jeśli istnieje)
         refreshTokenRepository.findAll().stream()
                 .filter(token -> token.getUser().getId().equals(userId))
                 .forEach(refreshTokenRepository::delete);

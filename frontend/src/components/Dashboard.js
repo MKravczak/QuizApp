@@ -21,13 +21,15 @@ function Dashboard() {
   };
 
   if (!currentUser) {
-    return <div className="text-center my-5"><div className="spinner-border" role="status"></div></div>;
+    return (
+      <div className="text-center my-5">
+        <div className="spinner-border" style={{ color: 'var(--accent-primary)' }} role="status"></div>
+      </div>
+    );
   }
 
   return (
     <div className="mt-4">
-      
-      
       <h3 className="section-title mb-4">Kategorie</h3>
       <div className="row gy-4">
         <div className="col-lg-6 mb-4 d-flex align-items-stretch">
@@ -56,24 +58,24 @@ function Dashboard() {
       
         <div className="col-lg-6 mb-4 d-flex align-items-stretch">
           <div className="card w-100">
-            <div className="subject-card chemistry" onClick={() => navigate('/statistics')}>
+            <div className="subject-card chemistry" onClick={() => navigate('/quizzes/statistics')}>
               <h3>Statystyki</h3>
             </div>
             <div className="card-body d-flex flex-column">
-              <p className="card-text">Zobacz swoje postępy w nauce. Ta funkcjonalność będzie dostępna wkrótce.</p>
-              <button className="btn btn-danger w-100 mt-auto" disabled>Zobacz statystyki</button>
+              <p className="card-text">Zobacz statystyki swoich quizów i postępy w nauce.</p>
+              <Link to="/quizzes/statistics" className="btn btn-primary w-100 mt-auto">Zobacz statystyki</Link>
             </div>
           </div>
         </div>
         
         <div className="col-lg-6 mb-4 d-flex align-items-stretch">
           <div className="card w-100">
-            <div className="subject-card reasoning" onClick={() => navigate('/reasoning')}>
-              <h3>Rozumowanie</h3>
+            <div className="subject-card reasoning" onClick={() => navigate('/groups')}>
+              <h3>Grupy</h3>
             </div>
             <div className="card-body d-flex flex-column">
-              <p className="card-text">Sprawdź swoje umiejętności logicznego myślenia. Ta funkcjonalność będzie dostępna wkrótce.</p>
-              <button className="btn btn-success w-100 mt-auto" disabled>Ćwicz rozumowanie</button>
+              <p className="card-text">Zarządzaj grupami użytkowników, twórz zespoły i udostępniaj quizy oraz fiszki członkom grup.</p>
+              <Link to="/groups" className="btn btn-primary w-100 mt-auto">Przejdź do grup</Link>
             </div>
           </div>
         </div>

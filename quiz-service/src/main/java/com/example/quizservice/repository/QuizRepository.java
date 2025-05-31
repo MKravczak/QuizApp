@@ -20,4 +20,12 @@ public interface QuizRepository extends JpaRepository<Quiz, Long> {
     // Znajdź quizy dla użytkownika lub publiczne
     @Query("SELECT q FROM Quiz q WHERE q.userId = :userId OR q.isPublic = true")
     List<Quiz> findAvailableForUser(@Param("userId") Long userId);
+    
+    // Znajdź quizy przypisane do konkretnej grupy
+    @Query("SELECT q FROM Quiz q JOIN q.groupIds g WHERE g = :groupId")
+    List<Quiz> findByGroupIdsContaining(@Param("groupId") Long groupId);
+    
+    // Znajdź quizy dostępne dla użytkownika uwzględniając jego grupy
+    @Query("SELECT DISTINCT q FROM Quiz q WHERE q.userId = :userId OR q.isPublic = true OR EXISTS (SELECT 1 FROM q.groupIds g WHERE g IN :groupIds)")
+    List<Quiz> findAvailableForUserWithGroups(@Param("userId") Long userId, @Param("groupIds") java.util.Set<Long> groupIds);
 } 

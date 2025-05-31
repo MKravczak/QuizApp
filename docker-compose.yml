@@ -35,6 +35,8 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      APP_SECURITY_ANTI_POSTMAN_ENABLED: "false"
+      APP_JWT_SECRET: "MIkolajKrawczakJWTSecretKey2024SuperBezpiecznyKluczDoTokenowMinimum256BitowKryptograficzny"
     depends_on:
       postgres:
         condition: service_healthy
@@ -73,6 +75,25 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      APP_SECURITY_ANTI_POSTMAN_ENABLED: "false"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - quizapp-network
+
+  statistics-service:
+    build: 
+      context: ./statistics-service
+      dockerfile: Dockerfile
+    container_name: quizapp-statistics-service
+    ports:
+      - "8084:8084"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/quizapp
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
     depends_on:
       postgres:
         condition: service_healthy
@@ -94,11 +115,13 @@ services:
       - REACT_APP_USER_SERVICE_URL=http://user-service:8080
       - REACT_APP_FLASHCARD_SERVICE_URL=http://flashcard-service:8081
       - REACT_APP_QUIZ_SERVICE_URL=http://quiz-service:8083
+      - REACT_APP_STATISTICS_SERVICE_URL=http://statistics-service:8084
       - HOST=0.0.0.0
     depends_on:
       - user-service
       - flashcard-service
       - quiz-service
+      - statistics-service
     networks:
       - quizapp-network
 
