@@ -79,6 +79,20 @@ public class QuizService {
                 .collect(Collectors.toList());
     }
     
+    public List<QuizDto> getAvailableQuizzesForUser(Long userId, java.util.Set<Long> groupIds) {
+        List<Quiz> quizzes;
+        if (groupIds == null || groupIds.isEmpty()) {
+            // Jeśli użytkownik nie należy do żadnych grup, użyj standardowej metody
+            quizzes = quizRepository.findAvailableForUser(userId);
+        } else {
+            // Uwzględnij quizy z grup użytkownika
+            quizzes = quizRepository.findAvailableForUserWithGroups(userId, groupIds);
+        }
+        return quizzes.stream()
+                .map(this::mapToQuizDto)
+                .collect(Collectors.toList());
+    }
+    
     public List<QuizDto> getQuizzesCreatedByUser(Long userId) {
         List<Quiz> quizzes = quizRepository.findByUserId(userId);
         return quizzes.stream()
@@ -98,12 +112,53 @@ public class QuizService {
         return mapToQuizDto(quiz);
     }
 
+    public QuizDto getQuizByIdWithGroups(Long quizId, Long userId, java.util.Set<Long> groupIds) {
+        Quiz quiz = quizRepository.findById(quizId)
+                .orElseThrow(() -> new ResourceNotFoundException("Quiz o id " + quizId + " nie istnieje"));
+
+        // Sprawdź dostęp: właściciel, publiczny lub przez grupy
+        boolean hasAccess = quiz.getUserId().equals(userId) || 
+                           quiz.isPublic() || 
+                           (groupIds != null && !Collections.disjoint(quiz.getGroupIds(), groupIds));
+        
+        if (!hasAccess) {
+            throw new IllegalArgumentException("Nie masz dostępu do tego quizu");
+        }
+
+        return mapToQuizDto(quiz);
+    }
+
     public List<QuizQuestionDto> getQuizQuestions(Long quizId, Long userId) {
         Quiz quiz = quizRepository.findById(quizId)
                 .orElseThrow(() -> new ResourceNotFoundException("Quiz o id " + quizId + " nie istnieje"));
 
         // Sprawdź, czy quiz należy do użytkownika lub jest publiczny
         if (!quiz.getUserId().equals(userId) && !quiz.isPublic()) {
+            throw new IllegalArgumentException("Nie masz dostępu do tego quizu");
+        }
+
+        // Pobierz pytania i utwórz kopię listy, aby móc ją bezpiecznie modyfikować
+        List<QuizQuestion> quizQuestions = new ArrayList<>(quiz.getQuestions());
+        
+        // Wymieszaj kolejność pytań
+        Collections.shuffle(quizQuestions);
+        
+        // Dla każdego pytania wymieszaj również kolejność odpowiedzi
+        return quizQuestions.stream()
+                .map(this::mapToRandomizedQuizQuestionDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<QuizQuestionDto> getQuizQuestionsWithGroups(Long quizId, Long userId, java.util.Set<Long> groupIds) {
+        Quiz quiz = quizRepository.findById(quizId)
+                .orElseThrow(() -> new ResourceNotFoundException("Quiz o id " + quizId + " nie istnieje"));
+
+        // Sprawdź dostęp: właściciel, publiczny lub przez grupy
+        boolean hasAccess = quiz.getUserId().equals(userId) || 
+                           quiz.isPublic() || 
+                           (groupIds != null && !Collections.disjoint(quiz.getGroupIds(), groupIds));
+        
+        if (!hasAccess) {
             throw new IllegalArgumentException("Nie masz dostępu do tego quizu");
         }
 
@@ -196,6 +251,85 @@ public class QuizService {
         return mapToQuizDto(updatedQuiz);
     }
 
+    @Transactional
+    public QuizDto updateQuiz(Long quizId, com.example.quizservice.dto.request.QuizUpdateRequest request, Long userId) {
+        Quiz quiz = quizRepository.findById(quizId)
+                .orElseThrow(() -> new ResourceNotFoundException("Quiz o id " + quizId + " nie istnieje"));
+
+        // Tylko właściciel może aktualizować quiz
+        if (!quiz.getUserId().equals(userId)) {
+            throw new IllegalArgumentException("Nie masz uprawnień do aktualizacji tego quizu");
+        }
+
+        // Aktualizuj podstawowe informacje
+        if (request.getName() != null) {
+            quiz.setName(request.getName());
+        }
+        if (request.getDescription() != null) {
+            quiz.setDescription(request.getDescription());
+        }
+        quiz.setPublic(request.isPublic());
+        
+        // Aktualizuj grupy
+        if (request.getGroupIds() != null) {
+            quiz.setGroupIds(new HashSet<>(request.getGroupIds()));
+        }
+
+        Quiz updatedQuiz = quizRepository.save(quiz);
+        return mapToQuizDto(updatedQuiz);
+    }
+
+    @Transactional
+    public QuizDto assignQuizToGroups(Long quizId, Set<Long> groupIds, Long userId) {
+        Quiz quiz = quizRepository.findById(quizId)
+                .orElseThrow(() -> new ResourceNotFoundException("Quiz o id " + quizId + " nie istnieje"));
+
+        // Tylko właściciel może przypisywać quiz do grup
+        if (!quiz.getUserId().equals(userId)) {
+            throw new IllegalArgumentException("Nie masz uprawnień do zarządzania grupami tego quizu");
+        }
+
+        // Dodaj nowe grupy do istniejących
+        quiz.getGroupIds().addAll(groupIds);
+        Quiz updatedQuiz = quizRepository.save(quiz);
+        
+        return mapToQuizDto(updatedQuiz);
+    }
+
+    @Transactional
+    public QuizDto removeQuizFromGroups(Long quizId, Set<Long> groupIds, Long userId) {
+        Quiz quiz = quizRepository.findById(quizId)
+                .orElseThrow(() -> new ResourceNotFoundException("Quiz o id " + quizId + " nie istnieje"));
+
+        // Tylko właściciel może usuwać quiz z grup
+        if (!quiz.getUserId().equals(userId)) {
+            throw new IllegalArgumentException("Nie masz uprawnień do zarządzania grupami tego quizu");
+        }
+
+        // Usuń grupy z quizu
+        quiz.getGroupIds().removeAll(groupIds);
+        Quiz updatedQuiz = quizRepository.save(quiz);
+        
+        return mapToQuizDto(updatedQuiz);
+    }
+
+    public List<QuizDto> getQuizzesForGroup(Long groupId) {
+        List<Quiz> quizzes = quizRepository.findByGroupIdsContaining(groupId);
+        return quizzes.stream()
+                .map(this::mapToQuizDto)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Sprawdza czy użytkownik jest właścicielem quizu
+     */
+    public boolean isQuizOwner(Long quizId, Long userId) {
+        Quiz quiz = quizRepository.findById(quizId)
+                .orElseThrow(() -> new ResourceNotFoundException("Quiz o id " + quizId + " nie istnieje"));
+        
+        return quiz.getUserId().equals(userId);
+    }
+
     // Mapowanie encji do DTO
     private QuizDto mapToQuizDto(Quiz quiz) {
         return QuizDto.builder()
@@ -204,6 +338,7 @@ public class QuizService {
                 .description(quiz.getDescription())
                 .userId(quiz.getUserId())
                 .isPublic(quiz.isPublic())
+                .groupIds(quiz.getGroupIds())
                 .questionCount(quiz.getQuestionCount())
                 .createdAt(quiz.getCreatedAt())
                 .updatedAt(quiz.getUpdatedAt())

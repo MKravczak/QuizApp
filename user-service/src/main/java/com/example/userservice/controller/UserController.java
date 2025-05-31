@@ -73,6 +73,12 @@ public class UserController {
         return ResponseEntity.ok(userService.getUsernamesByIds(userIds));
     }
 
+    @GetMapping("/{id}/is-admin")
+    public ResponseEntity<Map<String, Boolean>> isUserAdmin(@PathVariable Long id) {
+        boolean isAdmin = userService.isUserAdmin(id);
+        return ResponseEntity.ok(Map.of("isAdmin", isAdmin));
+    }
+
     @PutMapping("/{id}/role")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> changeUserRole(

@@ -70,12 +70,12 @@ function Dashboard() {
         
         <div className="col-lg-6 mb-4 d-flex align-items-stretch">
           <div className="card w-100">
-            <div className="subject-card reasoning" onClick={() => navigate('/reasoning')}>
-              <h3>Rozumowanie</h3>
+            <div className="subject-card reasoning" onClick={() => navigate('/groups')}>
+              <h3>Grupy</h3>
             </div>
             <div className="card-body d-flex flex-column">
-              <p className="card-text">Sprawdź swoje umiejętności logicznego myślenia. Ta funkcjonalność będzie dostępna wkrótce.</p>
-              <button className="btn btn-success w-100 mt-auto" disabled>Ćwicz rozumowanie</button>
+              <p className="card-text">Zarządzaj grupami użytkowników, twórz zespoły i udostępniaj quizy oraz fiszki członkom grup.</p>
+              <Link to="/groups" className="btn btn-primary w-100 mt-auto">Przejdź do grup</Link>
             </div>
           </div>
         </div>

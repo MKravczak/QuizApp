@@ -50,11 +50,19 @@ public class StatisticsController {
     @GetMapping("/quizzes/{quizId}/all-results")
     public ResponseEntity<List<QuizStatisticsDto>> getAllQuizResults(
             @PathVariable Long quizId,
-            @RequestHeader(value = "X-User-ID", required = false) Long userId) {
-        logger.info("Pobieranie wszystkich wyników dla quizu: quizId={}", quizId);
-        List<QuizStatisticsDto> results = statisticsService.getAllQuizResults(quizId);
-        logger.info("Znaleziono {} wyników", results.size());
-        return ResponseEntity.ok(results);
+            @RequestHeader("X-User-ID") Long userId) {
+        try {
+            logger.info("Pobieranie wszystkich wyników dla quizu: quizId={}, userId={}", quizId, userId);
+            List<QuizStatisticsDto> results = statisticsService.getAllQuizResults(quizId, userId);
+            logger.info("Znaleziono {} wyników", results.size());
+            return ResponseEntity.ok(results);
+        } catch (SecurityException e) {
+            logger.warn("Brak uprawnień do przeglądania wyników: quizId={}, userId={}, error={}", quizId, userId, e.getMessage());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (Exception e) {
+            logger.error("Błąd podczas pobierania wyników: quizId={}, userId={}", quizId, userId, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
     
     @GetMapping("/users/results")

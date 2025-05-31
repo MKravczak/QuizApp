@@ -6,6 +6,11 @@ class QuizService {
         return quizAPI.getQuizzes();
     }
 
+    // Pobieranie quizów dostępnych dla użytkownika z uwzględnieniem grup
+    getAvailableQuizzes(groupIds) {
+        return quizAPI.getAvailableQuizzes(groupIds);
+    }
+
     // Pobieranie quizów utworzonych przez użytkownika
     getMyQuizzes() {
         return quizAPI.getMyQuizzes();
@@ -14,7 +19,13 @@ class QuizService {
     // Pobieranie quizów dla konkretnego zestawu fiszek
     async getQuizzesForDeck(deckId) {
         try {
-            const response = await quizAPI.getQuizzes();
+            // Pobierz grupy użytkownika
+            const GroupService = (await import('./GroupService')).default;
+            const myGroupsResponse = await GroupService.getMyGroups();
+            const groupIds = myGroupsResponse.data.map(group => group.id);
+            
+            // Pobierz quizy z uwzględnieniem grup
+            const response = await this.getAvailableQuizzes(groupIds);
             // Filtruj quizy dla konkretnego deck
             const filteredQuizzes = response.data.filter(quiz => quiz.deckId === deckId);
             return { data: filteredQuizzes };
@@ -27,6 +38,19 @@ class QuizService {
     // Pobieranie konkretnego quizu
     getQuiz(quizId) {
         return quizAPI.getQuizById(quizId);
+    }
+
+    // Pobieranie konkretnego quizu z uwzględnieniem grup
+    async getQuizWithGroups(quizId) {
+        try {
+            const GroupService = (await import('./GroupService')).default;
+            const myGroupsResponse = await GroupService.getMyGroups();
+            const groupIds = myGroupsResponse.data.map(group => group.id);
+            return quizAPI.getQuizByIdWithGroups(quizId, groupIds);
+        } catch (error) {
+            console.error('Błąd podczas pobierania quizu z grupami:', error);
+            throw error;
+        }
     }
 
     // Tworzenie nowego quizu
@@ -42,6 +66,20 @@ class QuizService {
             return { data: response.data || [] };
         } catch (error) {
             console.error('Błąd podczas pobierania pytań quizu:', error);
+            throw error;
+        }
+    }
+
+    // Pobieranie pytań do quizu z uwzględnieniem grup
+    async getQuizQuestionsWithGroups(quizId) {
+        try {
+            const GroupService = (await import('./GroupService')).default;
+            const myGroupsResponse = await GroupService.getMyGroups();
+            const groupIds = myGroupsResponse.data.map(group => group.id);
+            const response = await quizAPI.getQuizQuestionsWithGroups(quizId, groupIds);
+            return { data: response.data || [] };
+        } catch (error) {
+            console.error('Błąd podczas pobierania pytań quizu z grupami:', error);
             throw error;
         }
     }
@@ -86,6 +124,26 @@ class QuizService {
         console.log(`Aktualizacja statusu publicznego quizu ${quizId} na ${isPublic}`);
         // Na razie zwracamy sukces - można dodać endpoint później
         return Promise.resolve({ data: { success: true } });
+    }
+
+    // Aktualizacja quizu (nazwa, opis, status publiczny, grupy)
+    updateQuiz(quizId, quizData) {
+        return quizAPI.updateQuiz(quizId, quizData);
+    }
+
+    // Przypisanie quizu do grup
+    assignQuizToGroups(quizId, groupIds) {
+        return quizAPI.assignQuizToGroups(quizId, groupIds);
+    }
+
+    // Usunięcie quizu z grup
+    removeQuizFromGroups(quizId, groupIds) {
+        return quizAPI.removeQuizFromGroups(quizId, groupIds);
+    }
+
+    // Pobieranie quizów dla konkretnej grupy
+    getQuizzesForGroup(groupId) {
+        return quizAPI.getQuizzesForGroup(groupId);
     }
 }
 

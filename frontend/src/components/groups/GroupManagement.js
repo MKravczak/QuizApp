@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import GroupService from '../../services/GroupService';
+import QuizService from '../../services/QuizService';
 import AuthService from '../../services/AuthService';
 import './GroupManagement.css';
 
@@ -17,6 +18,8 @@ const GroupManagement = () => {
     // Modal states
     const [showMembersModal, setShowMembersModal] = useState(false);
     const [modalGroup, setModalGroup] = useState(null);
+    const [showMaterialsModal, setShowMaterialsModal] = useState(false);
+    const [modalGroupMaterials, setModalGroupMaterials] = useState([]);
     
     // Stany dla tworzenia/edycji grupy
     const [showCreateForm, setShowCreateForm] = useState(false);
@@ -34,6 +37,12 @@ const GroupManagement = () => {
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [groupMembers, setGroupMembers] = useState({});
     const [loadingMembers, setLoadingMembers] = useState({});
+    
+    // Nowe stany dla dodawania quizów do grup
+    const [showAddQuizModal, setShowAddQuizModal] = useState(false);
+    const [availableQuizzes, setAvailableQuizzes] = useState([]);
+    const [loadingQuizzes, setLoadingQuizzes] = useState(false);
+    const [selectedQuizForGroup, setSelectedQuizForGroup] = useState(null);
 
     useEffect(() => {
         const currentUser = AuthService.getCurrentUser();
@@ -273,6 +282,88 @@ const GroupManagement = () => {
         setModalGroup(null);
     };
 
+    const loadGroupMaterials = async (groupId) => {
+        try {
+            const quizzesResponse = await QuizService.getQuizzesForGroup(groupId);
+            setModalGroupMaterials(quizzesResponse.data || []);
+        } catch (err) {
+            console.error('Błąd podczas ładowania materiałów grupy:', err);
+            setModalGroupMaterials([]);
+        }
+    };
+
+    const openMaterialsModal = async (group) => {
+        setModalGroup(group);
+        setShowMaterialsModal(true);
+        await loadGroupMaterials(group.id);
+    };
+
+    const closeMaterialsModal = () => {
+        setShowMaterialsModal(false);
+        setModalGroup(null);
+        setModalGroupMaterials([]);
+    };
+
+    // Nowe funkcje dla zarządzania quizami w grupach
+    const loadUserQuizzes = async () => {
+        try {
+            setLoadingQuizzes(true);
+            const response = await QuizService.getMyQuizzes();
+            setAvailableQuizzes(response.data || []);
+        } catch (err) {
+            console.error('Błąd podczas ładowania quizów użytkownika:', err);
+            setError('Błąd podczas ładowania quizów: ' + err.message);
+            setAvailableQuizzes([]);
+        } finally {
+            setLoadingQuizzes(false);
+        }
+    };
+
+    const openAddQuizModal = async (group) => {
+        setSelectedQuizForGroup(group);
+        setShowAddQuizModal(true);
+        await loadUserQuizzes();
+    };
+
+    const closeAddQuizModal = () => {
+        setShowAddQuizModal(false);
+        setSelectedQuizForGroup(null);
+        setAvailableQuizzes([]);
+    };
+
+    const handleAssignQuizToGroup = async (quizId) => {
+        if (!selectedQuizForGroup) return;
+
+        try {
+            await QuizService.assignQuizToGroups(quizId, [selectedQuizForGroup.id]);
+            setSuccess(`Quiz został przypisany do grupy ${selectedQuizForGroup.name}!`);
+            closeAddQuizModal();
+            
+            // Odśwież materiały grupy jeśli modal materiałów jest otwarty
+            if (showMaterialsModal && modalGroup && modalGroup.id === selectedQuizForGroup.id) {
+                await loadGroupMaterials(selectedQuizForGroup.id);
+            }
+        } catch (err) {
+            setError('Błąd podczas przypisywania quizu do grupy: ' + err.message);
+        }
+    };
+
+    const handleRemoveQuizFromGroup = async (quizId, groupId) => {
+        if (window.confirm('Czy na pewno chcesz usunąć ten quiz z grupy?')) {
+            try {
+                await QuizService.removeQuizFromGroups(quizId, [groupId]);
+                setSuccess('Quiz został usunięty z grupy!');
+                
+                // Odśwież materiały grupy
+                if (showMaterialsModal && modalGroup) {
+                    await loadGroupMaterials(modalGroup.id);
+                }
+            } catch (err) {
+                setError('Błąd podczas usuwania quizu z grupy: ' + err.message);
+            }
+        }
+    };
+
     const clearMessages = () => {
         setError('');
         setSuccess('');
@@ -494,6 +585,17 @@ const GroupManagement = () => {
                                         </div>
                                     </div>
 
+                                    {/* Akcje dla członków grup */}
+                                    <div className="group-actions">
+                                        <button
+                                            className="btn btn-icon btn-secondary"
+                                            onClick={() => openMaterialsModal(group)}
+                                            title="Zobacz materiały grupy"
+                                        >
+                                            <i className="bi bi-folder"></i>
+                                        </button>
+                                    </div>
+
                                     <div className="group-dates">
                                         <small>Utworzona: {new Date(group.createdAt).toLocaleDateString()}</small>
                                     </div>
@@ -563,6 +665,13 @@ const GroupManagement = () => {
                                                 title="Dodaj członka"
                                             >
                                                 <i className="bi bi-person-plus"></i>
+                                            </button>
+                                            <button
+                                                className="btn btn-icon btn-secondary"
+                                                onClick={() => openMaterialsModal(group)}
+                                                title="Zarządzaj materiałami"
+                                            >
+                                                <i className="bi bi-folder"></i>
                                             </button>
                                             <button
                                                 className="btn btn-icon btn-secondary"
@@ -672,8 +781,106 @@ const GroupManagement = () => {
                 </div>
             )}
 
+            {/* Materials Modal */}
+            {showMaterialsModal && modalGroup && (
+                <div className="modal-overlay" onClick={closeMaterialsModal}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h3>Materiały grupy: {modalGroup.name}</h3>
+                            <button className="modal-close" onClick={closeMaterialsModal}>×</button>
+                        </div>
+                        <div className="modal-body">
+                            <div className="modal-materials-list">
+                                <div className="materials-header">
+                                    <h4>Quizy</h4>
+                                    {isAdmin && (
+                                        <button
+                                            className="btn btn-primary btn-sm"
+                                            onClick={() => openAddQuizModal(modalGroup)}
+                                            title="Dodaj quiz do grupy"
+                                        >
+                                            <i className="bi bi-plus-circle"></i>
+                                            Dodaj quiz
+                                        </button>
+                                    )}
+                                </div>
+                                {modalGroupMaterials.length > 0 ? (
+                                    modalGroupMaterials.map(quiz => (
+                                        <div key={quiz.id} className="modal-material-item">
+                                            <div className="material-info">
+                                                <div className="material-name">{quiz.name}</div>
+                                                <div className="material-description">{quiz.description}</div>
+                                                <div className="material-meta">
+                                                    {quiz.questionCount} pytań • {quiz.isPublic ? 'Publiczny' : 'Prywatny'}
+                                                </div>
+                                            </div>
+                                            {isAdmin && (
+                                                <button
+                                                    className="btn btn-icon btn-danger btn-sm"
+                                                    onClick={() => handleRemoveQuizFromGroup(quiz.id, modalGroup.id)}
+                                                    title="Usuń quiz z grupy"
+                                                >
+                                                    <i className="bi bi-trash"></i>
+                                                </button>
+                                            )}
+                                        </div>
+                                    ))
+                                ) : (
+                                    <p className="no-materials">Brak quizów przypisanych do tej grupy</p>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Sidebar Overlay */}
             {sidebarOpen && <div className="sidebar-overlay" onClick={toggleSidebar}></div>}
+
+            {/* Add Quiz to Group Modal */}
+            {showAddQuizModal && selectedQuizForGroup && (
+                <div className="modal-overlay" onClick={closeAddQuizModal}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h3>Dodaj quiz do grupy: {selectedQuizForGroup.name}</h3>
+                            <button className="modal-close" onClick={closeAddQuizModal}>×</button>
+                        </div>
+                        <div className="modal-body">
+                            {loadingQuizzes ? (
+                                <div className="loading-message">Ładowanie quizów...</div>
+                            ) : availableQuizzes.length > 0 ? (
+                                <div className="quiz-selection-list">
+                                    <p className="selection-info">Wybierz quiz, który chcesz przypisać do grupy:</p>
+                                    {availableQuizzes.map(quiz => (
+                                        <div key={quiz.id} className="quiz-selection-item">
+                                            <div className="quiz-info">
+                                                <div className="quiz-name">{quiz.name}</div>
+                                                <div className="quiz-description">{quiz.description}</div>
+                                                <div className="quiz-meta">
+                                                    {quiz.questionCount} pytań • {quiz.isPublic ? 'Publiczny' : 'Prywatny'}
+                                                </div>
+                                            </div>
+                                            <button
+                                                className="btn btn-primary btn-sm"
+                                                onClick={() => handleAssignQuizToGroup(quiz.id)}
+                                                title="Przypisz quiz do grupy"
+                                            >
+                                                <i className="bi bi-plus-circle"></i>
+                                                Przypisz
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="no-quizzes">
+                                    <p>Nie masz żadnych quizów do przypisania.</p>
+                                    <p>Utwórz najpierw quiz, aby móc go przypisać do grupy.</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

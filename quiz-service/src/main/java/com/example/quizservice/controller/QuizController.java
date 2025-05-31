@@ -42,6 +42,14 @@ public class QuizController {
         return ResponseEntity.ok(quizzes);
     }
 
+    @PostMapping("/available")
+    public ResponseEntity<List<QuizDto>> getAvailableQuizzesForUser(
+            @RequestHeader("X-User-ID") Long userId,
+            @RequestBody(required = false) java.util.Set<Long> groupIds) {
+        List<QuizDto> quizzes = quizService.getAvailableQuizzesForUser(userId, groupIds);
+        return ResponseEntity.ok(quizzes);
+    }
+
     @GetMapping("/my")
     public ResponseEntity<List<QuizDto>> getMyQuizzes(
             @RequestHeader("X-User-ID") Long userId) {
@@ -57,11 +65,29 @@ public class QuizController {
         return ResponseEntity.ok(quiz);
     }
 
+    @PostMapping("/{quizId}/with-groups")
+    public ResponseEntity<QuizDto> getQuizByIdWithGroups(
+            @PathVariable Long quizId,
+            @RequestHeader("X-User-ID") Long userId,
+            @RequestBody(required = false) java.util.Set<Long> groupIds) {
+        QuizDto quiz = quizService.getQuizByIdWithGroups(quizId, userId, groupIds);
+        return ResponseEntity.ok(quiz);
+    }
+
     @GetMapping("/{quizId}/questions")
     public ResponseEntity<List<QuizQuestionDto>> getQuizQuestions(
             @PathVariable Long quizId,
             @RequestHeader("X-User-ID") Long userId) {
         List<QuizQuestionDto> questions = quizService.getQuizQuestions(quizId, userId);
+        return ResponseEntity.ok(questions);
+    }
+
+    @PostMapping("/{quizId}/questions/with-groups")
+    public ResponseEntity<List<QuizQuestionDto>> getQuizQuestionsWithGroups(
+            @PathVariable Long quizId,
+            @RequestHeader("X-User-ID") Long userId,
+            @RequestBody(required = false) java.util.Set<Long> groupIds) {
+        List<QuizQuestionDto> questions = quizService.getQuizQuestionsWithGroups(quizId, userId, groupIds);
         return ResponseEntity.ok(questions);
     }
 
@@ -104,6 +130,40 @@ public class QuizController {
             @RequestHeader("X-User-ID") Long userId) {
         QuizDto updatedQuiz = quizService.updateQuizPublicStatus(quizId, isPublic, userId);
         return ResponseEntity.ok(updatedQuiz);
+    }
+
+    @PutMapping("/{quizId}")
+    public ResponseEntity<QuizDto> updateQuiz(
+            @PathVariable Long quizId,
+            @Valid @RequestBody com.example.quizservice.dto.request.QuizUpdateRequest request,
+            @RequestHeader("X-User-ID") Long userId) {
+        QuizDto updatedQuiz = quizService.updateQuiz(quizId, request, userId);
+        return ResponseEntity.ok(updatedQuiz);
+    }
+
+    @PostMapping("/{quizId}/groups")
+    public ResponseEntity<QuizDto> assignQuizToGroups(
+            @PathVariable Long quizId,
+            @RequestBody java.util.Set<Long> groupIds,
+            @RequestHeader("X-User-ID") Long userId) {
+        QuizDto updatedQuiz = quizService.assignQuizToGroups(quizId, groupIds, userId);
+        return ResponseEntity.ok(updatedQuiz);
+    }
+
+    @DeleteMapping("/{quizId}/groups")
+    public ResponseEntity<QuizDto> removeQuizFromGroups(
+            @PathVariable Long quizId,
+            @RequestBody java.util.Set<Long> groupIds,
+            @RequestHeader("X-User-ID") Long userId) {
+        QuizDto updatedQuiz = quizService.removeQuizFromGroups(quizId, groupIds, userId);
+        return ResponseEntity.ok(updatedQuiz);
+    }
+
+    @GetMapping("/group/{groupId}")
+    public ResponseEntity<List<QuizDto>> getQuizzesForGroup(
+            @PathVariable Long groupId) {
+        List<QuizDto> quizzes = quizService.getQuizzesForGroup(groupId);
+        return ResponseEntity.ok(quizzes);
     }
 
     // Klasa dla zwracania błędów

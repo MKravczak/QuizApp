@@ -47,8 +47,8 @@ const QuizStatistics = () => {
         try {
             setLoading(true);
             
-            // Pobierz informacje o quizie
-            const quizResponse = await QuizService.getQuiz(quizId);
+            // Pobierz informacje o quizie z uwzględnieniem grup
+            const quizResponse = await QuizService.getQuizWithGroups(quizId);
             setQuiz(quizResponse.data);
             
             // Pobierz wszystkie wyniki dla quizu z serwisu statystyk

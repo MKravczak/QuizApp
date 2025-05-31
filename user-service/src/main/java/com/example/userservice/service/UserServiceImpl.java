@@ -124,4 +124,16 @@ public class UserServiceImpl implements UserService {
                     user -> user.getUsername() != null ? user.getUsername() : "Nieznany użytkownik"
                 ));
     }
+    
+    @Override
+    public boolean isUserAdmin(Long userId) {
+        Optional<User> userOpt = userRepository.findById(userId);
+        if (userOpt.isEmpty()) {
+            return false;
+        }
+        
+        User user = userOpt.get();
+        return user.getRoles().stream()
+                .anyMatch(role -> role.getName() == ERole.ROLE_ADMIN);
+    }
 } 

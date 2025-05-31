@@ -117,12 +117,12 @@ const QuizPlay = () => {
         try {
             setLoading(true);
             
-            // Pobierz informacje o quizie
-            const quizResponse = await QuizService.getQuiz(quizId);
+            // Pobierz informacje o quizie z uwzględnieniem grup
+            const quizResponse = await QuizService.getQuizWithGroups(quizId);
             setQuiz(quizResponse.data);
             
-            // Pobierz pytania do quizu
-            const questionsResponse = await QuizService.getQuizQuestions(quizId);
+            // Pobierz pytania do quizu z uwzględnieniem grup
+            const questionsResponse = await QuizService.getQuizQuestionsWithGroups(quizId);
             setQuestions(questionsResponse.data);
             
             setLoading(false);

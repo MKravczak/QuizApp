@@ -22,4 +22,6 @@ public interface UserService {
     boolean changeUserRoles(Long id, List<String> roles);
     
     Map<Long, String> getUsernamesByIds(List<Long> userIds);
+    
+    boolean isUserAdmin(Long userId);
 } 

@@ -1,33 +1,29 @@
-import axios from 'axios';
-import authHeader from './AuthHeader';
-import API_BASE_URL from './api-config';
-
-const API_URL = API_BASE_URL.statistics;
+import { statisticsAPI } from './api';
 
 class StatisticsService {
     // Przesyłanie wyników quizu
     submitQuizResult(resultData) {
-        return axios.post(`${API_URL}/results`, resultData, { headers: authHeader() });
+        return statisticsAPI.submitResult(resultData);
     }
 
     // Pobieranie wyników dla konkretnego quizu (tylko własne wyniki użytkownika)
     getQuizResults(quizId) {
-        return axios.get(`${API_URL}/quizzes/${quizId}/results`, { headers: authHeader() });
+        return statisticsAPI.getQuizResults(quizId);
     }
     
     // Pobieranie wszystkich wyników dla konkretnego quizu
     getAllQuizResults(quizId) {
-        return axios.get(`${API_URL}/quizzes/${quizId}/all-results`, { headers: authHeader() });
+        return statisticsAPI.getAllQuizResults(quizId);
     }
     
     // Pobieranie wszystkich wyników użytkownika
     getUserResults() {
-        return axios.get(`${API_URL}/users/results`, { headers: authHeader() });
+        return statisticsAPI.getUserResults();
     }
 
     // Sprawdzenie zdrowia serwisu
     healthCheck() {
-        return axios.get(`${API_URL}/health`);
+        return statisticsAPI.healthCheck();
     }
 }
 

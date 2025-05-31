@@ -50,8 +50,7 @@ class SecurityService {
             'X-Client-Signature': signature,
             'X-Timestamp': timestamp,
             'Accept': 'application/json, text/plain, */*',
-            'Accept-Language': navigator.language || 'en-US,en;q=0.9',
-            'Accept-Encoding': 'gzip, deflate, br'
+            'Accept-Language': navigator.language || 'en-US,en;q=0.9'
         };
     }
 

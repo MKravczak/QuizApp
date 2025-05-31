@@ -82,12 +82,19 @@ export const userAPI = {
 export const quizAPI = {
     baseURL: 'http://localhost:8083',
     getQuizzes: () => API.get('http://localhost:8083/api/quizzes'),
+    getAvailableQuizzes: (groupIds) => API.post('http://localhost:8083/api/quizzes/available', groupIds),
     getMyQuizzes: () => API.get('http://localhost:8083/api/quizzes/my'),
     createQuiz: (quizData) => API.post('http://localhost:8083/api/quizzes', quizData),
     getQuizById: (id) => API.get(`http://localhost:8083/api/quizzes/${id}`),
+    getQuizByIdWithGroups: (id, groupIds) => API.post(`http://localhost:8083/api/quizzes/${id}/with-groups`, groupIds),
     getQuizQuestions: (id) => API.get(`http://localhost:8083/api/quizzes/${id}/questions`),
+    getQuizQuestionsWithGroups: (id, groupIds) => API.post(`http://localhost:8083/api/quizzes/${id}/questions/with-groups`, groupIds),
     deleteQuiz: (id) => API.delete(`http://localhost:8083/api/quizzes/${id}`),
     submitResult: (resultData) => API.post('http://localhost:8083/api/quizzes/results', resultData),
+    updateQuiz: (id, quizData) => API.put(`http://localhost:8083/api/quizzes/${id}`, quizData),
+    assignQuizToGroups: (id, groupIds) => API.post(`http://localhost:8083/api/quizzes/${id}/groups`, groupIds),
+    removeQuizFromGroups: (id, groupIds) => API.delete(`http://localhost:8083/api/quizzes/${id}/groups`, { data: groupIds }),
+    getQuizzesForGroup: (groupId) => API.get(`http://localhost:8083/api/quizzes/group/${groupId}`)
 };
 
 export const flashcardAPI = {
@@ -122,4 +129,13 @@ export const flashcardAPI = {
             headers: { 'Content-Type': 'multipart/form-data' }
         });
     }
+};
+
+export const statisticsAPI = {
+    baseURL: 'http://localhost:8084',
+    submitResult: (resultData) => API.post('http://localhost:8084/api/statistics/results', resultData),
+    getQuizResults: (quizId) => API.get(`http://localhost:8084/api/statistics/quizzes/${quizId}/results`),
+    getAllQuizResults: (quizId) => API.get(`http://localhost:8084/api/statistics/quizzes/${quizId}/all-results`),
+    getUserResults: () => API.get('http://localhost:8084/api/statistics/users/results'),
+    healthCheck: () => API.get('http://localhost:8084/api/statistics/health')
 }; 
