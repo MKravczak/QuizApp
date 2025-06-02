@@ -86,29 +86,6 @@ const FlashcardDecks = () => {
     }
   };
 
-  const handlePublicToggle = async (deckId, currentStatus) => {
-    console.log('🔄 handlePublicToggle wywołane:', { deckId, currentStatus, newStatus: !currentStatus });
-    try {
-      console.log('📤 Wysyłanie żądania aktualizacji statusu talii...');
-      const response = await FlashcardService.updateDeckPublicStatus(deckId, !currentStatus);
-      console.log('✅ Odpowiedź z serwera:', response);
-      
-      // Dodaj komunikat informacyjny gdy talia staje się publiczna
-      if (!currentStatus) { // jeśli talia staje się publiczna (była prywatna)
-        console.log('📢 Talia stała się publiczna - zostanie usunięta ze wszystkich grup');
-      }
-      
-      // Po aktualizacji statusu, ponownie załaduj listę talii
-      console.log('🔄 Ponowne ładowanie listy talii...');
-      await loadDecks();
-      console.log('✅ Lista talii załadowana ponownie');
-    } catch (err) {
-      console.error('❌ Błąd podczas zmiany statusu talii:', err);
-      console.error('❌ Szczegóły błędu:', err.response?.data || err.message);
-      setError('Nie udało się zaktualizować statusu talii: ' + (err.response?.data?.message || err.message));
-    }
-  };
-
   if (loading) {
     return <div className="text-center my-5"><div className="spinner-border" role="status"></div></div>;
   }
@@ -259,13 +236,6 @@ const FlashcardDecks = () => {
                         <Link to={`/decks/${deck.id}/edit`} className="action-button edit fs-5" title="Edytuj">
                           <i className="bi bi-pencil"></i>
                         </Link>
-                        <button 
-                          className={`action-button lock fs-5 ${deck.isPublic ? 'public' : 'private'}`}
-                          onClick={() => handlePublicToggle(deck.id, deck.isPublic)}
-                          title={deck.isPublic ? 'Ustaw prywatną' : 'Ustaw publiczną'}
-                        >
-                          <i className={deck.isPublic ? "bi bi-lock-fill" : "bi bi-unlock-fill"}></i>
-                        </button>
                         <button 
                           className="action-button delete fs-5"
                           onClick={() => handleDeleteDeck(deck.id)}

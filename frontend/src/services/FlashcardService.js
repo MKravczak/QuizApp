@@ -102,11 +102,26 @@ class FlashcardService {
   async updateDeckPublicStatus(deckId, isPublic) {
     try {
       console.log('🔧 FlashcardService.updateDeckPublicStatus:', { deckId, isPublic });
+      console.log('🔐 Current auth info:', {
+        token: localStorage.getItem('token') ? 'present' : 'missing',
+        userId: localStorage.getItem('userId')
+      });
+      
       const response = await flashcardAPI.updateDeckPublicStatus(deckId, isPublic);
       console.log('✅ Odpowiedź z flashcardAPI:', response);
       return response;
     } catch (error) {
       console.error('❌ Błąd w FlashcardService.updateDeckPublicStatus:', error);
+      console.error('❌ Error details:', {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        config: {
+          url: error.config?.url,
+          method: error.config?.method,
+          headers: error.config?.headers
+        }
+      });
       throw error;
     }
   }
