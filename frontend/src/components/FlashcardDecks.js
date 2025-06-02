@@ -20,13 +20,21 @@ const FlashcardDecks = () => {
     setError(null);
     
     try {
-      const myDecksData = await FlashcardService.getMyDecks();
-      const publicDecksData = await FlashcardService.getPublicDecks();
+      console.log('📥 Ładowanie talii fiszek...');
+      const myDecksResponse = await FlashcardService.getDecks();
+      const publicDecksResponse = await FlashcardService.getPublicDecks();
       
-      setMyDecks(myDecksData);
-      setPublicDecks(publicDecksData);
+      console.log('🔍 myDecksResponse:', myDecksResponse);
+      console.log('🔍 publicDecksResponse:', publicDecksResponse);
+      console.log('🔍 myDecksResponse.data:', myDecksResponse?.data);
+      console.log('🔍 publicDecksResponse.data:', publicDecksResponse?.data);
+      
+      setMyDecks(myDecksResponse?.data || []);
+      setPublicDecks(publicDecksResponse?.data || []);
+      
+      console.log('✅ Talii załadowane pomyślnie');
     } catch (err) {
-      console.error('Błąd podczas pobierania talii fiszek:', err);
+      console.error('❌ Błąd podczas pobierania talii fiszek:', err);
       setError('Nie udało się pobrać talii fiszek. Spróbuj ponownie później.');
     } finally {
       setLoading(false);
@@ -68,14 +76,36 @@ const FlashcardDecks = () => {
   };
 
   const handleDeleteDeck = async (deckId) => {
-    if (window.confirm('Czy na pewno chcesz usunąć tę talię? Ta operacja jest nieodwracalna.')) {
+    if (window.confirm('Czy na pewno chcesz usunąć tę talię?')) {
       try {
         await FlashcardService.deleteDeck(deckId);
-        await loadDecks();
+        loadDecks(); // Odśwież listę po usunięciu
       } catch (err) {
-        console.error('Błąd podczas usuwania talii:', err);
-        setError('Nie udało się usunąć talii. Spróbuj ponownie później.');
+        setError('Nie udało się usunąć talii.');
       }
+    }
+  };
+
+  const handlePublicToggle = async (deckId, currentStatus) => {
+    console.log('🔄 handlePublicToggle wywołane:', { deckId, currentStatus, newStatus: !currentStatus });
+    try {
+      console.log('📤 Wysyłanie żądania aktualizacji statusu talii...');
+      const response = await FlashcardService.updateDeckPublicStatus(deckId, !currentStatus);
+      console.log('✅ Odpowiedź z serwera:', response);
+      
+      // Dodaj komunikat informacyjny gdy talia staje się publiczna
+      if (!currentStatus) { // jeśli talia staje się publiczna (była prywatna)
+        console.log('📢 Talia stała się publiczna - zostanie usunięta ze wszystkich grup');
+      }
+      
+      // Po aktualizacji statusu, ponownie załaduj listę talii
+      console.log('🔄 Ponowne ładowanie listy talii...');
+      await loadDecks();
+      console.log('✅ Lista talii załadowana ponownie');
+    } catch (err) {
+      console.error('❌ Błąd podczas zmiany statusu talii:', err);
+      console.error('❌ Szczegóły błędu:', err.response?.data || err.message);
+      setError('Nie udało się zaktualizować statusu talii: ' + (err.response?.data?.message || err.message));
     }
   };
 
@@ -191,7 +221,7 @@ const FlashcardDecks = () => {
       
       {activeTab === 'my' && (
         <>
-          {myDecks.length === 0 ? (
+          {(!myDecks || !Array.isArray(myDecks) || myDecks.length === 0) ? (
             <div className="alert alert-info">
               Nie masz jeszcze żadnych talii fiszek. Utwórz swoją pierwszą talię!
             </div>
@@ -230,6 +260,13 @@ const FlashcardDecks = () => {
                           <i className="bi bi-pencil"></i>
                         </Link>
                         <button 
+                          className={`action-button lock fs-5 ${deck.isPublic ? 'public' : 'private'}`}
+                          onClick={() => handlePublicToggle(deck.id, deck.isPublic)}
+                          title={deck.isPublic ? 'Ustaw prywatną' : 'Ustaw publiczną'}
+                        >
+                          <i className={deck.isPublic ? "bi bi-lock-fill" : "bi bi-unlock-fill"}></i>
+                        </button>
+                        <button 
                           className="action-button delete fs-5"
                           onClick={() => handleDeleteDeck(deck.id)}
                           title="Usuń"
@@ -248,7 +285,7 @@ const FlashcardDecks = () => {
       
       {activeTab === 'public' && (
         <>
-          {publicDecks.length === 0 ? (
+          {(!publicDecks || !Array.isArray(publicDecks) || publicDecks.length === 0) ? (
             <div className="alert alert-info">Nie znaleziono publicznych talii fiszek.</div>
           ) : (
             <div className="row">
@@ -267,11 +304,11 @@ const FlashcardDecks = () => {
                       </div>
                     </div>
                     <div className="card-footer d-flex justify-content-between align-items-center">
-                      <Link to={`/decks/${deck.id}`} className="btn btn-primary w-100 btn-sm">
+                      <Link to={`/decks/${deck.id}`} className="btn btn-primary btn-sm deck-action-button">
                         <i className="bi bi-eye-fill me-1"></i>
                         Przeglądaj
                       </Link>
-                      <Link to={`/decks/${deck.id}/anki`} className="btn btn-success btn-sm ms-2">
+                      <Link to={`/decks/${deck.id}/anki`} className="btn btn-success btn-sm deck-action-button">
                         <i className="bi bi-layers-half me-1"></i>
                         Tryb Anki
                       </Link>
@@ -287,4 +324,4 @@ const FlashcardDecks = () => {
   );
 };
 
-export default FlashcardDecks; 
+export default FlashcardDecks;

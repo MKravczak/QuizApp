@@ -117,10 +117,16 @@ export const flashcardAPI = {
     baseURL: 'http://localhost:8081',
     getMyDecks: () => API.get('http://localhost:8081/api/decks/my'),
     getPublicDecks: () => API.get('http://localhost:8081/api/decks/public'),
+    getAvailableDecks: (groupIds) => API.post('http://localhost:8081/api/decks/available', groupIds),
     createDeck: (deckData) => API.post('http://localhost:8081/api/decks', deckData),
     getDeckById: (id) => API.get(`http://localhost:8081/api/decks/${id}`),
+    getDeckByIdWithGroups: (id, groupIds) => API.post(`http://localhost:8081/api/decks/${id}/with-groups`, groupIds),
     updateDeck: (id, deckData) => API.put(`http://localhost:8081/api/decks/${id}`, deckData),
     deleteDeck: (id) => API.delete(`http://localhost:8081/api/decks/${id}`),
+    updateDeckPublicStatus: (id, isPublic) => API.patch(`http://localhost:8081/api/decks/${id}/public?isPublic=${isPublic}`),
+    assignDeckToGroups: (id, groupIds) => API.post(`http://localhost:8081/api/decks/${id}/groups`, groupIds),
+    removeDeckFromGroups: (id, groupIds) => API.delete(`http://localhost:8081/api/decks/${id}/groups`, { data: groupIds }),
+    getDecksForGroup: (groupId) => API.get(`http://localhost:8081/api/decks/group/${groupId}`),
     
     // Flashcards methods
     getFlashcardsByDeckId: (deckId) => API.get(`http://localhost:8081/api/flashcards/deck/${deckId}`),

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import GroupService from '../../services/GroupService';
 import QuizService from '../../services/QuizService';
+import FlashcardService from '../../services/FlashcardService';
 import AuthService from '../../services/AuthService';
 import './GroupManagement.css';
 
@@ -20,6 +21,7 @@ const GroupManagement = () => {
     const [modalGroup, setModalGroup] = useState(null);
     const [showMaterialsModal, setShowMaterialsModal] = useState(false);
     const [modalGroupMaterials, setModalGroupMaterials] = useState([]);
+    const [modalGroupDecks, setModalGroupDecks] = useState([]);
     
     // Stany dla tworzenia/edycji grupy
     const [showCreateForm, setShowCreateForm] = useState(false);
@@ -43,6 +45,12 @@ const GroupManagement = () => {
     const [availableQuizzes, setAvailableQuizzes] = useState([]);
     const [loadingQuizzes, setLoadingQuizzes] = useState(false);
     const [selectedQuizForGroup, setSelectedQuizForGroup] = useState(null);
+    const [selectedDeckForGroup, setSelectedDeckForGroup] = useState(null);
+
+    // Nowe stany dla dodawania kart do grup
+    const [showAddDeckModal, setShowAddDeckModal] = useState(false);
+    const [availableDecks, setAvailableDecks] = useState([]);
+    const [loadingDecks, setLoadingDecks] = useState(false);
 
     useEffect(() => {
         const currentUser = AuthService.getCurrentUser();
@@ -284,11 +292,17 @@ const GroupManagement = () => {
 
     const loadGroupMaterials = async (groupId) => {
         try {
+            // Załaduj quizy
             const quizzesResponse = await QuizService.getQuizzesForGroup(groupId);
             setModalGroupMaterials(quizzesResponse.data || []);
+            
+            // Załaduj talie fiszek
+            const decksResponse = await FlashcardService.getDecksForGroup(groupId);
+            setModalGroupDecks(decksResponse.data || []);
         } catch (err) {
             console.error('Błąd podczas ładowania materiałów grupy:', err);
             setModalGroupMaterials([]);
+            setModalGroupDecks([]);
         }
     };
 
@@ -302,6 +316,7 @@ const GroupManagement = () => {
         setShowMaterialsModal(false);
         setModalGroup(null);
         setModalGroupMaterials([]);
+        setModalGroupDecks([]);
     };
 
     // Nowe funkcje dla zarządzania quizami w grupach
@@ -360,6 +375,68 @@ const GroupManagement = () => {
                 }
             } catch (err) {
                 setError('Błąd podczas usuwania quizu z grupy: ' + err.message);
+            }
+        }
+    };
+
+    // Funkcje dla zarządzania taliami fiszek w grupach
+    const loadUserDecks = async () => {
+        try {
+            setLoadingDecks(true);
+            const response = await FlashcardService.getMyDecks();
+            // Filtruj tylko prywatne talie (publiczne nie mogą być przypisane do grup)
+            const privateDecks = (response.data || []).filter(deck => !deck.isPublic);
+            setAvailableDecks(privateDecks);
+        } catch (err) {
+            console.error('Błąd podczas ładowania talii użytkownika:', err);
+            setError('Błąd podczas ładowania talii: ' + err.message);
+            setAvailableDecks([]);
+        } finally {
+            setLoadingDecks(false);
+        }
+    };
+
+    const openAddDeckModal = async (group) => {
+        setSelectedDeckForGroup(group);
+        setShowAddDeckModal(true);
+        await loadUserDecks();
+    };
+
+    const closeAddDeckModal = () => {
+        setShowAddDeckModal(false);
+        setSelectedDeckForGroup(null);
+        setAvailableDecks([]);
+    };
+
+    const handleAssignDeckToGroup = async (deckId) => {
+        if (!selectedDeckForGroup) return;
+
+        try {
+            await FlashcardService.assignDeckToGroups(deckId, [selectedDeckForGroup.id]);
+            setSuccess(`Talia została przypisana do grupy ${selectedDeckForGroup.name}!`);
+            closeAddDeckModal();
+            
+            // Odśwież materiały grupy jeśli modal materiałów jest otwarty
+            if (showMaterialsModal && modalGroup && modalGroup.id === selectedDeckForGroup.id) {
+                await loadGroupMaterials(selectedDeckForGroup.id);
+            }
+        } catch (err) {
+            setError('Błąd podczas przypisywania talii do grupy: ' + err.message);
+        }
+    };
+
+    const handleRemoveDeckFromGroup = async (deckId, groupId) => {
+        if (window.confirm('Czy na pewno chcesz usunąć tę talię z grupy?')) {
+            try {
+                await FlashcardService.removeDeckFromGroups(deckId, [groupId]);
+                setSuccess('Talia została usunięta z grupy!');
+                
+                // Odśwież materiały grupy
+                if (showMaterialsModal && modalGroup) {
+                    await loadGroupMaterials(modalGroup.id);
+                }
+            } catch (err) {
+                setError('Błąd podczas usuwania talii z grupy: ' + err.message);
             }
         }
     };
@@ -828,6 +905,44 @@ const GroupManagement = () => {
                                 ) : (
                                     <p className="no-materials">Brak quizów przypisanych do tej grupy</p>
                                 )}
+                                
+                                <div className="materials-header">
+                                    <h4>Talie fiszek</h4>
+                                    {isAdmin && (
+                                        <button
+                                            className="btn btn-primary btn-sm"
+                                            onClick={() => openAddDeckModal(modalGroup)}
+                                            title="Dodaj talię do grupy"
+                                        >
+                                            <i className="bi bi-plus-circle"></i>
+                                            Dodaj talię
+                                        </button>
+                                    )}
+                                </div>
+                                {modalGroupDecks.length > 0 ? (
+                                    modalGroupDecks.map(deck => (
+                                        <div key={deck.id} className="modal-material-item">
+                                            <div className="material-info">
+                                                <div className="material-name">{deck.name}</div>
+                                                <div className="material-description">{deck.description}</div>
+                                                <div className="material-meta">
+                                                    {deck.flashcards?.length || 0} fiszek • {deck.isPublic ? 'Publiczna' : 'Prywatna'}
+                                                </div>
+                                            </div>
+                                            {isAdmin && (
+                                                <button
+                                                    className="btn btn-icon btn-danger btn-sm"
+                                                    onClick={() => handleRemoveDeckFromGroup(deck.id, modalGroup.id)}
+                                                    title="Usuń talię z grupy"
+                                                >
+                                                    <i className="bi bi-trash"></i>
+                                                </button>
+                                            )}
+                                        </div>
+                                    ))
+                                ) : (
+                                    <p className="no-materials">Brak talii przypisanych do tej grupy</p>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -875,6 +990,52 @@ const GroupManagement = () => {
                                 <div className="no-quizzes">
                                     <p>Nie masz żadnych quizów do przypisania.</p>
                                     <p>Utwórz najpierw quiz, aby móc go przypisać do grupy.</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Add Deck to Group Modal */}
+            {showAddDeckModal && selectedDeckForGroup && (
+                <div className="modal-overlay" onClick={closeAddDeckModal}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h3>Dodaj talię do grupy: {selectedDeckForGroup.name}</h3>
+                            <button className="modal-close" onClick={closeAddDeckModal}>×</button>
+                        </div>
+                        <div className="modal-body">
+                            {loadingDecks ? (
+                                <div className="loading-message">Ładowanie talii...</div>
+                            ) : availableDecks.length > 0 ? (
+                                <div className="deck-selection-list">
+                                    <p className="selection-info">Wybierz talię fiszek, którą chcesz przypisać do grupy (tylko prywatne talie):</p>
+                                    {availableDecks.map(deck => (
+                                        <div key={deck.id} className="deck-selection-item">
+                                            <div className="deck-info">
+                                                <div className="deck-name">{deck.name}</div>
+                                                <div className="deck-description">{deck.description}</div>
+                                                <div className="deck-meta">
+                                                    {deck.flashcards?.length || 0} fiszek • {deck.isPublic ? 'Publiczna' : 'Prywatna'}
+                                                </div>
+                                            </div>
+                                            <button
+                                                className="btn btn-primary btn-sm"
+                                                onClick={() => handleAssignDeckToGroup(deck.id)}
+                                                title="Przypisz talię do grupy"
+                                            >
+                                                <i className="bi bi-plus-circle"></i>
+                                                Przypisz
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="no-decks">
+                                    <p>Nie masz żadnych prywatnych talii do przypisania.</p>
+                                    <p>Utwórz najpierw prywatną talię, aby móc ją przypisać do grupy.</p>
+                                    <p><small>Uwaga: Publiczne talie są dostępne dla wszystkich i nie mogą być przypisane do grup.</small></p>
                                 </div>
                             )}
                         </div>

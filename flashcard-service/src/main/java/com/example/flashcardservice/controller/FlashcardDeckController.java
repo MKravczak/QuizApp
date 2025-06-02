@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/decks")
@@ -29,9 +30,26 @@ public class FlashcardDeckController {
         return ResponseEntity.ok(deckService.getPublicDecks());
     }
 
+    @PostMapping("/available")
+    public ResponseEntity<List<FlashcardDeckDTO>> getAvailableDecksForUser(
+            @RequestHeader("X-User-ID") Long userId,
+            @RequestBody(required = false) Set<Long> groupIds) {
+        List<FlashcardDeckDTO> decks = deckService.getAvailableDecksForUser(userId, groupIds);
+        return ResponseEntity.ok(decks);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<FlashcardDeckDTO> getDeckById(@PathVariable Long id) {
         return ResponseEntity.ok(deckService.getDeckById(id));
+    }
+
+    @PostMapping("/{deckId}/with-groups")
+    public ResponseEntity<FlashcardDeckDTO> getDeckByIdWithGroups(
+            @PathVariable Long deckId,
+            @RequestHeader("X-User-ID") Long userId,
+            @RequestBody(required = false) Set<Long> groupIds) {
+        FlashcardDeckDTO deck = deckService.getDeckByIdWithGroups(deckId, userId, groupIds);
+        return ResponseEntity.ok(deck);
     }
 
     @PostMapping
@@ -57,37 +75,67 @@ public class FlashcardDeckController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/{id}/import/csv")
-    public ResponseEntity<?> importFromCSV(
-            @PathVariable Long id,
+    @PatchMapping("/{deckId}/public")
+    public ResponseEntity<FlashcardDeckDTO> updateDeckPublicStatus(
+            @PathVariable Long deckId,
+            @RequestParam boolean isPublic,
+            @RequestHeader("X-User-ID") Long userId) {
+        FlashcardDeckDTO updatedDeck = deckService.updateDeckPublicStatus(deckId, isPublic, userId);
+        return ResponseEntity.ok(updatedDeck);
+    }
+
+    @PostMapping("/{deckId}/groups")
+    public ResponseEntity<FlashcardDeckDTO> assignDeckToGroups(
+            @PathVariable Long deckId,
+            @RequestBody Set<Long> groupIds,
+            @RequestHeader("X-User-ID") Long userId) {
+        FlashcardDeckDTO updatedDeck = deckService.assignDeckToGroups(deckId, groupIds, userId);
+        return ResponseEntity.ok(updatedDeck);
+    }
+
+    @DeleteMapping("/{deckId}/groups")
+    public ResponseEntity<FlashcardDeckDTO> removeDeckFromGroups(
+            @PathVariable Long deckId,
+            @RequestBody Set<Long> groupIds,
+            @RequestHeader("X-User-ID") Long userId) {
+        FlashcardDeckDTO updatedDeck = deckService.removeDeckFromGroups(deckId, groupIds, userId);
+        return ResponseEntity.ok(updatedDeck);
+    }
+
+    @GetMapping("/group/{groupId}")
+    public ResponseEntity<List<FlashcardDeckDTO>> getDecksForGroup(
+            @PathVariable Long groupId) {
+        List<FlashcardDeckDTO> decks = deckService.getDecksForGroup(groupId);
+        return ResponseEntity.ok(decks);
+    }
+
+    @PostMapping("/{deckId}/import/csv")
+    public ResponseEntity<FlashcardDeckDTO> importFromCSV(
+            @PathVariable Long deckId,
             @RequestParam("file") MultipartFile file,
             @RequestHeader("X-User-ID") Long userId) {
         try {
-            FlashcardDeckDTO updatedDeck = deckService.importFlashcardsFromCSV(id, file, userId);
+            FlashcardDeckDTO updatedDeck = deckService.importFlashcardsFromCSV(deckId, file, userId);
             return ResponseEntity.ok(updatedDeck);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Nie udało się przetworzyć pliku CSV: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
-    @PostMapping("/{id}/import/txt")
-    public ResponseEntity<?> importFromTxt(
-            @PathVariable Long id,
+    @PostMapping("/{deckId}/import/txt")
+    public ResponseEntity<FlashcardDeckDTO> importFromTxt(
+            @PathVariable Long deckId,
             @RequestParam("file") MultipartFile file,
             @RequestHeader("X-User-ID") Long userId) {
         try {
-            FlashcardDeckDTO updatedDeck = deckService.importFlashcardsFromTxt(id, file, userId);
+            FlashcardDeckDTO updatedDeck = deckService.importFlashcardsFromTxt(deckId, file, userId);
             return ResponseEntity.ok(updatedDeck);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Nie udało się przetworzyć pliku TXT: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 } 

@@ -9,7 +9,9 @@ import lombok.ToString;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "flashcard_decks")
@@ -34,6 +36,14 @@ public class FlashcardDeck {
 
     @Column(name = "is_public")
     private boolean isPublic;
+
+    @ElementCollection
+    @CollectionTable(
+        name = "flashcard_deck_groups", 
+        joinColumns = @JoinColumn(name = "deck_id")
+    )
+    @Column(name = "group_id")
+    private Set<Long> groupIds = new HashSet<>();
 
     @OneToMany(mappedBy = "deck", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

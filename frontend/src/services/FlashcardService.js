@@ -4,57 +4,67 @@ import { flashcardAPI } from './api';
 class FlashcardService {
   async getDecks() {
     try {
-      // Pobierz prywatne talie użytkownika
-      const myDecksPromise = this.getMyDecks();
+      console.log('🚀 FlashcardService.getDecks() - rozpoczęcie ładowania talii z grupami');
       
-      // Pobierz publiczne talie
-      const publicDecksPromise = this.getPublicDecks();
+      // Pobierz grupy użytkownika
+      const GroupService = (await import('./GroupService')).default;
+      const myGroupsResponse = await GroupService.getMyGroups();
       
-      // Zaczekaj na oba żądania
-      const [myDecks, publicDecks] = await Promise.all([myDecksPromise, publicDecksPromise]);
+      console.log('📊 myGroupsResponse:', myGroupsResponse);
+      const groupIds = myGroupsResponse.data.map(group => group.id);
+      console.log('🔗 groupIds:', groupIds);
       
-      // Znajdź publiczne talie, które nie należą do użytkownika
-      const otherPublicDecks = publicDecks.filter(publicDeck => 
-        !myDecks.some(myDeck => myDeck.id === publicDeck.id)
-      );
+      // Pobierz talie z uwzględnieniem grup
+      const response = await this.getAvailableDecks(groupIds);
+      console.log('📦 getAvailableDecks response:', response);
       
-      // Połącz listy talii
-      const allDecks = [...myDecks, ...otherPublicDecks];
-      
-      // Zwróć w formacie zgodnym z axios
-      return {
-        data: allDecks
-      };
+      return response;
     } catch (error) {
-      console.error('Błąd podczas pobierania zestawów fiszek:', error);
+      console.error('❌ Błąd podczas pobierania zestawów fiszek:', error);
       throw error;
     }
   }
 
+  // Pobieranie talii dostępnych dla użytkownika z uwzględnieniem grup
+  getAvailableDecks(groupIds) {
+    return flashcardAPI.getAvailableDecks(groupIds);
+  }
+
   async getMyDecks() {
     try {
-      const response = await flashcardAPI.getMyDecks();
-      return response.data;
+      return await flashcardAPI.getMyDecks();
     } catch (error) {
-      console.error('Błąd podczas pobierania talii fiszek:', error);
-      throw new Error('Nie udało się pobrać talii fiszek');
+      console.error('Błąd podczas pobierania moich talii:', error);
+      throw error;
     }
   }
 
   async getPublicDecks() {
     try {
-      const response = await flashcardAPI.getPublicDecks();
-      return response.data;
+      return await flashcardAPI.getPublicDecks();
     } catch (error) {
-      console.error('Błąd podczas pobierania publicznych talii fiszek:', error);
-      throw new Error('Nie udało się pobrać publicznych talii fiszek');
+      console.error('Błąd podczas pobierania publicznych talii:', error);
+      throw error;
     }
   }
 
-  async getDeckById(deckId) {
+  // Pobieranie konkretnej talii z uwzględnieniem grup
+  async getDeckWithGroups(deckId) {
     try {
-      const response = await flashcardAPI.getDeckById(deckId);
-      return { data: response.data }; // Zwracamy w formacie zgodnym z axios
+      const GroupService = (await import('./GroupService')).default;
+      const myGroupsResponse = await GroupService.getMyGroups();
+      const groupIds = myGroupsResponse.data.map(group => group.id);
+      return flashcardAPI.getDeckByIdWithGroups(deckId, groupIds);
+    } catch (error) {
+      console.error('Błąd podczas pobierania talii z grupami:', error);
+      throw error;
+    }
+  }
+
+  async getDeckById(id) {
+    try {
+      const response = await flashcardAPI.getDeckById(id);
+      return response.data;
     } catch (error) {
       console.error('Błąd podczas pobierania zestawu fiszek:', error);
       throw error;
@@ -63,124 +73,135 @@ class FlashcardService {
 
   async createDeck(deckData) {
     try {
-      const response = await flashcardAPI.createDeck(deckData);
-      return response.data;
+      return await flashcardAPI.createDeck(deckData);
     } catch (error) {
-      console.error('Błąd podczas tworzenia talii:', error);
-      throw new Error('Nie udało się utworzyć talii fiszek');
+      console.error('Błąd podczas tworzenia zestawu fiszek:', error);
+      throw error;
     }
   }
 
-  async updateDeck(deckId, deckData) {
-    console.log('Aktualizuję talię ID:', deckId);
-    console.log('Dane do wysłania:', JSON.stringify(deckData));
-    
+  async updateDeck(id, deckData) {
     try {
-      const response = await flashcardAPI.updateDeck(deckId, deckData);
-      console.log('Otrzymana odpowiedź:', JSON.stringify(response.data));
-      return response.data;
+      return await flashcardAPI.updateDeck(id, deckData);
     } catch (error) {
-      console.error('Błąd podczas aktualizacji talii:', error);
-      throw new Error('Nie udało się zaktualizować talii fiszek');
+      console.error('Błąd podczas aktualizacji zestawu fiszek:', error);
+      throw error;
     }
   }
 
-  async deleteDeck(deckId) {
+  async deleteDeck(id) {
     try {
-      await flashcardAPI.deleteDeck(deckId);
-      return true;
+      return await flashcardAPI.deleteDeck(id);
     } catch (error) {
-      console.error('Błąd podczas usuwania talii:', error);
-      throw new Error('Nie udało się usunąć talii fiszek');
+      console.error('Błąd podczas usuwania zestawu fiszek:', error);
+      throw error;
     }
   }
 
+  // Aktualizacja statusu publicznego talii
+  async updateDeckPublicStatus(deckId, isPublic) {
+    try {
+      console.log('🔧 FlashcardService.updateDeckPublicStatus:', { deckId, isPublic });
+      const response = await flashcardAPI.updateDeckPublicStatus(deckId, isPublic);
+      console.log('✅ Odpowiedź z flashcardAPI:', response);
+      return response;
+    } catch (error) {
+      console.error('❌ Błąd w FlashcardService.updateDeckPublicStatus:', error);
+      throw error;
+    }
+  }
+
+  // Przypisanie talii do grup
+  assignDeckToGroups(deckId, groupIds) {
+    return flashcardAPI.assignDeckToGroups(deckId, groupIds);
+  }
+
+  // Usunięcie talii z grup
+  removeDeckFromGroups(deckId, groupIds) {
+    return flashcardAPI.removeDeckFromGroups(deckId, groupIds);
+  }
+
+  // Pobieranie talii dla konkretnej grupy
+  getDecksForGroup(groupId) {
+    return flashcardAPI.getDecksForGroup(groupId);
+  }
+
+  // Flashcard methods
   async getFlashcardsByDeckId(deckId) {
     try {
       const response = await flashcardAPI.getFlashcardsByDeckId(deckId);
       return response.data;
     } catch (error) {
       console.error('Błąd podczas pobierania fiszek:', error);
-      throw new Error('Nie udało się pobrać fiszek');
+      throw error;
     }
   }
 
-  async getFlashcardById(flashcardId) {
+  async getFlashcardById(id) {
     try {
-      const response = await flashcardAPI.getFlashcardById(flashcardId);
+      const response = await flashcardAPI.getFlashcardById(id);
       return response.data;
     } catch (error) {
       console.error('Błąd podczas pobierania fiszki:', error);
-      throw new Error('Nie udało się pobrać fiszki');
+      throw error;
     }
   }
 
   async createFlashcard(flashcardData) {
     try {
-      const response = await flashcardAPI.createFlashcard(flashcardData);
-      return response.data;
+      return await flashcardAPI.createFlashcard(flashcardData);
     } catch (error) {
       console.error('Błąd podczas tworzenia fiszki:', error);
-      throw new Error('Nie udało się utworzyć fiszki');
+      throw error;
     }
   }
 
-  async updateFlashcard(flashcardId, flashcardData) {
+  async updateFlashcard(id, flashcardData) {
     try {
-      const response = await flashcardAPI.updateFlashcard(flashcardId, flashcardData);
-      return response.data;
+      return await flashcardAPI.updateFlashcard(id, flashcardData);
     } catch (error) {
       console.error('Błąd podczas aktualizacji fiszki:', error);
-      throw new Error('Nie udało się zaktualizować fiszki');
+      throw error;
     }
   }
 
-  async deleteFlashcard(flashcardId) {
+  async deleteFlashcard(id) {
     try {
-      await flashcardAPI.deleteFlashcard(flashcardId);
-      return true;
+      return await flashcardAPI.deleteFlashcard(id);
     } catch (error) {
       console.error('Błąd podczas usuwania fiszki:', error);
-      throw new Error('Nie udało się usunąć fiszki');
+      throw error;
     }
   }
 
-  async uploadImage(flashcardId, formData) {
+  async uploadImage(flashcardId, file) {
     try {
-      const response = await flashcardAPI.uploadImage(flashcardId, formData);
-      return response.data;
+      const formData = new FormData();
+      formData.append('image', file);
+      return await flashcardAPI.uploadImage(flashcardId, formData);
     } catch (error) {
       console.error('Błąd podczas przesyłania obrazu:', error);
-      throw new Error('Nie udało się przesłać obrazu');
+      throw error;
     }
   }
 
   async importFlashcardsFromCSV(deckId, file) {
     try {
-      const response = await flashcardAPI.importFromCSV(deckId, file);
-      return response.data;
+      return await flashcardAPI.importFromCSV(deckId, file);
     } catch (error) {
       console.error('Błąd podczas importu z CSV:', error);
-      throw new Error('Nie udało się zaimportować fiszek z pliku CSV');
+      throw error;
     }
   }
 
   async importFlashcardsFromTxt(deckId, file) {
     try {
-      const response = await flashcardAPI.importFromTxt(deckId, file);
-      return response.data;
+      return await flashcardAPI.importFromTxt(deckId, file);
     } catch (error) {
       console.error('Błąd podczas importu z TXT:', error);
-      throw new Error('Nie udało się zaimportować fiszek z pliku TXT');
+      throw error;
     }
-  }
-
-  async getDeck(deckId) {
-    // Alias dla getDeckById dla kompatybilności
-    return this.getDeckById(deckId);
   }
 }
 
-// Tworzymy instancję i eksportujemy ją zgodnie z rekomendacjami ESLint
-const flashcardService = new FlashcardService();
-export default flashcardService; 
+export default new FlashcardService(); 

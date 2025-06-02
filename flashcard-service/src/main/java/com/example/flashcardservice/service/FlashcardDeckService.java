@@ -10,6 +10,8 @@ import jakarta.transaction.Transactional;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,11 +20,15 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 public class FlashcardDeckService {
+
+    private static final Logger logger = LoggerFactory.getLogger(FlashcardDeckService.class);
 
     private final FlashcardDeckRepository deckRepository;
     private final FlashcardService flashcardService;
@@ -44,10 +50,40 @@ public class FlashcardDeckService {
                 .collect(Collectors.toList());
     }
 
+    public List<FlashcardDeckDTO> getAvailableDecksForUser(Long userId, Set<Long> groupIds) {
+        List<FlashcardDeck> decks;
+        if (groupIds == null || groupIds.isEmpty()) {
+            // Jeśli użytkownik nie należy do żadnych grup, użyj standardowej metody
+            decks = deckRepository.findAvailableForUser(userId);
+        } else {
+            // Uwzględnij talie z grup użytkownika
+            decks = deckRepository.findAvailableForUserWithGroups(userId, groupIds);
+        }
+        return decks.stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
     public FlashcardDeckDTO getDeckById(Long id) {
         return deckRepository.findById(id)
                 .map(this::mapToDTO)
                 .orElseThrow(() -> new ResourceNotFoundException("Zestaw o id " + id + " nie został znaleziony"));
+    }
+
+    public FlashcardDeckDTO getDeckByIdWithGroups(Long deckId, Long userId, Set<Long> groupIds) {
+        FlashcardDeck deck = deckRepository.findById(deckId)
+                .orElseThrow(() -> new ResourceNotFoundException("Talia o id " + deckId + " nie istnieje"));
+
+        // Sprawdź dostęp: właściciel, publiczny lub przez grupy
+        boolean hasAccess = deck.getUserId().equals(userId) || 
+                           deck.isPublic() || 
+                           (groupIds != null && !java.util.Collections.disjoint(deck.getGroupIds(), groupIds));
+        
+        if (!hasAccess) {
+            throw new IllegalArgumentException("Nie masz dostępu do tej talii");
+        }
+
+        return mapToDTO(deck);
     }
 
     @Transactional
@@ -61,42 +97,121 @@ public class FlashcardDeckService {
 
     @Transactional
     public FlashcardDeckDTO updateDeck(Long id, FlashcardDeckDTO deckDTO, Long userId) {
-        System.out.println("Aktualizacja zestawu ID=" + id + ", isPublic=" + deckDTO.isPublic());
-        
-        FlashcardDeck deck = deckRepository.findById(id)
+        FlashcardDeck existingDeck = deckRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Zestaw o id " + id + " nie został znaleziony"));
-
         
-        if (!deck.getUserId().equals(userId)) {
-            throw new IllegalStateException("Nie masz uprawnień do edycji tego zestawu");
+        // Sprawdź, czy użytkownik jest właścicielem
+        if (!existingDeck.getUserId().equals(userId)) {
+            throw new IllegalArgumentException("Nie masz uprawnień do edytowania tego zestawu");
         }
-
-        System.out.println("Przed aktualizacją, isPublic=" + deck.isPublic());
         
-        deck.setName(deckDTO.getName());
-        deck.setDescription(deckDTO.getDescription());
-        deck.setPublic(deckDTO.isPublic());
+        existingDeck.setName(deckDTO.getName());
+        existingDeck.setDescription(deckDTO.getDescription());
+        existingDeck.setPublic(deckDTO.isPublic());
         
-        System.out.println("Po aktualizacji, przed zapisem, isPublic=" + deck.isPublic());
-
-        FlashcardDeck updatedDeck = deckRepository.save(deck);
-        System.out.println("Po zapisie, isPublic=" + updatedDeck.isPublic());
+        // Jeśli talia staje się publiczna, usuń ją ze wszystkich grup
+        if (deckDTO.isPublic() && !existingDeck.getGroupIds().isEmpty()) {
+            logger.info("Talia {} zmienił status na publiczny. Usuwanie z {} grup: {}", 
+                    id, existingDeck.getGroupIds().size(), existingDeck.getGroupIds());
+            existingDeck.getGroupIds().clear();
+        }
         
-        return mapToDTO(updatedDeck);
+        FlashcardDeck savedDeck = deckRepository.save(existingDeck);
+        return mapToDTO(savedDeck);
     }
 
     @Transactional
     public void deleteDeck(Long id, Long userId) {
         FlashcardDeck deck = deckRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Zestaw o id " + id + " nie został znaleziony"));
-
         
+        // Sprawdź, czy użytkownik jest właścicielem
         if (!deck.getUserId().equals(userId)) {
-            throw new IllegalStateException("Nie masz uprawnień do usunięcia tego zestawu");
+            throw new IllegalArgumentException("Nie masz uprawnień do usunięcia tego zestawu");
+        }
+        
+        deckRepository.delete(deck);
+    }
+
+    @Transactional
+    public FlashcardDeckDTO updateDeckPublicStatus(Long deckId, boolean isPublic, Long userId) {
+        FlashcardDeck deck = deckRepository.findById(deckId)
+                .orElseThrow(() -> new ResourceNotFoundException("Talia o id " + deckId + " nie istnieje"));
+
+        // Tylko właściciel może aktualizować talię
+        if (!deck.getUserId().equals(userId)) {
+            throw new IllegalArgumentException("Nie masz uprawnień do aktualizacji tej talii");
         }
 
-       
-        deckRepository.delete(deck);
+        deck.setPublic(isPublic);
+        
+        // Jeśli talia staje się publiczna, usuń ją ze wszystkich grup
+        // ponieważ publiczne talie są dostępne dla wszystkich użytkowników
+        if (isPublic && !deck.getGroupIds().isEmpty()) {
+            logger.info("Talia {} zmienił status na publiczny. Usuwanie z {} grup: {}", 
+                    deckId, deck.getGroupIds().size(), deck.getGroupIds());
+            deck.getGroupIds().clear();
+        }
+        
+        FlashcardDeck updatedDeck = deckRepository.save(deck);
+        
+        return mapToDTO(updatedDeck);
+    }
+
+    @Transactional
+    public FlashcardDeckDTO assignDeckToGroups(Long deckId, Set<Long> groupIds, Long userId) {
+        FlashcardDeck deck = deckRepository.findById(deckId)
+                .orElseThrow(() -> new ResourceNotFoundException("Talia o id " + deckId + " nie istnieje"));
+
+        // Tylko właściciel może przypisywać talię do grup
+        if (!deck.getUserId().equals(userId)) {
+            throw new IllegalArgumentException("Nie masz uprawnień do zarządzania grupami tej talii");
+        }
+
+        // Nie można przypisywać publicznych talii do grup
+        if (deck.isPublic()) {
+            throw new IllegalArgumentException("Nie można przypisywać publicznych talii do grup");
+        }
+
+        // Dodaj nowe grupy do istniejących
+        deck.getGroupIds().addAll(groupIds);
+        FlashcardDeck updatedDeck = deckRepository.save(deck);
+        
+        return mapToDTO(updatedDeck);
+    }
+
+    @Transactional
+    public FlashcardDeckDTO removeDeckFromGroups(Long deckId, Set<Long> groupIds, Long userId) {
+        FlashcardDeck deck = deckRepository.findById(deckId)
+                .orElseThrow(() -> new ResourceNotFoundException("Talia o id " + deckId + " nie istnieje"));
+
+        // Tylko właściciel może usuwać talię z grup
+        if (!deck.getUserId().equals(userId)) {
+            throw new IllegalArgumentException("Nie masz uprawnień do zarządzania grupami tej talii");
+        }
+
+        // Usuń grupy z talii
+        deck.getGroupIds().removeAll(groupIds);
+        FlashcardDeck updatedDeck = deckRepository.save(deck);
+        
+        return mapToDTO(updatedDeck);
+    }
+
+    public List<FlashcardDeckDTO> getDecksForGroup(Long groupId) {
+        List<FlashcardDeck> decks = deckRepository.findByGroupIdsContaining(groupId);
+        return decks.stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Sprawdza czy użytkownik jest właścicielem talii
+     */
+    public boolean isDeckOwner(Long deckId, Long userId) {
+        FlashcardDeck deck = deckRepository.findById(deckId)
+                .orElseThrow(() -> new ResourceNotFoundException("Talia o id " + deckId + " nie istnieje"));
+        
+        return deck.getUserId().equals(userId);
     }
 
     @Transactional
@@ -221,6 +336,7 @@ public class FlashcardDeckService {
                 .name(deck.getName())
                 .description(deck.getDescription())
                 .isPublic(deck.isPublic())
+                .groupIds(deck.getGroupIds())
                 .flashcards(flashcardDTOs)
                 .build();
     }
@@ -231,6 +347,7 @@ public class FlashcardDeckService {
                 .name(deckDTO.getName())
                 .description(deckDTO.getDescription())
                 .isPublic(deckDTO.isPublic())
+                .groupIds(deckDTO.getGroupIds() != null ? new HashSet<>(deckDTO.getGroupIds()) : new HashSet<>())
                 .flashcards(new ArrayList<>())
                 .build();
 

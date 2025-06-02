@@ -8,7 +8,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @Builder
@@ -25,6 +27,9 @@ public class FlashcardDeckDTO {
     
     @JsonProperty("isPublic")
     private boolean isPublic;
+    
+    @Builder.Default
+    private Set<Long> groupIds = new HashSet<>();
     
     @Builder.Default
     private List<FlashcardDTO> flashcards = new ArrayList<>();

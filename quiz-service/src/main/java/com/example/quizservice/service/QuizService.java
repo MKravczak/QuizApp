@@ -246,6 +246,18 @@ public class QuizService {
         }
 
         quiz.setPublic(isPublic);
+        
+        // Jeśli quiz staje się publiczny, usuń go ze wszystkich grup
+        // ponieważ publiczne quizy są dostępne dla wszystkich użytkowników
+        if (isPublic && !quiz.getGroupIds().isEmpty()) {
+            logger.info("Quiz {} zmienił status na publiczny. Usuwanie z {} grup: {}", 
+                    quizId, quiz.getGroupIds().size(), quiz.getGroupIds());
+            quiz.getGroupIds().clear();
+        }
+        
+        // Jawnie ustawiamy updatedAt (choć @PreUpdate powinien to zrobić automatycznie)
+        quiz.setUpdatedAt(java.time.LocalDateTime.now());
+        
         Quiz updatedQuiz = quizRepository.save(quiz);
         
         return mapToQuizDto(updatedQuiz);

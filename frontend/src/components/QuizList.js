@@ -78,6 +78,11 @@ const QuizList = () => {
             const response = await QuizService.updateQuizPublicStatus(quizId, !currentStatus);
             console.log('✅ Odpowiedź z serwera:', response);
             
+            // Dodaj komunikat informacyjny gdy quiz staje się publiczny
+            if (!currentStatus) { // jeśli quiz staje się publiczny (był prywatny)
+                console.log('📢 Quiz stał się publiczny - zostanie usunięty ze wszystkich grup');
+            }
+            
             // Po aktualizacji statusu, ponownie załaduj listę quizów
             // aby upewnić się, że lista jest aktualna
             console.log('🔄 Ponowne ładowanie listy quizów...');
