@@ -17,6 +17,7 @@ import QuizStatisticsList from './components/QuizStatisticsList';
 import GroupManagement from './components/groups/GroupManagement';
 import NavBar from './components/NavBar';
 import AuthService from './services/AuthService';
+import './styles/global.css';
 
 const PrivateRoute = ({ children }) => {
   const isAuthenticated = AuthService.isAuthenticated();

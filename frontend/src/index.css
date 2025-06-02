@@ -1,21 +1,28 @@
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  font-family: "Figtree", -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--bg-primary);
   background-image: 
-      radial-gradient(at 47% 33%, hsl(162.00, 77%, 40%) 0, transparent 59%), 
-      radial-gradient(at 82% 65%, hsl(218.00, 39%, 11%) 0, transparent 55%);
+      radial-gradient(at 40% 20%, rgba(8, 145, 178, 0.15) 0, transparent 50%), 
+      radial-gradient(at 80% 0%, rgba(2, 132, 199, 0.1) 0, transparent 50%),
+      radial-gradient(at 0% 100%, rgba(6, 182, 212, 0.1) 0, transparent 50%);
   background-attachment: fixed;
   color: var(--text-primary);
+  line-height: 1.6;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+  font-family: "Figtree", Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+  font-optical-sizing: auto;
+  font-weight: 400;
 }
 
 .container {
@@ -124,67 +131,7 @@ button:hover {
   margin-bottom: 30px;
 }
 
-.subject-card {
-  height: 150px; /* Increased height */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--accent-primary); /* Text color same as flashcards */
-  font-weight: bold;
-  border-radius: var(--card-border-radius);
-  background-color: #212529; /* Dark grey background */
-  transition: all 0.3s ease;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  border: 2px solid transparent; /* For hover effect */
-}
-
-.subject-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(45deg, rgba(0,0,0,0.1), rgba(0,0,0,0));
-  z-index: 1;
-  transition: opacity 0.3s ease;
-  opacity: 0.5;
-}
-
-.subject-card h3 {
-  position: relative;
-  z-index: 2;
-  font-size: 1.8rem;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-}
-
-.subject-card:hover {
-  transform: translateY(-5px) scale(1.02); /* Slight scale for pop */
-  background-color: #2a2e33; /* Lighter grey on hover */
-  border-color: var(--accent-primary); /* Accent border on hover */
-  box-shadow: 0 0 20px rgba(var(--accent-primary-rgb), 0.3); /* Glow effect */
-}
-
-.subject-card:hover::before {
-  opacity: 0.2;
-}
-
-.subject-card.math,
-.subject-card.physics,
-.subject-card.chemistry,
-.subject-card.reasoning {
-  background-color: #343a40;
-  color: var(--accent-primary);
-}
-
-.subject-card.math:hover,
-.subject-card.physics:hover,
-.subject-card.chemistry:hover,
-.subject-card.reasoning:hover {
-  background-color: #424950;
-}
+/* Old subject-card styles removed - now using Dashboard.css */
 
 .card {
   backdrop-filter: blur(var(--blur-amount)) saturate(180%);
@@ -207,28 +154,6 @@ button:hover {
   color: var(--text-secondary);
   flex-grow: 1;
   margin-bottom: 1rem;
-}
-
-:root {
-  /* Dark mode theme colors */
-  --bg-primary: #111927;
-  --bg-secondary: #0d141e;
-  --accent-primary: #0ac799;
-  --accent-primary-rgb: 10, 199, 153; /* For RGBA shadows/glows */
-  --accent-secondary: #0a95a8;
-  --text-primary: #e0e0e0; /* Slightly off-white for better readability */
-  --text-secondary: rgba(224, 224, 224, 0.8);
-  --text-muted: rgba(224, 224, 224, 0.6);
-  --danger: #ff4d4d;
-  
-  /* UI elements */
-  --card-bg: rgba(20, 28, 40, 0.85); /* Slightly more opaque card */
-  --card-border: rgba(255, 255, 255, 0.15);
-  --shadow: 0 8px 25px 0 rgba(0, 0, 0, 0.3);
-  --border-radius: 12px;
-  --card-border-radius: 10px; /* Slightly smaller radius for cards */
-  --button-radius: 8px;
-  --blur-amount: 12px; /* Reduced blur for performance/clarity */
 }
 
 .action-buttons {
@@ -268,13 +193,13 @@ button:hover {
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); /* Swap gradient on hover */
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(var(--accent-primary-rgb), 0.4);
 }
 
 .btn-outline-primary {
-  background-color: transparent; /* More contrast */
+  background-color: rgba(30, 41, 59, 0.8);
   border: 2px solid var(--accent-primary);
   color: var(--accent-primary);
   font-weight: 600;
@@ -282,13 +207,13 @@ button:hover {
 
 .btn-outline-primary:hover {
   background: var(--accent-primary);
-  color: var(--bg-primary); /* Ensure text is readable */
+  color: var(--bg-primary);
   transform: translateY(-2px);
   box-shadow: 0 3px 10px rgba(var(--accent-primary-rgb), 0.3);
 }
 
 .btn-success {
-  background: linear-gradient(135deg, #0a95a8, #0ac799); /* Using accent colors for consistency */
+  background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary));
   border: none;
   color: var(--text-primary);
   font-weight: 600;
@@ -296,7 +221,7 @@ button:hover {
 }
 
 .btn-success:hover {
-  background: linear-gradient(135deg, #0ac799, #0a95a8);
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(var(--accent-primary-rgb), 0.4);
 }
@@ -347,17 +272,33 @@ button:hover {
 
 /* Quiz answer styling */
 .quiz-answer-option {
-  border-radius: var(--button-radius);
-  transition: all 0.3s ease;
+  transition: all 0.3s ease !important;
+}
+
+.quiz-answer-option:hover:not(.selected) {
+  background-color: rgba(var(--accent-primary-rgb), 0.15) !important;
+  border-color: rgba(var(--accent-primary-rgb), 0.3) !important;
+  color: var(--accent-primary) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(var(--accent-primary-rgb), 0.2) !important;
 }
 
 .quiz-answer-option.selected {
-  transform: scale(1.02);
+  background-color: var(--accent-primary) !important;
+  border-color: var(--accent-primary) !important;
+  color: white !important;
+  box-shadow: 0 4px 15px rgba(var(--accent-primary-rgb), 0.4) !important;
 }
 
 .quiz-progress {
-  border-radius: 10px;
-  overflow: hidden;
+  background-color: rgba(30, 41, 59, 0.6) !important;
+  border-radius: 10px !important;
+  overflow: hidden !important;
+}
+
+.quiz-progress .progress-bar {
+  background: var(--primary-gradient) !important;
+  transition: width 0.5s ease !important;
 }
 
 /* Anki mode styling */
@@ -367,7 +308,7 @@ button:hover {
 
 /* General Card Header Styling */
 .card-header {
-    background-color: rgba(var(--accent-secondary-rgb, 10, 149, 168), 0.2); /* Default, can be overridden */
+    background-color: rgba(8, 145, 178, 0.2);
     color: var(--text-primary);
     border-bottom: 1px solid var(--card-border);
     padding: 0.75rem 1.25rem;

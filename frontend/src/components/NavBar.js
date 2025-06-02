@@ -16,23 +16,24 @@ const NavBar = () => {
       <div className="container">
         <div className="d-flex justify-content-between align-items-center">
           <div className="d-flex align-items-center">
-            <Link to="/dashboard" className="text-decoration-none">
-              <h2 className="mb-0" style={{ 
-                background: 'linear-gradient(135deg, #0a95a8, #0ac799)',
-                WebkitBackgroundClip: 'text',
-                backgroundClip: 'text',
-                color: 'transparent'
-              }}>QuizApp</h2>
+            <Link to="/dashboard" className="text-decoration-none navbar-brand">
+              <h2 className="mb-0 brand-title">
+                <i className="bi bi-mortarboard-fill me-2"></i>
+                QuizApp
+              </h2>
             </Link>
             {currentUser && (
-              <div className="ms-4">
-                <Link to="/groups" className="btn btn-sm me-2" style={{ fontWeight: '600' }}>
+              <div className="navbar-nav ms-4">
+                <Link to="/groups" className="nav-link">
+                  <i className="bi bi-people-fill me-1"></i>
                   Grupy
                 </Link>
-                <Link to="/decks" className="btn btn-sm me-2" style={{ fontWeight: '600' }}>
+                <Link to="/decks" className="nav-link">
+                  <i className="bi bi-layers-fill me-1"></i>
                   Fiszki
                 </Link>
-                <Link to="/quizzes" className="btn btn-sm" style={{ fontWeight: '600' }}>
+                <Link to="/quizzes" className="nav-link">
+                  <i className="bi bi-patch-question-fill me-1"></i>
                   Quizy
                 </Link>
               </div>
@@ -41,29 +42,26 @@ const NavBar = () => {
           
           {currentUser ? (
             <div className="d-flex align-items-center">
-              <span className="me-3 text-light">
-                Witaj, <strong>{currentUser.username}</strong>
+              <span className="user-greeting me-3">
+                <i className="bi bi-person-circle me-1"></i>
+                 <strong>{currentUser.username}</strong>
               </span>
               <button 
                 onClick={handleLogout} 
-                className="btn btn-sm"
-                style={{
-                  background: 'linear-gradient(135deg, #e03f3f, #d12340)',
-                  border: 'none',
-                  color: 'white',
-                  fontWeight: '600',
-                  textShadow: '0 1px 1px rgba(0, 0, 0, 0.2)'
-                }}
+                className="btn btn-danger btn-sm logout-btn"
               >
+                <i className="bi bi-box-arrow-right me-1"></i>
                 Wyloguj
               </button>
             </div>
           ) : (
-            <div>
-              <Link to="/login" className="btn btn-sm btn-primary me-2" style={{ fontWeight: '600', textShadow: '0 1px 1px rgba(0, 0, 0, 0.2)' }}>
+            <div className="auth-buttons">
+              <Link to="/login" className="btn btn-primary btn-sm me-2">
+                <i className="bi bi-box-arrow-in-right me-1"></i>
                 Logowanie
               </Link>
-              <Link to="/register" className="btn btn-sm btn-outline-primary" style={{ fontWeight: '600' }}>
+              <Link to="/register" className="btn btn-outline-primary btn-sm">
+                <i className="bi bi-person-plus me-1"></i>
                 Rejestracja
               </Link>
             </div>

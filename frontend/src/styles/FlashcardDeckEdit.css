@@ -1,5 +1,5 @@
 .flashcard-deck-edit-container .card-header.section-header {
-  background: linear-gradient(135deg, rgba(10, 149, 168, 0.8), rgba(10, 199, 153, 0.8));
+  background: linear-gradient(135deg, rgba(8, 145, 178, 0.8), rgba(6, 182, 212, 0.8));
   color: var(--text-primary);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(16px);
@@ -9,7 +9,10 @@
 
 .flashcard-deck-edit-container .card-header.section-header .card-title {
   font-size: 1.25rem;
+  font-family: "Figtree", sans-serif;
+  font-optical-sizing: auto;
   font-weight: 600;
+  font-style: normal;
 }
 
 .flashcard-deck-edit-container .form-switch.fs-5 .form-check-input {
@@ -21,14 +24,18 @@
 }
 
 .flashcard-deck-edit-container .form-switch.fs-5 .form-check-input:checked {
-  background-color: #0ac799;
-  border-color: #0a95a8;
+  background-color: var(--accent-primary);
+  border-color: var(--accent-secondary);
 }
 
 .flashcard-deck-edit-container .form-switch.fs-5 .form-check-label {
   padding-left: 0.8rem; 
   line-height: 1.8rem;
   color: var(--text-secondary);
+  font-family: "Figtree", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
 }
 
 .flashcard-list-edit {
@@ -67,6 +74,10 @@
   text-overflow: ellipsis;
   max-width: 200px;
   color: var(--text-secondary);
+  font-family: "Figtree", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
 }
 
 /* Style dla ikon w przyciskach */
@@ -98,13 +109,20 @@
 }
 
 .flashcard-item-title {
+  font-family: "Figtree", sans-serif;
+  font-optical-sizing: auto;
   font-weight: 600;
-  color: #0ac799;
+  font-style: normal;
+  color: var(--accent-primary);
 }
 
 .flashcard-item-text {
   color: var(--text-secondary);
   font-size: 0.9rem;
+  font-family: "Figtree", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
 }
 
 .flashcard-item-actions {
@@ -119,6 +137,10 @@
   color: var(--text-secondary); /* Jasny tekst */
   margin-bottom: 8px; /* Odstęp między elementami */
   border-radius: 8px; /* Zaokrąglenie rogów */
+  font-family: "Figtree", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
 }
 
 .flashcard-list-edit .list-group-item:hover {
@@ -127,6 +149,10 @@
 
 .flashcard-list-edit .list-group-item strong {
   color: var(--accent-primary); /* Kolor akcentu dla terminu */
+  font-family: "Figtree", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-style: normal;
 }
 
 /* Styl dla przycisku Browse w formularzu importu */
@@ -136,10 +162,36 @@
   color: var(--text-primary) !important;
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2) !important;
   transition: all 0.3s ease !important;
+  font-family: "Figtree", sans-serif !important;
+  font-optical-sizing: auto !important;
+  font-weight: 600 !important;
+  font-style: normal !important;
 }
 
 .flashcard-deck-edit-container .btn-primary:hover {
   background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)) !important;
   transform: translateY(-2px) !important;
   box-shadow: 0 5px 15px rgba(var(--accent-primary-rgb), 0.4) !important;
+}
+
+.flashcard-item-question {
+    background-color: var(--accent-primary);
+    color: white;
+    padding: 12px 16px;
+    margin: -12px -16px 8px -16px;
+    border-radius: 8px 8px 0 0;
+    font-family: "Figtree", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 600;
+    font-style: normal;
+    font-size: 0.9rem;
+}
+
+.flashcard-item-answer {
+    color: var(--accent-primary);
+    font-family: "Figtree", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 500;
+    font-style: normal;
+    line-height: 1.4;
 } 

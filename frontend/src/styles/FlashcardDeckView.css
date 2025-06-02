@@ -2,21 +2,28 @@
   backdrop-filter: blur(16px) saturate(180%);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
   background-color: rgba(17, 25, 40, 0.75);
-  border-left: 5px solid #0ac799;
+  border-left: 5px solid var(--accent-primary);
   border-radius: 0 12px 12px 0;
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
   margin-bottom: 25px;
 }
 
 .deck-description-card .card-title {
-  color: #0ac799;
+  color: var(--accent-primary);
+  font-family: "Figtree", sans-serif;
+  font-optical-sizing: auto;
   font-weight: 600;
+  font-style: normal;
   font-size: 1.4rem;
 }
 
 .deck-description-card .card-text {
   color: var(--text-secondary);
   line-height: 1.6;
+  font-family: "Figtree", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
 }
 
 .flashcard-preview-card {
@@ -48,8 +55,11 @@
 
 .flashcard-term {
   font-size: 1.25rem;
+  font-family: "Figtree", sans-serif;
+  font-optical-sizing: auto;
   font-weight: 600;
-  color: #0ac799;
+  font-style: normal;
+  color: var(--accent-primary);
   margin-bottom: 1rem;
   position: relative;
   padding-bottom: 0.75rem;
@@ -62,7 +72,7 @@
   left: 0;
   width: 50px;
   height: 3px;
-  background: linear-gradient(135deg, #0a95a8, #0ac799);
+  background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary));
   border-radius: 100px;
 }
 
@@ -72,6 +82,10 @@
   flex-grow: 1;
   margin-bottom: 1rem;
   line-height: 1.6;
+  font-family: "Figtree", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
 }
 
 .flashcard-preview-image {
@@ -101,8 +115,11 @@
 
 .stat-value {
   font-size: 1.5rem;
+  font-family: "Figtree", sans-serif;
+  font-optical-sizing: auto;
   font-weight: 700;
-  color: #0ac799;
+  font-style: normal;
+  color: var(--accent-primary);
   margin-bottom: 5px;
 }
 
@@ -111,6 +128,10 @@
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 1px;
+  font-family: "Figtree", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-style: normal;
 }
 
 .deck-action-buttons {
@@ -122,7 +143,56 @@
 .deck-action-buttons .btn {
   flex: 1;
   padding: 12px;
+  font-family: "Figtree", sans-serif;
+  font-optical-sizing: auto;
   font-weight: 500;
+  font-style: normal;
   letter-spacing: 0.5px;
   border-radius: 10px;
+}
+
+.flashcard-deck-view-container .card-header {
+  background: linear-gradient(135deg, rgba(8, 145, 178, 0.8), rgba(6, 182, 212, 0.8));
+  border-left: 5px solid var(--accent-primary);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.flashcard-deck-view-container .card-title {
+  color: var(--accent-primary);
+  font-family: "Figtree", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+
+.flashcard-deck-view-container .btn.btn-outline-secondary {
+  border-color: rgba(var(--accent-primary-rgb), 0.3);
+  color: var(--accent-primary);
+  background: rgba(var(--accent-primary-rgb), 0.05);
+}
+
+.anki-mode-button {
+  background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary));
+  border: none;
+  color: white;
+  font-family: "Figtree", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-style: normal;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 12px rgba(var(--accent-primary-rgb), 0.3);
+}
+
+.flashcard-deck-view-container .list-group-item strong {
+  color: var(--accent-primary);
+  font-family: "Figtree", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-style: normal;
 } 

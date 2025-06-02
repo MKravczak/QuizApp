@@ -204,16 +204,16 @@ const QuizStatistics = () => {
     // Funkcja generująca losowy kolor dla wykresu
     const getRandomColor = (index, alpha = 1) => {
         const colors = [
-            `rgba(255, 99, 132, ${alpha})`,
-            `rgba(54, 162, 235, ${alpha})`,
-            `rgba(255, 206, 86, ${alpha})`,
-            `rgba(75, 192, 192, ${alpha})`,
-            `rgba(153, 102, 255, ${alpha})`,
-            `rgba(255, 159, 64, ${alpha})`,
-            `rgba(199, 199, 199, ${alpha})`,
-            `rgba(83, 102, 255, ${alpha})`,
-            `rgba(40, 159, 64, ${alpha})`,
-            `rgba(210, 199, 199, ${alpha})`
+            `rgba(8, 145, 178, ${alpha})`,    // --accent-primary
+            `rgba(2, 132, 199, ${alpha})`,    // --accent-secondary  
+            `rgba(6, 182, 212, ${alpha})`,    // cyan-500
+            `rgba(14, 165, 233, ${alpha})`,   // sky-500
+            `rgba(59, 130, 246, ${alpha})`,   // blue-500
+            `rgba(99, 102, 241, ${alpha})`,   // indigo-500
+            `rgba(139, 92, 246, ${alpha})`,   // violet-500
+            `rgba(168, 85, 247, ${alpha})`,   // purple-500
+            `rgba(236, 72, 153, ${alpha})`,   // pink-500
+            `rgba(244, 63, 94, ${alpha})`     // rose-500
         ];
         return colors[index % colors.length];
     };
@@ -316,6 +316,13 @@ const QuizStatistics = () => {
                                                         maintainAspectRatio: false,
                                                         plugins: {
                                                             tooltip: {
+                                                                backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                                                                titleColor: '#f1f5f9',
+                                                                bodyColor: '#f1f5f9',
+                                                                borderColor: 'rgba(8, 145, 178, 0.5)',
+                                                                borderWidth: 1,
+                                                                cornerRadius: 8,
+                                                                padding: 12,
                                                                 callbacks: {
                                                                     label: function(context) {
                                                                         const label = context.dataset.label || '';
@@ -328,29 +335,90 @@ const QuizStatistics = () => {
                                                                 position: 'bottom',
                                                                 labels: {
                                                                     usePointStyle: true,
-                                                                    padding: 15
+                                                                    padding: 15,
+                                                                    color: '#f1f5f9',
+                                                                    font: {
+                                                                        size: 12,
+                                                                        family: 'Figtree, sans-serif'
+                                                                    }
                                                                 }
                                                             },
                                                             title: {
                                                                 display: true,
-                                                                text: 'Postęp wyników użytkowników'
+                                                                text: 'Postęp wyników użytkowników',
+                                                                color: '#f1f5f9',
+                                                                font: {
+                                                                    size: 16,
+                                                                    weight: 'bold',
+                                                                    family: 'Figtree, sans-serif'
+                                                                },
+                                                                padding: 20
                                                             }
                                                         },
                                                         scales: {
                                                             y: {
                                                                 beginAtZero: true,
                                                                 max: 100,
+                                                                grid: {
+                                                                    color: 'rgba(148, 163, 184, 0.1)',
+                                                                    borderColor: 'rgba(148, 163, 184, 0.2)'
+                                                                },
+                                                                ticks: {
+                                                                    color: '#94a3b8',
+                                                                    font: {
+                                                                        family: 'Figtree, sans-serif'
+                                                                    }
+                                                                },
                                                                 title: {
                                                                     display: true,
-                                                                    text: 'Wynik (%)'
+                                                                    text: 'Wynik (%)',
+                                                                    color: '#f1f5f9',
+                                                                    font: {
+                                                                        size: 14,
+                                                                        weight: 'bold',
+                                                                        family: 'Figtree, sans-serif'
+                                                                    }
                                                                 }
                                                             },
                                                             x: {
+                                                                grid: {
+                                                                    color: 'rgba(148, 163, 184, 0.1)',
+                                                                    borderColor: 'rgba(148, 163, 184, 0.2)'
+                                                                },
+                                                                ticks: {
+                                                                    color: '#94a3b8',
+                                                                    font: {
+                                                                        family: 'Figtree, sans-serif'
+                                                                    }
+                                                                },
                                                                 title: {
                                                                     display: true,
-                                                                    text: 'Kolejne próby'
+                                                                    text: 'Kolejne próby',
+                                                                    color: '#f1f5f9',
+                                                                    font: {
+                                                                        size: 14,
+                                                                        weight: 'bold',
+                                                                        family: 'Figtree, sans-serif'
+                                                                    }
                                                                 }
                                                             }
+                                                        },
+                                                        elements: {
+                                                            line: {
+                                                                tension: 0.4,
+                                                                borderWidth: 3,
+                                                                fill: false
+                                                            },
+                                                            point: {
+                                                                radius: 6,
+                                                                hoverRadius: 8,
+                                                                borderWidth: 2,
+                                                                hoverBorderWidth: 3
+                                                            }
+                                                        },
+                                                        interaction: {
+                                                            intersect: false,
+                                                            mode: 'index'
                                                         }
                                                     }}
                                                 />

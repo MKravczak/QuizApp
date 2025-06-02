@@ -1,45 +1,138 @@
 :root {
-  /* Dark mode theme colors */
-  --bg-primary: #111927;
-  --bg-secondary: #0d141e;
-  --accent-primary: #0ac799;
-  --accent-secondary: #0a95a8;
-  --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.8);
-  --text-muted: rgba(255, 255, 255, 0.6);
+  /* Professional Blue-Cyan Theme */
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --accent-primary: #0891b2;
+  --accent-primary-rgb: 8, 145, 178;
+  --accent-secondary: #0284c7;
+  --text-primary: #f1f5f9;
+  --text-secondary: rgba(241, 245, 249, 0.8);
+  --text-muted: rgba(241, 245, 249, 0.6);
   
-  /* Subject colors - darkened for better contrast */
-  --math-gradient: linear-gradient(135deg, #06728a, #07a77f);
-  --physics-gradient: linear-gradient(135deg, #4b1381, #c20062);
-  --chemistry-gradient: linear-gradient(135deg, #be3030, #bf7120);
-  --reasoning-gradient: linear-gradient(135deg, #241c7a, #0f7bbd);
+  /* Professional gradient palette */
+  --primary-gradient: linear-gradient(135deg, #0891b2, #06b6d4);
+  --secondary-gradient: linear-gradient(135deg, #0284c7, #0891b2);
+  --accent-gradient: linear-gradient(135deg, #06b6d4, #0ea5e9);
+  --success-gradient: linear-gradient(135deg, #0284c7, #0891b2);
+  --danger-gradient: linear-gradient(135deg, #dc2626, #ef4444);
   
   /* UI elements */
-  --card-bg: rgba(17, 25, 40, 0.75);
-  --card-border: rgba(255, 255, 255, 0.125);
-  --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  --card-bg: rgba(30, 41, 59, 0.8);
+  --card-border: rgba(148, 163, 184, 0.1);
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   --border-radius: 12px;
   --card-border-radius: 12px;
   --button-radius: 8px;
   --blur-amount: 16px;
   
   /* Statistics colors */
-  --stat-color-1: #0ac799;
-  --stat-color-2: #0a95a8;
-  --stat-color-3: #6017a7;
-  --stat-color-4: #e40072;
-  --stat-color-5: #e49032;
-  --stat-color-6: #1a9be4;
+  --stat-color-1: #0891b2;
+  --stat-color-2: #0284c7;
+  --stat-color-3: #06b6d4;
+  --stat-color-4: #0ea5e9;
+  --stat-color-5: #3b82f6;
+  --stat-color-6: #6366f1;
+}
+
+/* Figtree Font Classes for Different Weights */
+.figtree-light {
+  font-family: "Figtree", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 300;
+  font-style: normal;
+}
+
+.figtree-regular {
+  font-family: "Figtree", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.figtree-medium {
+  font-family: "Figtree", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-style: normal;
+}
+
+.figtree-semibold {
+  font-family: "Figtree", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-style: normal;
+}
+
+.figtree-bold {
+  font-family: "Figtree", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.figtree-extrabold {
+  font-family: "Figtree", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 800;
+  font-style: normal;
+}
+
+.figtree-black {
+  font-family: "Figtree", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 900;
+  font-style: normal;
+}
+
+/* Apply Figtree to all text elements */
+body, html {
+  background-color: var(--bg-primary);
+  background-image: 
+      radial-gradient(at 40% 20%, rgba(8, 145, 178, 0.3) 0, transparent 50%), 
+      radial-gradient(at 80% 0%, rgba(2, 132, 199, 0.2) 0, transparent 50%),
+      radial-gradient(at 0% 100%, rgba(6, 182, 212, 0.2) 0, transparent 50%);
+  background-attachment: fixed;
+  color: var(--text-primary);
+  font-family: "Figtree", -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  line-height: 1.6;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+* {
+  font-family: "Figtree", -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* Ensure all possible text elements use Figtree */
+*, *::before, *::after {
+  font-family: "Figtree", -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Figtree", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+}
+
+p, span, div, a, button, input, textarea, select, label, li, th, td, caption, legend, fieldset {
+  font-family: "Figtree", sans-serif;
+  font-optical-sizing: auto;
 }
 
 body {
-  background-color: #111927;
+  background-color: var(--bg-primary);
   background-image: 
-      radial-gradient(at 47% 33%, hsl(162.00, 77%, 40%) 0, transparent 59%), 
-      radial-gradient(at 82% 65%, hsl(218.00, 39%, 11%) 0, transparent 55%);
+      radial-gradient(at 40% 20%, rgba(8, 145, 178, 0.3) 0, transparent 50%), 
+      radial-gradient(at 80% 0%, rgba(2, 132, 199, 0.2) 0, transparent 50%),
+      radial-gradient(at 0% 100%, rgba(6, 182, 212, 0.2) 0, transparent 50%);
   background-attachment: fixed;
   color: var(--text-primary);
-  font-family: 'Roboto', 'Segoe UI', sans-serif;
+  font-family: 'Figtree', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   line-height: 1.6;
   min-height: 100vh;
   margin: 0;
@@ -92,8 +185,8 @@ body {
 .app-navbar {
   backdrop-filter: blur(var(--blur-amount)) saturate(180%);
   -webkit-backdrop-filter: blur(var(--blur-amount)) saturate(180%);
-  background-color: rgba(17, 25, 40, 0.8);
-  box-shadow: var(--shadow);
+  background-color: rgba(30, 41, 59, 0.9);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   border-bottom: 1px solid var(--card-border);
   padding: 15px 0;
   margin-bottom: 30px;
@@ -102,13 +195,80 @@ body {
   z-index: 1000;
 }
 
-.app-navbar h2 {
-  background: var(--math-gradient);
+.brand-title {
+  background: var(--primary-gradient);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
   font-weight: 700;
+  font-size: 1.75rem;
 }
+
+.navbar-brand {
+  transition: transform 0.2s ease;
+}
+
+.navbar-brand:hover {
+  transform: scale(1.02);
+}
+
+.navbar-nav {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.nav-link {
+  padding: 8px 16px;
+  border-radius: var(--button-radius);
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.nav-link:hover {
+  color: var(--accent-primary);
+  background: rgba(var(--accent-primary-rgb), 0.1);
+  border-color: rgba(var(--accent-primary-rgb), 0.2);
+  transform: translateY(-1px);
+  text-decoration: none;
+}
+
+.user-greeting {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+}
+
+.user-greeting strong {
+  color: var(--accent-primary);
+  font-weight: 600;
+}
+
+.logout-btn {
+  font-size: 0.85rem;
+  padding: 6px 12px;
+}
+
+.auth-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.auth-buttons .btn {
+  font-size: 0.85rem;
+  padding: 6px 12px;
+}
+
 .list-group {
   color: var(--text-primary);
 }
@@ -130,60 +290,7 @@ body {
   transform: translateY(-2px);
 }
 
-/* Subject cards */
-.subject-card {
-  color: var(--text-primary);
-  padding: 30px;
-  border-radius: var(--card-border-radius) var(--card-border-radius) 0 0;
-  position: relative;
-  overflow: hidden;
-  min-height: 140px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.subject-card h3 {
-  font-size: 2rem;
-  font-weight: 700;
-  z-index: 1;
-  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-}
-
-.subject-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  opacity: 0.85;
-  z-index: 0;
-  transition: opacity 0.3s ease;
-}
-
-.subject-card:hover::before {
-  opacity: 1;
-  filter: brightness(1.2);
-}
-
-.subject-card.math::before {
-  background: var(--math-gradient);
-}
-
-.subject-card.physics::before {
-  background: var(--physics-gradient);
-}
-
-.subject-card.chemistry::before {
-  background: var(--chemistry-gradient);
-}
-
-.subject-card.reasoning::before {
-  background: var(--reasoning-gradient);
-}
+/* Subject cards - REMOVED - Now using Dashboard.css */
 
 /* Button styles */
 .btn {
@@ -194,59 +301,68 @@ body {
   border: none;
   backdrop-filter: blur(var(--blur-amount));
   -webkit-backdrop-filter: blur(var(--blur-amount));
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  font-family: 'Figtree', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #067e91, #07a77f);
+  background: var(--primary-gradient);
   color: var(--text-primary);
-  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(var(--accent-primary-rgb), 0.2);
 }
 
 .btn-primary:hover, .btn-primary:focus {
-  background: linear-gradient(135deg, #07a77f, #067e91);
+  background: var(--secondary-gradient);
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(7, 167, 127, 0.5);
+  box-shadow: 0 6px 20px rgba(var(--accent-primary-rgb), 0.4);
+  color: var(--text-primary);
 }
 
 .btn-secondary {
-  background: linear-gradient(135deg, #4b1381, #c20062);
+  background: var(--secondary-gradient);
   color: var(--text-primary);
-  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.2);
 }
 
 .btn-secondary:hover, .btn-secondary:focus {
-  background: linear-gradient(135deg, #611aa6, #dd1a85);
+  background: var(--accent-gradient);
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(194, 0, 98, 0.5);
+  box-shadow: 0 6px 20px rgba(2, 132, 199, 0.4);
+  color: var(--text-primary);
 }
 
 .btn-danger {
-  background: linear-gradient(135deg, #be3030, #ad1e37);
+  background: var(--danger-gradient);
   color: var(--text-primary);
-  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2);
 }
 
 .btn-danger:hover {
-  background: linear-gradient(135deg, #ad1e37, #be3030);
+  background: linear-gradient(135deg, #ef4444, #dc2626);
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(173, 30, 55, 0.5);
+  box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
+  color: var(--text-primary);
 }
 
 .btn-success {
-  background: linear-gradient(135deg, #067e91, #07a77f);
+  background: var(--primary-gradient);
+  border: none;
   color: var(--text-primary);
-  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
+  font-weight: 600;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
 }
 
 .btn-success:hover {
-  background: linear-gradient(135deg, #07a77f, #067e91);
+  background: var(--secondary-gradient);
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(7, 167, 127, 0.5);
+  box-shadow: 0 5px 15px rgba(var(--accent-primary-rgb), 0.4);
 }
 
 .btn-outline-primary {
-  background-color: rgba(17, 25, 40, 0.8);
+  background-color: rgba(30, 41, 59, 0.8);
   border: 2px solid var(--accent-primary);
   color: var(--accent-primary);
   font-weight: 600;
@@ -266,9 +382,10 @@ body {
 }
 
 .btn-outline-secondary:hover {
-  background: var(--physics-gradient);
+  background: var(--secondary-gradient);
   color: var(--text-primary);
   transform: translateY(-2px);
+  border-color: var(--accent-secondary);
 }
 
 /* Flashcard styles */
@@ -437,7 +554,7 @@ textarea.form-control {
 }
 
 .progress-bar {
-  background: var(--math-gradient);
+  background: var(--primary-gradient);
   border-radius: 100px;
 }
 
@@ -452,22 +569,22 @@ textarea.form-control {
 }
 
 .badge-primary {
-  background: var(--math-gradient);
+  background: var(--primary-gradient);
   color: var(--text-primary);
 }
 
 .badge-secondary {
-  background: var(--physics-gradient);
+  background: var(--secondary-gradient);
   color: var(--text-primary);
 }
 
 .badge-success {
-  background: linear-gradient(135deg, #0bd9f0, #0ff4c6);
+  background: var(--primary-gradient);
   color: var(--text-primary);
 }
 
 .badge-danger {
-  background: linear-gradient(135deg, #ff4d4d, #f73859);
+  background: var(--danger-gradient);
   color: var(--text-primary);
 }
 
@@ -488,7 +605,7 @@ textarea.form-control {
   left: 0;
   width: 80px;
   height: 4px;
-  background: var(--math-gradient);
+  background: var(--primary-gradient);
   border-radius: 100px;
 }
 
@@ -731,14 +848,15 @@ textarea.form-control {
 }
 
 .btn-success.deck-action-button {
-    background: linear-gradient(135deg, #0a95a8, #0ac799) !important; /* Użyj spójnych kolorów */
-    color: var(--text-primary) !important;
+    background: var(--primary-gradient);
+    border: none;
+    color: var(--text-primary);
 }
 
 .btn-success.deck-action-button:hover {
-    background: linear-gradient(135deg, #0ac799, #0a95a8) !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 5px 15px rgba(var(--accent-primary-rgb), 0.4) !important;
+    background: var(--secondary-gradient);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(var(--accent-primary-rgb), 0.4);
 }
 
 /* Styl dla statystyk */
@@ -763,4 +881,87 @@ textarea.form-control {
 
 .quiz-question-counter {
   color: var(--text-primary);
+}
+
+/* Responsive navbar */
+@media (max-width: 768px) {
+  .app-navbar .container > .d-flex {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+  
+  .navbar-nav {
+    flex-direction: row;
+    gap: 0.25rem;
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  .nav-link {
+    text-align: center;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    flex: 1;
+    min-width: auto;
+  }
+  
+  .user-greeting {
+    text-align: center;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+  }
+  
+  .auth-buttons {
+    flex-direction: row;
+    width: 100%;
+    gap: 0.5rem;
+    justify-content: center;
+  }
+  
+  .auth-buttons .btn {
+    flex: 1;
+  }
+  
+  .logout-btn {
+    width: auto;
+    align-self: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar-nav {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .nav-link {
+    width: 100%;
+    padding: 10px 16px;
+  }
+  
+  .auth-buttons {
+    flex-direction: column;
+  }
+  
+  .logout-btn {
+    width: 100%;
+  }
+}
+
+/* Bootstrap and other framework overrides */
+.btn, .form-control, .form-select, .form-check-label, .card-title, .card-text, .card-header, .card-body, .card-footer {
+  font-family: "Figtree", sans-serif !important;
+  font-optical-sizing: auto !important;
+}
+
+.navbar-brand, .nav-link, .dropdown-item, .list-group-item {
+  font-family: "Figtree", sans-serif !important;
+  font-optical-sizing: auto !important;
+}
+
+.badge, .alert, .toast, .modal-title, .modal-body, .modal-footer {
+  font-family: "Figtree", sans-serif !important;
+  font-optical-sizing: auto !important;
 }
