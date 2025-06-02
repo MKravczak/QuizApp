@@ -71,6 +71,26 @@ class FlashcardService {
     }
   }
 
+  // Pobieranie talii wraz z fiszkami - wrapper dla wygody
+  async getDeck(id) {
+    try {
+      const [deckData, flashcardsData] = await Promise.all([
+        this.getDeckById(id),
+        this.getFlashcardsByDeckId(id)
+      ]);
+      
+      return {
+        data: {
+          ...deckData,
+          flashcards: flashcardsData
+        }
+      };
+    } catch (error) {
+      console.error('Błąd podczas pobierania talii z fiszkami:', error);
+      throw error;
+    }
+  }
+
   async createDeck(deckData) {
     try {
       return await flashcardAPI.createDeck(deckData);

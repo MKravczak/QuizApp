@@ -49,24 +49,32 @@ const QuizCreate = () => {
         // Jeśli zmieniono zestaw fiszek, pobierz informacje o nim
         if (name === 'flashcardDeckId' && val) {
             const deckId = parseInt(val);
-            FlashcardService.getDeck(deckId)
-                .then(response => {
-                    const flashcards = response.data.flashcards;
+            console.log('🔍 Pobieranie danych dla talii ID:', deckId);
+            
+            Promise.all([
+                FlashcardService.getDeckById(deckId),
+                FlashcardService.getFlashcardsByDeckId(deckId)
+            ])
+                .then(([deckData, flashcardsData]) => {
+                    console.log('✅ Odpowiedź z getDeckById:', deckData);
+                    console.log('📚 Fiszki:', flashcardsData, 'Liczba:', flashcardsData.length);
+                    
                     setSelectedDeckInfo({
-                        flashcardCount: flashcards.length,
-                        name: response.data.name
+                        flashcardCount: flashcardsData.length,
+                        name: deckData.name
                     });
-                    setSelectedFlashcards(flashcards);
+                    setSelectedFlashcards(flashcardsData);
                     
                     // Ustaw domyślną liczbę pytań na liczbę fiszek w zestawie
-                    const defaultQuestionCount = flashcards.length;
+                    const defaultQuestionCount = flashcardsData.length;
+                    console.log('🔢 Ustawianie domyślnej liczby pytań na:', defaultQuestionCount);
                     setFormData(prev => ({
                         ...prev,
                         questionCount: defaultQuestionCount
                     }));
                 })
                 .catch(err => {
-                    console.error('Błąd podczas pobierania informacji o zestawie:', err);
+                    console.error('❌ Błąd podczas pobierania informacji o zestawie:', err);
                     setSelectedDeckInfo(null);
                     setSelectedFlashcards([]);
                 });
@@ -111,12 +119,24 @@ const QuizCreate = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
         
+        console.log('🐛 DEBUG handleSubmit:', {
+            formData,
+            selectedFlashcards: selectedFlashcards,
+            selectedFlashcardsLength: selectedFlashcards.length,
+            questionCount: formData.questionCount,
+            selectedDeckInfo
+        });
+        
         if (!formData.flashcardDeckId) {
             setError('Wybierz zestaw fiszek.');
             return;
         }
         
         if (selectedFlashcards.length < formData.questionCount) {
+            console.error('❌ Za mało fiszek:', {
+                selectedFlashcardsLength: selectedFlashcards.length,
+                questionCount: formData.questionCount
+            });
             setError('Zbyt mała liczba fiszek w zestawie dla wybranej liczby pytań.');
             return;
         }
