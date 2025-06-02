@@ -155,7 +155,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
    ```
 
 3. **Używanie tokenu**:
-   ```http
+   ```text
    Authorization: Bearer eyJhbGciOiJIUzUxMiJ9...
    X-User-ID: 1
    ```
@@ -176,7 +176,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 **Powód wyłączenia**: Przeszkadzał w normalnym funkcjonowaniu aplikacji
 
 **Konfiguracja wyłączenia**:
-```properties
+```text
 # application.properties
 app.security.anti-postman.enabled=false
 
@@ -239,7 +239,7 @@ public class AntiPostmanFilter implements Filter {
 **Aktywny w**: user-service
 
 **Konfiguracja**:
-```properties
+```text
 app.security.rate-limit.enabled=true
 app.security.rate-limit.max-requests=50
 app.security.rate-limit.window-size=60000
@@ -549,7 +549,7 @@ class RequestCounter {
 
 ### Monitoring Rate Limiting
 
-```properties
+```text
 # Logi rate limiting
 logging.level.com.example.userservice.security.RateLimitingFilter=INFO
 ```
@@ -565,7 +565,7 @@ logging.level.com.example.userservice.security.RateLimitingFilter=INFO
 ### Security Logging
 
 **Konfiguracja logowania**:
-```properties
+```text
 # application.properties
 logging.level.org.springframework.security=DEBUG
 logging.level.com.example.userservice.security.JwtAuthenticationFilter=DEBUG
@@ -732,7 +732,7 @@ configuration.setAllowedHeaders(Arrays.asList("*")); // lub konkretne nagłówki
 - Brak resetowania liczników
 
 **Rozwiązanie**:
-```properties
+```text
 # Zwiększ limity
 app.security.rate-limit.max-requests=100
 app.security.rate-limit.window-size=60000
@@ -751,14 +751,14 @@ app.security.rate-limit.enabled=false
 - Błędny podpis klienta
 
 **Rozwiązanie**: Wyłącz filter:
-```properties
+```text
 app.security.anti-postman.enabled=false
 ```
 
 ### Debug logging
 
 **Włącz szczegółowe logowanie bezpieczeństwa**:
-```properties
+```text
 logging.level.org.springframework.security=DEBUG
 logging.level.com.example.userservice.security=DEBUG
 logging.level.org.springframework.web.cors=DEBUG

@@ -1,5 +1,26 @@
 # QuizApp - Platforma Edukacyjna z Quizami i Fiszkami
 
+## 📚 Dokumentacja Kompletna
+
+**🎯 Pełna dokumentacja systemu dostępna jest w VitePress:**
+
+```bash
+# Uruchomienie dokumentacji
+cd docs-vitepress
+npm install
+npm run dev
+```
+
+Dokumentacja będzie dostępna pod adresem: `http://localhost:5173`
+
+### Zawiera:
+- 🏗️ **Mikroserwisy** - szczegółowa architektura systemu
+- 🔗 **API Endpointy** - kompletna dokumentacja API (61 endpointów)
+- 🗄 **Baza Danych** - schematy wszystkich tabel (12 tabel w 4 schematach)
+- 🔒 **Zabezpieczenia** - JWT, CORS, Rate Limiting, Anti-Postman
+
+---
+
 ## Spis treści
 - [Opis ogólny](#opis-ogólny)
 - [Architektura systemu](#architektura-systemu)

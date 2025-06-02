@@ -20,16 +20,31 @@ API.interceptors.request.use(
         
         // Dodaj token autoryzacji jeśli istnieje
         const token = localStorage.getItem('token');
+        const userId = localStorage.getItem('userId');
+        
+        console.log('🔑 Token info:', { 
+            hasToken: !!token, 
+            tokenLength: token?.length, 
+            userId: userId,
+            url: config.url 
+        });
+        
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
+            console.log('✅ Token added to request');
+        } else {
+            console.warn('⚠️ No token found in localStorage');
         }
 
         // Dodaj User ID jeśli istnieje
-        const userId = localStorage.getItem('userId');
         if (userId) {
             config.headers['X-User-ID'] = userId;
+            console.log('✅ User ID added to request:', userId);
+        } else {
+            console.warn('⚠️ No user ID found in localStorage');
         }
 
+        console.log('📤 Final request headers:', config.headers);
         return config;
     },
     (error) => {
@@ -92,6 +107,7 @@ export const quizAPI = {
     deleteQuiz: (id) => API.delete(`http://localhost:8083/api/quizzes/${id}`),
     submitResult: (resultData) => API.post('http://localhost:8083/api/quizzes/results', resultData),
     updateQuiz: (id, quizData) => API.put(`http://localhost:8083/api/quizzes/${id}`, quizData),
+    updateQuizPublicStatus: (id, isPublic) => API.patch(`http://localhost:8083/api/quizzes/${id}/public?isPublic=${isPublic}`),
     assignQuizToGroups: (id, groupIds) => API.post(`http://localhost:8083/api/quizzes/${id}/groups`, groupIds),
     removeQuizFromGroups: (id, groupIds) => API.delete(`http://localhost:8083/api/quizzes/${id}/groups`, { data: groupIds }),
     getQuizzesForGroup: (groupId) => API.get(`http://localhost:8083/api/quizzes/group/${groupId}`)

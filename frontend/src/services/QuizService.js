@@ -120,10 +120,18 @@ class QuizService {
 
     // Aktualizacja statusu publicznego quizu
     async updateQuizPublicStatus(quizId, isPublic) {
-        // Ta metoda może wymagać dodatkowego endpointu w API
-        console.log(`Aktualizacja statusu publicznego quizu ${quizId} na ${isPublic}`);
-        // Na razie zwracamy sukces - można dodać endpoint później
-        return Promise.resolve({ data: { success: true } });
+        try {
+            console.log('🔧 QuizService.updateQuizPublicStatus:', { quizId, isPublic });
+            console.log('📡 Wywołanie quizAPI.updateQuizPublicStatus...');
+            const response = await quizAPI.updateQuizPublicStatus(quizId, isPublic);
+            console.log('✅ Odpowiedź z quizAPI:', response);
+            return response;
+        } catch (error) {
+            console.error('❌ Błąd w QuizService.updateQuizPublicStatus:', error);
+            console.error('❌ Status błędu:', error.response?.status);
+            console.error('❌ Dane błędu:', error.response?.data);
+            throw error;
+        }
     }
 
     // Aktualizacja quizu (nazwa, opis, status publiczny, grupy)
