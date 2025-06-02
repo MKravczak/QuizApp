@@ -476,7 +476,7 @@ Origin: http://localhost:3000
 **Algorytm podpisu klienta:**
 ```javascript
 function generateSignature(path, timestamp) {
-    const data = `${path}:${timestamp}:QuizAppSecret2024`;
+    const data = `${path}:${timestamp}:QuizAppSecret2025`;
     return btoa(data).slice(0, 16);
 }
 ```
@@ -553,7 +553,7 @@ app:
       - "http://localhost:3000"
       - "http://127.0.0.1:3000"
   jwt:
-    secret: "MIkolajKrawczakJWTSecretKey2024SuperBezpiecznyKluczDoTokenowMinimum256BitowKryptograficzny"
+    secret: "MIkolajKrawczakJWTSecretKey2025SuperBezpiecznyKluczDoTokenowMinimum256BitowKryptograficzny"
     expiration: 86400000 # 24 godziny
     refresh-expiration: 604800000 # 7 dni
 ```

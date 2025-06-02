@@ -23,7 +23,7 @@ public class AntiPostmanFilter implements Filter {
     @Value("${app.security.allowed-origins:http://localhost:3000}")
     private String allowedOrigins;
 
-    @Value("${app.security.client-secret:MIkolajKrawczakClientSecret2024AntiPostmanProtectionAdvancedSecurity}")
+    @Value("${app.security.client-secret:MIkolajKrawczakClientSecret2025AntiPostmanProtectionAdvancedSecurity}")
     private String clientSecret;
 
     // Lista podejrzanych User-Agent strings

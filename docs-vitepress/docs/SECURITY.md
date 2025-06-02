@@ -60,7 +60,7 @@ PostgreSQL Database
 
 **Wspólny klucz dla wszystkich mikroserwisów:**
 ```
-MIkolajKrawczakJWTSecretKey2024SuperBezpiecznyKluczDoTokenowMinimum256BitowKryptograficzny
+MIkolajKrawczakJWTSecretKey2025SuperBezpiecznyKluczDoTokenowMinimum256BitowKryptograficzny
 ```
 
 **Czasy wygaśnięcia:**
@@ -426,7 +426,7 @@ class SecurityService {
     enhanceRequestConfig(config) {
         const timestamp = Date.now().toString();
         const path = new URL(config.url, config.baseURL || window.location.origin).pathname;
-        const clientSecret = 'MIkolajKrawczakClientSecret2024AntiPostmanProtectionAdvancedSecurity';
+        const clientSecret = 'MIkolajKrawczakClientSecret2025AntiPostmanProtectionAdvancedSecurity';
         
         // Generuj podpis bezpieczeństwa
         const signature = this.generateSignature(timestamp, path, clientSecret);
@@ -633,7 +633,7 @@ services:
   user-service:
     environment:
       # JWT
-      APP_JWT_SECRET: "MIkolajKrawczakJWTSecretKey2024SuperBezpiecznyKluczDoTokenowMinimum256BitowKryptograficzny"
+      APP_JWT_SECRET: "MIkolajKrawczakJWTSecretKey2025SuperBezpiecznyKluczDoTokenowMinimum256BitowKryptograficzny"
       
       # Security Filters
       APP_SECURITY_ANTI_POSTMAN_ENABLED: "false"
@@ -828,7 +828,3 @@ logging.level.org.springframework.web.cors=DEBUG
 8. **Container security scanning** - automatyczne skanowanie obrazów Docker
 
 ---
-
-**Ostatnia aktualizacja**: 2024-01-15  
-**Wersja dokumentu**: 1.0  
-**Kontakt bezpieczeństwa**: security@quizapp.com 

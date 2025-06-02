@@ -454,7 +454,7 @@ SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/quizapp
 SPRING_DATASOURCE_USERNAME=postgres
 SPRING_DATASOURCE_PASSWORD=postgres
 
-APP_JWT_SECRET=MIkolajKrawczakJWTSecretKey2024
+APP_JWT_SECRET=MIkolajKrawczakJWTSecretKey2025
 APP_SECURITY_ANTI_POSTMAN_ENABLED=true
 
 # Service Discovery (Future)

@@ -325,7 +325,7 @@ System QuizApp wykorzystuje wielopoziomowe zabezpieczenia zapewniające ochronę
 
 #### JWT (JSON Web Tokens)
 - **Bezstanowa autentykacja**: Tokeny JWT są używane do uwierzytelniania użytkowników bez konieczności przechowywania sesji na serwerze
-- **Wspólny klucz tajny**: Wszystkie mikroserwisy używają tego samego klucza JWT: `MIkolajKrawczakJWTSecretKey2024SuperBezpiecznyKluczDoTokenowMinimum256BitowKryptograficzny`
+- **Wspólny klucz tajny**: Wszystkie mikroserwisy używają tego samego klucza JWT: `MIkolajKrawczakJWTSecretKey2025SuperBezpiecznyKluczDoTokenowMinimum256BitowKryptograficzny`
 - **Czas wygaśnięcia**: Tokeny JWT wygasają po 24 godzinach (86400000 ms)
 - **Refresh tokeny**: Tokeny odświeżania ważne przez 7 dni (604800000 ms)
 
@@ -334,12 +334,12 @@ System QuizApp wykorzystuje wielopoziomowe zabezpieczenia zapewniające ochronę
 **Zmienne środowiskowe (docker-compose.yml):**
 ```yaml
 environment:
-  APP_JWT_SECRET: "MIkolajKrawczakJWTSecretKey2024SuperBezpiecznyKluczDoTokenowMinimum256BitowKryptograficzny"
+  APP_JWT_SECRET: "MIkolajKrawczakJWTSecretKey2025SuperBezpiecznyKluczDoTokenowMinimum256BitowKryptograficzny"
 ```
 
 **Konfiguracja w application.properties:**
 ```properties
-app.jwt.secret=MIkolajKrawczakJWTSecretKey2024SuperBezpiecznyKluczDoTokenowMinimum256BitowKryptograficzny
+app.jwt.secret=MIkolajKrawczakJWTSecretKey2025SuperBezpiecznyKluczDoTokenowMinimum256BitowKryptograficzny
 app.jwt.expiration=86400000
 app.jwt.refresh-expiration=604800000
 ```
@@ -543,7 +543,7 @@ logging.level.com.example.userservice.security.JwtAuthenticationFilter=DEBUG
 ```yaml
 environment:
   # JWT Configuration
-  APP_JWT_SECRET: "MIkolajKrawczakJWTSecretKey2024SuperBezpiecznyKluczDoTokenowMinimum256BitowKryptograficzny"
+  APP_JWT_SECRET: "MIkolajKrawczakJWTSecretKey2025SuperBezpiecznyKluczDoTokenowMinimum256BitowKryptograficzny"
   
   # Security Filters
   APP_SECURITY_ANTI_POSTMAN_ENABLED: "false"

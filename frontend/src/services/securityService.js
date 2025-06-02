@@ -1,7 +1,7 @@
 // Security Service - generuje wymagane nagłówki bezpieczeństwa
 class SecurityService {
     constructor() {
-        this.secret = 'MIkolajKrawczakClientSecret2024AntiPostmanProtectionAdvancedSecurity'; // Ten sam co w backendzie
+        this.secret = 'MIkolajKrawczakClientSecret2025AntiPostmanProtectionAdvancedSecurity'; // Ten sam co w backendzie
     }
 
     // Generuje timestamp
