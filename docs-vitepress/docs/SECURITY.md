@@ -4,8 +4,8 @@
 
 - [Kompleksowy przegląd zabezpieczeń](#kompleksowy-przegląd-zabezpieczeń)
 - [Przegląd bezpieczeństwa](#przegląd-bezpieczeństwa)
+- [Łańcuch Filtrów Spring Security](#łańcuch-filtrów-spring-security)
 - [Autentykacja JWT](#autentykacja-jwt)
-- [Filtry bezpieczeństwa](#filtry-bezpieczeństwa)
 - [Autoryzacja](#autoryzacja)
 - [Konfiguracja CORS](#konfiguracja-cors)
 - [Security Headers](#security-headers)
@@ -52,6 +52,223 @@ API Gateway/Load Balancer (opcjonalnie)
 Mikroserwisy (Spring Boot + Spring Security)
     ↓ [JDBC]
 PostgreSQL Database
+```
+
+## Łańcuch Filtrów Spring Security
+
+### Kolejność i Opis Filtrów
+
+Spring Security przetwarza każde żądanie HTTP przez sekwencję filtrów w ściśle określonej kolejności. Oto szczegółowy opis każdego filtru w systemie QuizApp:
+
+#### 1. **DisableEncodeUrlFilter**
+```
+🎯 Funkcja: Wyłącza automatyczne kodowanie URL-i przez servlet container
+⚙️ Działanie: Zapobiega dodawaniu jsessionid do URL-i w aplikacjach stateless
+🔧 Zastosowanie: Utrzymanie czystości URL-i w REST API
+📍 Pozycja: Pierwszy filtr w łańcuchu - przygotowuje żądanie
+```
+
+#### 2. **WebAsyncManagerIntegrationFilter**
+```
+🎯 Funkcja: Integracja Spring Security z asynchronicznym przetwarzaniem HTTP
+⚙️ Działanie: Propaguje SecurityContext do asynchronicznych wątków
+🔧 Zastosowanie: Zapewnia kontekst bezpieczeństwa w @Async metodach
+📋 Scenariusz: Async controllers, CompletableFuture operations
+```
+
+#### 3. **SecurityContextHolderFilter**
+```
+🎯 Funkcja: Zarządzanie SecurityContext między żądaniami HTTP
+⚙️ Działanie: Czyści SecurityContext po zakończeniu każdego żądania
+🔧 Zastosowanie: Zapobiega wyciekom danych między sesjami użytkowników
+🛡️ Bezpieczeństwo: Krityczny dla izolacji danych bezpieczeństwa
+```
+
+#### 4. **HeaderWriterFilter**
+```
+🎯 Funkcja: Automatyczne dodawanie nagłówków bezpieczeństwa do HTTP response
+⚙️ Działanie: Wstrzykuje security headers do każdej odpowiedzi
+🔧 Nagłówki: X-Content-Type-Options, X-Frame-Options, X-XSS-Protection
+📋 Przykład: X-Content-Type-Options: nosniff, X-Frame-Options: DENY
+```
+
+#### 5. **CorsFilter**
+```
+🎯 Funkcja: Obsługa Cross-Origin Resource Sharing (CORS)
+⚙️ Działanie: Waliduje żądania z różnych domen i dodaje CORS headers
+🔧 Konfiguracja: Pozwala dostęp z React frontend (localhost:3000)
+🌐 Metody: Obsługuje preflight OPTIONS requests
+```
+
+#### 6. **LogoutFilter**
+```
+🎯 Funkcja: Przetwarzanie żądań wylogowania użytkowników
+⚙️ Działanie: Wykrywa żądania logout i wykonuje cleanup sesji/tokenów
+🔧 Endpoint: Nasłuchuje na POST /api/auth/logout
+🗂️ Cleanup: Usuwa refresh tokens z bazy danych
+```
+
+#### 7. **RateLimitingFilter** *(Custom - User Service)*
+```
+🎯 Funkcja: Ograniczanie liczby żądań na użytkownika/IP w określonym czasie
+⚙️ Algorytm: Sliding window z wykorzystaniem Redis cache
+🔧 Limity: 100 żądań/min (uwierzytelnieni), 20 żądań/min (anonimowi)
+🛡️ Ochrona: Zapobiega atakom brute-force, DDoS i API abuse
+⏱️ Okno: 60-sekundowe okno czasowe z automatycznym czyszczeniem
+```
+
+#### 8. **AntiPostmanFilter** *(Custom - Wyłączony)*
+```
+🎯 Funkcja: Blokowanie żądań z narzędzi API testing (Postman, Insomnia)
+📊 Status: Obecnie WYŁĄCZONY w środowisku development
+⚙️ Działanie: Analizuje User-Agent headers i wzorce żądań
+🔧 Zastosowanie: Ochrona production API przed nieautoryzowanym testowaniem
+🚫 Powód wyłączenia: Przeszkadzał w normalnej pracy z API
+```
+
+#### 9. **JwtAuthenticationFilter** *(Custom - Kluczowy)*
+```
+🎯 Funkcja: Główny filtr uwierzytelniania oparty na tokenach JWT
+⚙️ Proces:
+   • Ekstraktuje JWT z nagłówka Authorization: Bearer
+   • Waliduje podpis cyfrowy i ważność czasową tokenu
+   • Dekoduje claims (username, expiration, issued at)
+   • Ustawia Authentication object w SecurityContext
+🔧 Walidacja: HS512 signature, expiration time, token format
+❌ Błędy: 401 Unauthorized przy nieprawidłowym/wygasłym tokenie
+```
+
+#### 10. **RequestCacheAwareFilter**
+```
+🎯 Funkcja: Zarządzanie cache'em żądań HTTP podczas procesów redirectów
+⚙️ Działanie: Przechowuje żądania wykonane przed uwierzytelnieniem
+🔧 Zastosowanie: Przekierowanie do pierwotnego URL po udanym logowaniu
+📋 Scenariusz: Deep-linking do chronionych zasobów bez uwierzytelnienia
+```
+
+#### 11. **SecurityContextHolderAwareRequestFilter**
+```
+🎯 Funkcja: Wzbogacanie HttpServletRequest o Spring Security capabilities
+⚙️ Działanie: Dodaje wrapper umożliwiający dostęp do SecurityContext
+🔧 Metody: request.isUserInRole(), request.getRemoteUser(), request.getUserPrincipal()
+📋 Użycie: Kompatybilność z standardowymi servlet security API
+```
+
+#### 12. **AnonymousAuthenticationFilter**
+```
+🎯 Funkcja: Tworzenie tokenów dla niezalogowanych użytkowników
+⚙️ Działanie: Gdy brak uwierzytelnienia → tworzy AnonymousAuthenticationToken
+🔧 Cel: Umożliwia jednolite przetwarzanie (authenticated/anonymous)
+👤 Token: ROLE_ANONYMOUS z pseudo-username "anonymousUser"
+```
+
+#### 13. **SessionManagementFilter**
+```
+🎯 Funkcja: Zarządzanie strategią tworzenia i obsługi sesji HTTP
+⚙️ Konfiguracja: STATELESS w QuizApp (brak sesji HTTP)
+🔧 Działanie: Monitoruje session creation policy
+🛡️ Bezpieczeństwo: Zapobiega session fixation attacks
+```
+
+#### 14. **ExceptionTranslationFilter**
+```
+🎯 Funkcja: Tłumaczenie wyjątków Spring Security na odpowiedzi HTTP
+⚙️ Mapowanie:
+   • AuthenticationException → 401 Unauthorized
+   • AccessDeniedException → 403 Forbidden
+   • InsufficientAuthenticationException → 401 + WWW-Authenticate
+🔧 Entry Point: Rozpoczyna proces uwierzytelnienia przy błędach autoryzacji
+```
+
+#### 15. **AuthorizationFilter** *(Końcowy Decyzyjny)*
+```
+🎯 Funkcja: Końcowa weryfikacja uprawnień dostępu do chronionych zasobów
+⚙️ Proces:
+   • Sprawdza SecurityContext.getAuthentication()
+   • Weryfikuje wymagane role/authorities dla endpoint
+   • Porównuje user permissions z resource requirements
+🔧 Konfiguracja: URL patterns, HTTP methods, @PreAuthorize adnotacje
+✅ Sukces: Przekazuje żądanie do kontrolera aplikacji
+❌ Błąd: 403 Forbidden - brak wymaganych uprawnień
+```
+
+### Mermaid Diagram - Filter Chain Flow
+
+```mermaid
+graph TD
+    A[HTTP Request] --> B[DisableEncodeUrlFilter]
+    B --> C[WebAsyncManagerIntegrationFilter]
+    C --> D[SecurityContextHolderFilter]
+    D --> E[HeaderWriterFilter]
+    E --> F[CorsFilter]
+    F --> G[LogoutFilter]
+    G --> H[RateLimitingFilter]
+    H --> I[AntiPostmanFilter - DISABLED]
+    I --> J[JwtAuthenticationFilter]
+    J --> K[RequestCacheAwareFilter]
+    K --> L[SecurityContextHolderAwareRequestFilter]
+    L --> M[AnonymousAuthenticationFilter]
+    M --> N[SessionManagementFilter]
+    N --> O[ExceptionTranslationFilter]
+    O --> P[AuthorizationFilter]
+    P --> Q[Application Controller]
+    
+    style H fill:#e1f5fe
+    style J fill:#f3e5f5
+    style I fill:#ffebee
+    style P fill:#e8f5e8
+```
+
+### Konfiguracja Filter Chain
+
+```java
+@Configuration
+@EnableWebSecurity
+public class WebSecurityConfig {
+    
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            // Podstawowa konfiguracja
+            .cors().and()
+            .csrf().disable()
+            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            
+            // Konfiguracja autoryzacji
+            .authorizeHttpRequests(authz -> authz
+                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/public/**").permitAll()
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                .anyRequest().authenticated()
+            )
+            
+            // Dodanie custom filtrów w odpowiedniej kolejności
+            .addFilterBefore(rateLimitingFilter, JwtAuthenticationFilter.class)
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        
+        return http.build();
+    }
+}
+```
+
+### Performance i Monitoring
+
+```java
+// Metrics dla każdego filtru
+@Component
+public class SecurityFilterMetrics {
+    
+    private final MeterRegistry meterRegistry;
+    
+    @EventListener
+    public void handleFilterExecution(FilterExecutionEvent event) {
+        Timer.Sample sample = Timer.start(meterRegistry);
+        sample.stop(Timer.builder("security.filter.execution")
+                .tag("filter", event.getFilterName())
+                .tag("result", event.getResult())
+                .register(meterRegistry));
+    }
+}
 ```
 
 ## Autentykacja JWT
@@ -183,131 +400,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      "refreshToken": "c4f2a3e1-..."
    }
    ```
-
-## Filtry bezpieczeństwa
-
-### AntiPostmanFilter (WYŁĄCZONY)
-
-**Status**: Aktualnie wyłączony we wszystkich mikroserwisach
-
-**Powód wyłączenia**: Przeszkadzał w normalnym funkcjonowaniu aplikacji
-
-**Konfiguracja wyłączenia**:
-```text
-# application.properties
-app.security.anti-postman.enabled=false
-
-# docker-compose.yml
-APP_SECURITY_ANTI_POSTMAN_ENABLED: "false"
-```
-
-**Mechanizm działania (gdy włączony)**:
-```java
-@Component
-public class AntiPostmanFilter implements Filter {
-    
-    @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) {
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
-        
-        if (!antiPostmanEnabled) {
-            chain.doFilter(request, response);
-            return;
-        }
-        
-        // 1. Sprawdź User-Agent
-        String userAgent = httpRequest.getHeader("User-Agent");
-        if (isBlockedUserAgent(userAgent)) {
-            sendBlockedResponse(response, "Invalid client");
-            return;
-        }
-        
-        // 2. Sprawdź Origin/Referer
-        if (!isValidOrigin(origin, referer)) {
-            sendBlockedResponse(response, "Invalid origin");
-            return;
-        }
-        
-        // 3. Sprawdź wymagane nagłówki
-        if (!hasBrowserHeaders(httpRequest)) {
-            sendBlockedResponse(response, "Missing required headers");
-            return;
-        }
-        
-        // 4. Sprawdź podpis klienta
-        if (!isValidClientSignature(securityHeader, httpRequest)) {
-            sendBlockedResponse(response, "Invalid client signature");
-            return;
-        }
-        
-        chain.doFilter(request, response);
-    }
-}
-```
-
-**Blokowane User-Agents**:
-- postman, insomnia, curl, httpie, wget
-- apache-httpclient, okhttp, java/
-- python-requests, python-urllib
-- go-http-client, nodejs
-
-### RateLimitingFilter
-
-**Aktywny w**: user-service
-
-**Konfiguracja**:
-```text
-app.security.rate-limit.enabled=true
-app.security.rate-limit.max-requests=50
-app.security.rate-limit.window-size=60000
-```
-
-**Implementacja**:
-```java
-@Component
-public class RateLimitingFilter implements Filter {
-    private final ConcurrentHashMap<String, RequestCounter> requestCounters = new ConcurrentHashMap<>();
-    
-    @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) {
-        String clientIP = getClientIP(request);
-        
-        if (isRateLimited(clientIP)) {
-            sendRateLimitResponse(response);
-            return;
-        }
-        
-        incrementRequestCount(clientIP);
-        chain.doFilter(request, response);
-    }
-    
-    private boolean isRateLimited(String clientIP) {
-        RequestCounter counter = requestCounters.get(clientIP);
-        if (counter == null) return false;
-        
-        return counter.getRequestCount().get() >= maxRequestsPerMinute;
-    }
-}
-```
-
-### Security Filter Chain
-
-**Kolejność filtrów w Spring Security**:
-1. `DisableEncodeUrlFilter`
-2. `WebAsyncManagerIntegrationFilter`
-3. `SecurityContextHolderFilter`
-4. `HeaderWriterFilter`
-5. `CorsFilter`
-6. `LogoutFilter`
-7. `RateLimitingFilter` (user-service)
-8. `AntiPostmanFilter` (wyłączony)
-9. `JwtAuthenticationFilter`
-10. `RequestCacheAwareFilter`
-11. `SecurityContextHolderAwareRequestFilter`
-12. `AnonymousAuthenticationFilter`
-13. `SessionManagementFilter`
-14. `ExceptionTranslationFilter`
-15. `AuthorizationFilter`
 
 ## Autoryzacja
 

@@ -13,10 +13,12 @@ export default defineConfig({
     
     nav: [
       { text: '🏠 Strona Główna', link: '/' },
+      { text: '📋 Prezentacja', link: '/PRESENTATION' },
       { text: '🏗️ Mikroserwisy', link: '/SERVICES' },
       { text: '🔗 API Endpointy', link: '/API_ENDPOINTS' },
       { text: '🗄 Baza Danych', link: '/DATABASE_SCHEMA' },
-      { text: '🔒 Zabezpieczenia', link: '/SECURITY' }
+      { text: '🔒 Zabezpieczenia', link: '/SECURITY' },
+      { text: '🔑 JWT Tokeny', link: '/JWT_LIFECYCLE' }
     ],
     
     sidebar: [
@@ -24,10 +26,12 @@ export default defineConfig({
         text: '📖 Główne Sekcje',
         items: [
           { text: '🏠 Strona Główna', link: '/' },
+          { text: '📋 Prezentacja', link: '/PRESENTATION' },
           { text: '🏗️ Mikroserwisy', link: '/SERVICES' },
           { text: '🔗 API Endpointy', link: '/API_ENDPOINTS' },
           { text: '🗄 Baza Danych', link: '/DATABASE_SCHEMA' },
-          { text: '🔒 Zabezpieczenia', link: '/SECURITY' }
+          { text: '🔒 Zabezpieczenia', link: '/SECURITY' },
+          { text: '🔑 JWT Tokeny', link: '/JWT_LIFECYCLE' }
         ]
       },
       {
